@@ -1,0 +1,245 @@
+name: Build extension
+
+# Only ever triggered deliberately by the extdir application. Nothing in an
+# untrusted repository can start this workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      repository:
+        description: 'Source repository, e.g. FriendsOfShopware/FroshTools'
+        required: true
+      ref:
+        description: 'Commit SHA to build. A SHA, not a tag — tags can be moved after we resolved them.'
+        required: true
+      package:
+        description: 'Composer package name, e.g. frosh/tools'
+        required: true
+      request_token:
+        description: 'Single-use token identifying the build request'
+        required: true
+
+# The job builds code we do not control. It gets read access to public
+# repositories and nothing else.
+permissions:
+  contents: read
+
+env:
+  # Pinned per docs/brief.md §10. An unpinned CLI makes builds unreproducible by
+  # definition, which would void the provenance claims in §4.4.
+  SHOPWARE_CLI_VERSION: '0.6.9'
+  ASKALONO_VERSION: '0.5.0'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # A hostile composer install must not be able to hold a runner indefinitely.
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out the source at the pinned commit
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.repository }}
+          ref: ${{ inputs.ref }}
+          path: source
+          persist-credentials: false
+          submodules: false
+
+      - name: Install askalono
+        run: |
+          curl -sSL -o askalono.tar.gz \
+            "https://github.com/jpeddicord/askalono/releases/download/${ASKALONO_VERSION}/askalono-Linux.tar.gz"
+          tar -xzf askalono.tar.gz
+          chmod +x askalono
+          sudo mv askalono /usr/local/bin/
+
+      # ---------------------------------------------------------------------
+      # THE LICENCE GATE (docs/brief.md §4.1)
+      #
+      # This runs before anything is built, and it fails closed. A repository
+      # with no LICENSE file is "all rights reserved" — public readability is
+      # not permission to redistribute. composer.json's licence field is a
+      # claim; this step is the evidence, taken from the files themselves.
+      # ---------------------------------------------------------------------
+      - name: Licence gate
+        id: licence
+        run: |
+          set -euo pipefail
+
+          LICENSE_FILE=""
+          for candidate in LICENSE LICENSE.txt LICENSE.md LICENCE LICENCE.txt COPYING COPYING.txt; do
+            if [ -f "source/$candidate" ]; then
+              LICENSE_FILE="source/$candidate"
+              break
+            fi
+          done
+
+          if [ -z "$LICENSE_FILE" ]; then
+            echo "::error::No licence file found. Refusing to build — an unlicensed repository is not redistributable."
+            exit 1
+          fi
+
+          echo "Detecting licence in $LICENSE_FILE"
+          RESULT=$(askalono --format json identify "$LICENSE_FILE")
+          echo "$RESULT"
+
+          SPDX=$(echo "$RESULT" | jq -r '.result.license.name // empty')
+          SCORE=$(echo "$RESULT" | jq -r '.result.score // 0')
+
+          if [ -z "$SPDX" ]; then
+            echo "::error::Licence could not be identified. Refusing to build."
+            exit 1
+          fi
+
+          # A low-confidence match usually means a modified or custom licence,
+          # which is exactly the case we must not guess at.
+          if (( $(echo "$SCORE < 0.9" | bc -l) )); then
+            echo "::error::Licence match confidence $SCORE is too low for $SPDX. Refusing to build."
+            exit 1
+          fi
+
+          case "$SPDX" in
+            MIT|BSD-2-Clause|BSD-3-Clause|Apache-2.0|ISC|Unlicense|CC0-1.0|Zlib|MPL-2.0|EUPL-1.2|OSL-3.0|EPL-2.0|\
+            GPL-2.0-only|GPL-2.0-or-later|GPL-3.0-only|GPL-3.0-or-later|\
+            AGPL-3.0-only|AGPL-3.0-or-later|LGPL-2.1-only|LGPL-2.1-or-later|LGPL-3.0-only|LGPL-3.0-or-later)
+              echo "Accepted licence: $SPDX (confidence $SCORE)"
+              ;;
+            *)
+              echo "::error::$SPDX is not on the accepted list. Refusing to build."
+              exit 1
+              ;;
+          esac
+
+          echo "spdx=$SPDX" >> "$GITHUB_OUTPUT"
+          echo "confidence=$SCORE" >> "$GITHUB_OUTPUT"
+          echo "license_file=$LICENSE_FILE" >> "$GITHUB_OUTPUT"
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: intl, zip
+          coverage: none
+          tools: composer:v2
+
+      - name: Install shopware-cli
+        run: |
+          curl -sSL -o shopware-cli.tar.gz \
+            "https://github.com/shopware/shopware-cli/releases/download/${SHOPWARE_CLI_VERSION}/shopware-cli_Linux_x86_64.tar.gz"
+          tar -xzf shopware-cli.tar.gz shopware-cli
+          chmod +x shopware-cli
+          sudo mv shopware-cli /usr/local/bin/
+          shopware-cli --version
+
+      - name: Validate the extension
+        working-directory: source
+        run: shopware-cli extension validate .
+
+      - name: Package the extension
+        working-directory: source
+        # esbuild is enabled deliberately (§10): without it, asset building needs a
+        # matching Shopware installation per extension per version, which is an
+        # unmanageable build matrix.
+        run: |
+          shopware-cli extension build .
+          shopware-cli extension zip . --release
+
+      - name: Locate the archive
+        id: archive
+        run: |
+          set -euo pipefail
+          ZIP=$(find source -maxdepth 2 -name '*.zip' -newer source/composer.json | head -1)
+          if [ -z "$ZIP" ]; then
+            echo "::error::shopware-cli produced no archive."
+            exit 1
+          fi
+          echo "path=$ZIP" >> "$GITHUB_OUTPUT"
+
+      # MIT, BSD and Apache all require the copyright notice and licence text to
+      # travel with every redistributed copy. shopware-cli is not asked to be
+      # trusted on this — the archive is inspected.
+      - name: Assert the licence travels with the archive
+        run: |
+          set -euo pipefail
+          if ! unzip -l "${{ steps.archive.outputs.path }}" | grep -Eiq '(LICEN[CS]E|COPYING)'; then
+            echo "::error::The archive does not contain a licence file. Refusing to publish it."
+            exit 1
+          fi
+
+      - name: Generate SBOM
+        working-directory: source
+        continue-on-error: true
+        run: |
+          composer require --dev --no-interaction --no-scripts cyclonedx/cyclonedx-php-composer || exit 0
+          composer CycloneDX:make-sbom --output-file=../sbom.json --output-format=JSON || true
+
+      - name: Compute checksum
+        id: checksum
+        run: |
+          set -euo pipefail
+          SHA=$(sha256sum "${{ steps.archive.outputs.path }}" | cut -d' ' -f1)
+          SIZE=$(stat -c%s "${{ steps.archive.outputs.path }}")
+          echo "sha256=$SHA" >> "$GITHUB_OUTPUT"
+          echo "size=$SIZE" >> "$GITHUB_OUTPUT"
+
+      - name: Upload to R2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          set -euo pipefail
+          KEY="${{ inputs.package }}/${{ inputs.ref }}.zip"
+          aws s3 cp "${{ steps.archive.outputs.path }}" "s3://${{ secrets.R2_BUCKET }}/$KEY" \
+            --endpoint-url "${{ secrets.R2_ENDPOINT }}"
+          if [ -f sbom.json ]; then
+            aws s3 cp sbom.json "s3://${{ secrets.R2_BUCKET }}/${{ inputs.package }}/${{ inputs.ref }}.sbom.json" \
+              --endpoint-url "${{ secrets.R2_ENDPOINT }}"
+          fi
+          echo "R2_KEY=$KEY" >> "$GITHUB_ENV"
+
+      # The callback carries values that become public trust claims, so it is
+      # signed — and the application independently re-verifies this workflow run
+      # against the GitHub API before believing any of it. A valid signature
+      # proves the message came from this workflow, not that its contents are true.
+      - name: Report provenance back to extdir
+        run: |
+          set -euo pipefail
+          BODY=$(jq -nc \
+            --arg token       '${{ inputs.request_token }}' \
+            --arg package     '${{ inputs.package }}' \
+            --arg commit      '${{ inputs.ref }}' \
+            --arg sha256      '${{ steps.checksum.outputs.sha256 }}' \
+            --arg size        '${{ steps.checksum.outputs.size }}' \
+            --arg spdx        '${{ steps.licence.outputs.spdx }}' \
+            --arg confidence  '${{ steps.licence.outputs.confidence }}' \
+            --arg cli         "$SHOPWARE_CLI_VERSION" \
+            --arg r2key       "$R2_KEY" \
+            --arg runId       '${{ github.run_id }}' \
+            --arg logUrl      '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}' \
+            '{token:$token,package:$package,commitSha:$commit,sha256:$sha256,sizeBytes:($size|tonumber),
+              spdx:$spdx,licenceConfidence:($confidence|tonumber),shopwareCliVersion:$cli,
+              r2Key:$r2key,workflowRunId:$runId,buildLogUrl:$logUrl}')
+
+          SIG=$(printf '%s' "$BODY" | openssl dgst -sha256 -hmac "${{ secrets.EXTDIR_CALLBACK_SECRET }}" -hex | sed 's/^.* //')
+
+          curl -sS --fail-with-body -X POST "${{ secrets.EXTDIR_CALLBACK_URL }}" \
+            -H 'Content-Type: application/json' \
+            -H "X-Extdir-Signature: sha256=$SIG" \
+            -d "$BODY"
+
+      # Runs even when an earlier step failed, so a licence rejection is recorded
+      # as a decision rather than leaving the request stuck in "dispatched".
+      - name: Report failure
+        if: failure()
+        run: |
+          BODY=$(jq -nc \
+            --arg token  '${{ inputs.request_token }}' \
+            --arg runId  '${{ github.run_id }}' \
+            --arg logUrl '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}' \
+            '{token:$token,failed:true,workflowRunId:$runId,buildLogUrl:$logUrl}')
+          SIG=$(printf '%s' "$BODY" | openssl dgst -sha256 -hmac "${{ secrets.EXTDIR_CALLBACK_SECRET }}" -hex | sed 's/^.* //')
+          curl -sS -X POST "${{ secrets.EXTDIR_CALLBACK_URL }}" \
+            -H 'Content-Type: application/json' \
+            -H "X-Extdir-Signature: sha256=$SIG" \
+            -d "$BODY" || true

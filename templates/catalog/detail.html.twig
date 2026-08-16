@@ -51,6 +51,7 @@
                             <th>Read from</th>
                             <th>Confidence</th>
                             <th>Released</th>
+                            <th>Download</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -61,6 +62,27 @@
                                 <td class="small muted">{{ release.constraintSource.value|replace({'shopware/': ''}) }}</td>
                                 <td class="small">{{ release.constraintTier.value }}</td>
                                 <td class="small muted num">{{ release.releasedAt ? release.releasedAt|date('Y-m-d') : '—' }}</td>
+                                <td class="small">
+                                    {% if release.distUrl %}
+                                        {# The distinction matters: a maintainer's release ZIP was packaged
+                                           with shopware-cli and contains built admin/storefront assets. A git
+                                           zipball is source only and will not simply install. Saying so is
+                                           more useful than a download that fails after unzipping. #}
+                                        {% if release.distSource == 'release_asset' %}
+                                            <a href="{{ release.distUrl }}" rel="noopener nofollow"
+                                               title="Archive published by the maintainer, built with shopware-cli">
+                                                ZIP
+                                            </a>
+                                        {% else %}
+                                            <a class="subtle" href="{{ release.distUrl }}" rel="noopener nofollow"
+                                               title="Source archive from the git tag. Contains no built administration or storefront assets, so it is not installable as-is — use Composer instead.">
+                                                source
+                                            </a>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="subtle">—</span>
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>

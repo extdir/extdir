@@ -1,10 +1,10 @@
 import './stimulus_bootstrap.js';
-/*
- * Welcome to your app's main JavaScript file!
- *
- * This file will be included onto the page via the importmap() Twig function,
- * which should already be in your base.html.twig.
- */
 import './styles/app.css';
 
-console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');
+/*
+ * Turbo gives the site SPA-like navigation without a client-side router: links
+ * are fetched and swapped in place, while every page remains a real server-rendered
+ * document with its own URL. That matters here — a directory has to stay indexable
+ * and shareable, so the interaction quality cannot come at the cost of the URL.
+ */
+import '@hotwired/turbo';
