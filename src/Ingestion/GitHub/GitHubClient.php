@@ -102,6 +102,59 @@ final class GitHubClient
     }
 
     /**
+     * Runs a GraphQL query and returns the `data` block.
+     *
+     * GraphQL rather than REST for enrichment, per docs/brief.md §7. The difference is
+     * not cosmetic: REST needs roughly four calls per repository (repo, commits,
+     * open issues, closed issues), so 422 extensions would cost ~1,700 of the
+     * 5,000 hourly requests. One GraphQL query carrying 25 aliased repositories
+     * costs a single request, which turns the whole corpus into about 17.
+     *
+     * @param array<string, mixed> $variables
+     *
+     * @return array<string, mixed>|null
+     */
+    public function graphql(string $query, array $variables = []): ?array
+    {
+        $token = $this->currentAccessToken();
+        if (null === $token) {
+            return null;
+        }
+
+        try {
+            $response = $this->api->request('POST', 'graphql', [
+                'headers' => ['Authorization' => 'Bearer '.$token],
+                'json' => ['query' => $query, 'variables' => $variables],
+            ]);
+
+            /** @var array<string, mixed> $payload */
+            $payload = $response->toArray(false);
+        } catch (HttpExceptionInterface $e) {
+            $this->logger->error('GitHub GraphQL request failed', ['error' => $e->getMessage()]);
+
+            return null;
+        }
+
+        // GraphQL answers 200 with an errors block rather than an HTTP error code,
+        // so a naive status check would treat a failed query as a successful one
+        // and silently write empty signals over good data.
+        if (isset($payload['errors']) && \is_array($payload['errors'])) {
+            $this->logger->error('GitHub GraphQL returned errors', [
+                'errors' => array_map(
+                    static fn (mixed $e): string => \is_array($e) && \is_string($e['message'] ?? null)
+                        ? $e['message']
+                        : 'unknown',
+                    $payload['errors'],
+                ),
+            ]);
+        }
+
+        $data = $payload['data'] ?? null;
+
+        return \is_array($data) ? $data : null;
+    }
+
+    /**
      * A usable access token, refreshed first if it is close to expiring.
      */
     private function currentAccessToken(): ?string
