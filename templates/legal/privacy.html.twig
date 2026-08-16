@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Privacy policy — extdir{% endblock %}
+{% block meta_description %}How extdir handles personal data. Short version: almost none of it.{% endblock %}
+
+{% block body %}
+<div class="wrap page">
+    <div class="page-head">
+        <h1>Privacy policy</h1>
+        <p>Datenschutzerklärung under Art. 13 GDPR / DSGVO.</p>
+    </div>
+
+    <div class="prose">
+        <h2>The short version</h2>
+        <p>
+            extdir sets no cookies, runs no analytics, embeds nothing from third parties, and has no
+            user accounts. Nothing is loaded from an external CDN, so browsing this site does not
+            disclose your IP address to anyone but the server hosting it.
+        </p>
+
+        <h2>Controller</h2>
+        <address>
+            {{ operator.name }}<br>
+            {{ operator.street }}<br>
+            {{ operator.postalCity }}<br>
+            {{ operator.country }}<br>
+            <a href="mailto:{{ operator.email }}">{{ operator.email }}</a>
+        </address>
+
+        <h2>Server log files</h2>
+        <p>
+            The hosting provider records standard access logs when you request a page: IP address,
+            timestamp, requested URL, referrer and user agent. This is technically necessary to
+            deliver the site and to detect abuse.
+        </p>
+        <ul>
+            <li><strong>Legal basis:</strong> Art. 6(1)(f) GDPR — legitimate interest in operating and securing the service.</li>
+            <li><strong>Retention:</strong> logs are deleted after 7 days unless needed to investigate a specific incident.</li>
+            <li><strong>Recipients:</strong> the hosting provider, acting as processor under Art. 28 GDPR.</li>
+        </ul>
+
+        <h2>Cookies and tracking</h2>
+        <p>
+            None. There is no consent banner because there is nothing to consent to — no analytics,
+            no advertising, no tracking pixels, no fingerprinting, no third-party embeds.
+        </p>
+
+        <h2>Search queries</h2>
+        <p>
+            Search terms are processed only to produce the results on the page. They are not stored,
+            not profiled and not associated with you beyond the ordinary server log entry described
+            above.
+        </p>
+
+        <h2>External links</h2>
+        <p>
+            Links to GitHub, Packagist and maintainer websites are ordinary links. Nothing from those
+            services is loaded into this page, so no data reaches them until you actually click. Once
+            you do, that site's own privacy policy applies.
+        </p>
+
+        <h2>Data we collect about extensions, not about you</h2>
+        <p>
+            The directory stores metadata about publicly published software packages: package names,
+            descriptions, licences, version constraints, repository activity and maintainer links, all
+            fetched from Packagist and GitHub. Where that metadata contains a maintainer's name or
+            contact address, it is processed under Art. 6(1)(f) GDPR — the legitimate interest in
+            operating a directory of open-source software, using information the maintainer chose to
+            publish for exactly that purpose.
+        </p>
+        <p>
+            If you are a maintainer and want your data removed, see the
+            <a href="{{ path('takedown') }}">takedown policy</a>. Removal is not conditional on you
+            giving a reason.
+        </p>
+
+        <h2>Your rights</h2>
+        <p>
+            You have the right to access (Art. 15), rectification (Art. 16), erasure (Art. 17),
+            restriction of processing (Art. 18), data portability (Art. 20) and to object to
+            processing (Art. 21). Write to the address above. You also have the right to lodge a
+            complaint with a supervisory authority; for North Rhine-Westphalia this is the
+            Landesbeauftragte für Datenschutz und Informationsfreiheit NRW.
+        </p>
+
+        <h2>Changes</h2>
+        <p>
+            If this policy changes, the date below changes with it. There is no version history worth
+            keeping while the answer to most questions remains “we do not collect that”.
+        </p>
+
+        <p class="small subtle" style="margin-top:2rem">
+            Last updated: {{ 'now'|date('Y-m-d') }} ·
+            <a href="{{ path('imprint') }}">Imprint</a> ·
+            <a href="{{ path('terms') }}">Terms</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

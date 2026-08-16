@@ -181,6 +181,7 @@ final class RepositoryEnricher
         $this->em->persist($snapshot);
 
         $extension->setLastCommitAt($lastCommit);
+        $extension->setPopularity($snapshot->getStars(), $snapshot->getForks());
     }
 
     private static function intOf(mixed $value): int

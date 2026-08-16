@@ -1,0 +1,103 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Imprint — extdir{% endblock %}
+{% block meta_description %}Legal notice (Impressum) for extdir, as required by § 5 DDG.{% endblock %}
+
+{% block body %}
+<div class="wrap page">
+    <div class="page-head">
+        <h1>Imprint</h1>
+        <p>
+            Angaben gemäß § 5 DDG (Digitale-Dienste-Gesetz) und § 18 Abs. 2 MStV.
+            Legal notice for a site operated from Germany.
+        </p>
+    </div>
+
+    <div class="prose">
+        <h2>Operator</h2>
+        <address>
+            {{ operator.name }}<br>
+            {{ operator.street }}<br>
+            {{ operator.postalCity }}<br>
+            {{ operator.country }}
+        </address>
+
+        <h2>Contact</h2>
+        <p>
+            Email: <a href="mailto:{{ operator.email }}">{{ operator.email }}</a>
+        </p>
+        <p class="small">
+            Email is the fastest route and is monitored. No telephone number is published:
+            § 5 DDG does not require one where an email address and a further means of fast,
+            direct contact are available.
+        </p>
+
+        <h2>Responsible for content (§ 18 Abs. 2 MStV)</h2>
+        <p>{{ operator.name }}, address as above.</p>
+
+        <h2>Legal status</h2>
+        <p>
+            extdir is operated by a private individual as a non-commercial community project.
+            There is no company behind it, no revenue, no advertising and nothing for sale.
+        </p>
+        <ul>
+            <li><strong>Commercial register:</strong> not registered. There is no legal entity to register.</li>
+            <li><strong>VAT identification number:</strong> none issued (§ 5 Abs. 1 Nr. 6 DDG applies only where one exists).</li>
+            <li><strong>Regulated profession:</strong> not applicable. Software development is not a chambered profession in Germany.</li>
+        </ul>
+
+        <h2>Not affiliated with Shopware AG</h2>
+        <p>
+            extdir is an independent community project. It is not affiliated with, endorsed by,
+            sponsored by or connected to Shopware AG in any way. The name “Shopware” is used
+            descriptively, to identify the software these extensions are written for. All
+            trademarks are the property of their respective owners.
+        </p>
+
+        <h2>Liability for content</h2>
+        <p>
+            As a service provider, the operator is responsible for their own content on these pages
+            under general law (§ 7 Abs. 1 DDG). Under §§ 8 to 10 DDG, however, the operator is not
+            obliged to monitor transmitted or stored third-party information, or to investigate
+            circumstances indicating unlawful activity. Obligations to remove or block the use of
+            information under general law remain unaffected.
+        </p>
+        <p>
+            The extension entries on this site are generated automatically from publicly published
+            package metadata. They describe third-party software that the operator neither wrote nor
+            controls.
+        </p>
+
+        <h2>Liability for links</h2>
+        <p>
+            This site links extensively to external repositories and package pages whose content the
+            operator has no influence over. No liability can be accepted for that content; the
+            respective provider or operator of the linked pages is always responsible for it. Linked
+            pages were checked for obvious legal violations at the time of linking. Permanent
+            monitoring of linked content is not reasonable without concrete evidence of an
+            infringement. On becoming aware of infringements, such links will be removed promptly.
+        </p>
+
+        <h2>Copyright</h2>
+        <p>
+            Extension names, descriptions and logos belong to their respective authors and are
+            reproduced here as factual reference. Each indexed extension remains under its own
+            licence, which is shown on its page. If you believe something here infringes your rights,
+            the <a href="{{ path('takedown') }}">takedown policy</a> explains how to have it removed.
+        </p>
+
+        <h2>Consumer dispute resolution</h2>
+        <p>
+            The operator is neither obliged nor willing to participate in dispute resolution
+            proceedings before a consumer arbitration board.
+        </p>
+
+        <p class="small subtle" style="margin-top:2rem">
+            Last updated: {{ 'now'|date('Y-m-d') }} ·
+            <a href="{{ path('privacy') }}">Privacy</a> ·
+            <a href="{{ path('terms') }}">Terms</a> ·
+            <a href="{{ path('takedown') }}">Takedown policy</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

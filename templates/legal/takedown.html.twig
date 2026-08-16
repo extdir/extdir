@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Takedown policy — extdir{% endblock %}
+{% block meta_description %}How to have an extension corrected or removed from extdir.{% endblock %}
+
+{% block body %}
+<div class="wrap page">
+    <div class="page-head">
+        <h1>Takedown and correction policy</h1>
+        <p>
+            How to get something changed or removed. This procedure exists before it is needed,
+            rather than being invented after the first complaint.
+        </p>
+    </div>
+
+    <div class="prose">
+        <h2>If you maintain an indexed extension</h2>
+        <p>
+            You do not have to justify a removal request. If you maintain a package listed here and
+            you want it gone, email <a href="mailto:{{ operator.email }}">{{ operator.email }}</a>
+            with the package name. It will be removed and will not be re-added by a later crawl.
+        </p>
+        <p>
+            You can also ask for a correction instead — a wrong category, an out-of-date description,
+            a compatibility row that misreads your constraint. Corrections are usually a better
+            outcome for your users than removal, but that is your call, not ours.
+        </p>
+
+        <h2>What we index, and why</h2>
+        <p>
+            Entries are generated from metadata you published to Packagist and from your public
+            repository: package name, description, licence, version constraints and repository
+            activity. We do not copy your code, we do not mirror your README, and we do not reuse
+            images from your repository — those may carry separate licensing.
+        </p>
+
+        <h2>Extensions without a licence are never redistributed</h2>
+        <p>
+            If no open-source licence is detected, the extension is <strong>indexed and linked
+            only</strong>. Nothing is mirrored, rebuilt or hosted, and no install instructions are
+            published. Public visibility of a repository is not permission to redistribute it, and
+            extdir treats it that way by default rather than on request.
+        </p>
+
+        <h2>Copyright and trademark complaints</h2>
+        <p>To have material removed on rights grounds, send:</p>
+        <ul>
+            <li>the exact URL or package name concerned;</li>
+            <li>what the material is and which right it infringes;</li>
+            <li>a statement that you hold that right or are authorised to act for the holder;</li>
+            <li>contact details for correspondence.</li>
+        </ul>
+        <p>
+            Contested material is taken down while the complaint is assessed, not after. If the
+            complaint turns out to be unfounded, it goes back up.
+        </p>
+
+        <h2>Response times</h2>
+        <p>
+            extdir is run by one person in their own time, so a same-day reply is not promised.
+            Maintainer removal requests are acted on within 7 days. Rights complaints are
+            acknowledged within 3 days and the material is taken down on acknowledgement.
+        </p>
+
+        <h2>What happens to removed entries</h2>
+        <p>
+            A removed extension is delisted, not silently hidden. It disappears from search, from
+            categories and from its own page, and the crawler will not restore it. A record of the
+            removal and its reason is kept internally so the decision can be audited — that record is
+            not published.
+        </p>
+
+        <h2>Disagreements</h2>
+        <p>
+            If you think a removal or a refusal was wrong, reply to the same thread and say why. The
+            platform's source code is public, so how any of this works can be inspected rather than
+            taken on trust.
+        </p>
+
+        <p class="small subtle" style="margin-top:2rem">
+            Last updated: {{ 'now'|date('Y-m-d') }} ·
+            <a href="{{ path('imprint') }}">Imprint</a> ·
+            <a href="{{ path('privacy') }}">Privacy</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

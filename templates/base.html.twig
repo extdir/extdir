@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}extdir — open-source Shopware 6 extensions{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}A community-run directory of open-source Shopware 6 extensions, with compatibility and maintenance data.{% endblock %}">
+    {% block canonical %}{% endblock %}
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
+    {% block stylesheets %}
+        {{ importmap('app') }}
+    {% endblock %}
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+    <div class="wrap header-inner">
+        <a class="brand" href="{{ path('home') }}">
+            <span class="brand-mark">ext<span>dir</span></span>
+        </a>
+
+        <form class="header-search" action="{{ path('home') }}" method="get" role="search">
+            <label class="visually-hidden" for="header-q">Search extensions</label>
+            <input id="header-q" type="search" name="q" placeholder="Search extensions…"
+                   value="{{ app.request.query.get('q') }}" autocomplete="off">
+            <button type="submit">Search</button>
+        </form>
+
+        <nav class="header-nav" aria-label="Main">
+            <a href="{{ path('home') }}">Extensions</a>
+            <a href="{{ path('ranking') }}">Ranking</a>
+            <a href="{{ path('about') }}">About</a>
+        </nav>
+    </div>
+</header>
+
+{# docs/brief.md §4.5 requires the non-affiliation disclaimer to be present from day
+   one, not added later. It sits above the fold rather than only in the footer. #}
+<div class="disclaimer-strip">
+    <div class="wrap">
+        Not affiliated with Shopware AG. A community project, run by volunteers.
+    </div>
+</div>
+
+<main id="main">
+    {% block body %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+    <div class="wrap footer-grid">
+        <div>
+            <p class="footer-brand">extdir</p>
+            <p class="muted small">
+                A community-run directory of open-source Shopware 6 extensions.
+                Operated and maintained by <a href="https://runio.dev" rel="noopener">runio.dev</a>.
+            </p>
+            <p class="muted small">
+                Not affiliated with, endorsed by, or connected to Shopware AG.
+                “Shopware” is used descriptively to say what these extensions are for.
+            </p>
+        </div>
+
+        <div>
+            <p class="footer-heading">Directory</p>
+            <ul>
+                <li><a href="{{ path('home') }}">Browse extensions</a></li>
+                <li><a href="{{ path('ranking') }}">How ranking works</a></li>
+                <li><a href="{{ path('about') }}">About the project</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <p class="footer-heading">Legal</p>
+            <ul>
+                <li><a href="{{ path('imprint') }}">Imprint</a></li>
+                <li><a href="{{ path('privacy') }}">Privacy</a></li>
+                <li><a href="{{ path('terms') }}">Terms</a></li>
+                <li><a href="{{ path('takedown') }}">Takedown policy</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <p class="footer-heading">Source</p>
+            <ul>
+                <li><a href="https://github.com/extdir" rel="noopener">extdir on GitHub</a></li>
+            </ul>
+            <p class="muted small">
+                The platform itself is open source. Nobody should have to trust a directory
+                they cannot inspect.
+            </p>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

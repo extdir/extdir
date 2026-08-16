@@ -1,0 +1,83 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Terms of use — extdir{% endblock %}
+{% block meta_description %}Terms of use for extdir, a free non-commercial directory.{% endblock %}
+
+{% block body %}
+<div class="wrap page">
+    <div class="page-head">
+        <h1>Terms of use</h1>
+        <p>Nutzungsbedingungen. Short, because the service is free and sells nothing.</p>
+    </div>
+
+    <div class="prose">
+        <h2>What this is</h2>
+        <p>
+            extdir is a free, non-commercial directory of open-source Shopware 6 extensions. There is
+            no account, no payment, no contract and nothing on sale. You may use it, link to it and
+            quote from it.
+        </p>
+
+        <h2>What the data means</h2>
+        <p>
+            Compatibility information is derived from the version constraints maintainers declare in
+            their own <code>composer.json</code>. It records what they <em>said</em>, not what has been
+            tested. No extension listed here has been installed or verified against a running Shopware
+            instance by extdir.
+        </p>
+        <p>
+            Licence information is detected automatically from package metadata. It is a strong
+            indication, not legal advice, and it is not a substitute for reading the licence yourself
+            before shipping someone else's code in production.
+        </p>
+
+        <h2>No warranty</h2>
+        <p>
+            The directory is provided as is, without warranty of any kind. The data may be incomplete,
+            out of date or wrong. Installing third-party extensions in a production shop is your
+            decision and your risk. To the extent permitted by law, the operator accepts no liability
+            for damages arising from use of this site or of any software it describes, except in cases
+            of intent or gross negligence, or where liability is mandatory by law.
+        </p>
+
+        <h2>Ranking</h2>
+        <p>
+            Placement is determined by a published algorithm and nothing else. There are no paid
+            placements, no featured slots, no sponsorships and no manual boosting.
+            <a href="{{ path('ranking') }}">The formula is public</a>, and the code that implements it
+            is in the public repository.
+        </p>
+
+        <h2>Automated access</h2>
+        <p>
+            Crawling for research or interoperability is fine if it is reasonable — a few requests per
+            second, an identifying user agent, and respect for <code>robots.txt</code>. Do not scrape
+            aggressively enough to degrade the service for other people.
+        </p>
+
+        <h2>Content that is not ours</h2>
+        <p>
+            Extension names, descriptions and trademarks belong to their respective owners. Each
+            indexed extension is governed by its own licence. Nothing here grants you rights to
+            third-party software beyond what that software's licence already gives you.
+        </p>
+
+        <h2>Removal</h2>
+        <p>
+            Maintainers can have their extension corrected or removed at any time under the
+            <a href="{{ path('takedown') }}">takedown policy</a>, without giving a reason.
+        </p>
+
+        <h2>Governing law</h2>
+        <p>
+            German law applies. If any provision here is invalid, the rest remains in force.
+        </p>
+
+        <p class="small subtle" style="margin-top:2rem">
+            Last updated: {{ 'now'|date('Y-m-d') }} ·
+            <a href="{{ path('imprint') }}">Imprint</a> ·
+            <a href="{{ path('privacy') }}">Privacy</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

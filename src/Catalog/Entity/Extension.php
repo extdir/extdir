@@ -36,7 +36,10 @@ use Doctrine\ORM\Mapping as ORM;
 // doctrine:schema:validate stays green — otherwise every future diff would try to
 // drop an index it does not know about. MariaDB's innodb_ft_min_token_size of 3
 // applies and is not changeable on shared hosting: two-letter terms will not match.
-#[ORM\Index(name: 'ft_extension_search', columns: ['package_name', 'label', 'description'], flags: ['fulltext'])]
+//
+// Indexes search_text rather than label/description directly: those hold only the
+// English-preferred strings, which hid every German-only plugin from search.
+#[ORM\Index(name: 'ft_extension_search', columns: ['search_text'], flags: ['fulltext'])]
 class Extension
 {
     #[ORM\Id]
@@ -92,6 +95,13 @@ class Extension
     #[ORM\Column(type: Types::JSON)]
     private array $keywords = [];
 
+    /**
+     * Every locale's label and description, the package name and the keywords,
+     * flattened into the one column the FULLTEXT index covers.
+     */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $searchText = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $repositoryUrl = null;
 
@@ -143,6 +153,19 @@ class Extension
     // covers it, and every insert goes through the ORM anyway.
     #[ORM\Column(type: Types::FLOAT)]
     private float $rankScore = 0.0;
+
+    /**
+     * Latest star and fork counts, denormalised from RepositorySnapshot.
+     *
+     * Shown on the card and offered as a sort option, but never fed into the
+     * ranking score — §8 is explicit that popularity misleads in this ecosystem.
+     * Kept here only so listing and sorting do not need a join per row.
+     */
+    #[ORM\Column(options: ['default' => 0])]
+    private int $stars = 0;
+
+    #[ORM\Column(options: ['default' => 0])]
+    private int $forks = 0;
 
     /** Reason recorded when index status becomes Delisted. Required by the takedown policy. */
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -268,6 +291,16 @@ class Extension
         $this->descriptions = $descriptions;
     }
 
+    public function getSearchText(): ?string
+    {
+        return $this->searchText;
+    }
+
+    public function setSearchText(?string $searchText): void
+    {
+        $this->searchText = $searchText;
+    }
+
     /** @return list<string> */
     public function getKeywords(): array
     {
@@ -386,6 +419,22 @@ class Extension
     public function getReplacementPackage(): ?string
     {
         return $this->replacementPackage;
+    }
+
+    public function getStars(): int
+    {
+        return $this->stars;
+    }
+
+    public function getForks(): int
+    {
+        return $this->forks;
+    }
+
+    public function setPopularity(int $stars, int $forks): void
+    {
+        $this->stars = $stars;
+        $this->forks = $forks;
     }
 
     public function getRankScore(): float

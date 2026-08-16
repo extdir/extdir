@@ -1,0 +1,48 @@
+{#
+    One extension in the result list.
+
+    The compatibility strip is the whole point of the card, so it sits above the
+    fold of the card rather than in a details panel. Wording is "declares" and
+    never "works with": the data is the maintainer's own constraint, not a test
+    result, and the badge tier says how much of a promise it actually is.
+#}
+<article class="card">
+    <div class="card-head">
+        <div>
+            <h2 class="card-title">
+                <a href="{{ path('extension_detail', {slug: extension.slug}) }}">{{ extension.label }}</a>
+            </h2>
+            <span class="card-package">{{ extension.packageName }}</span>
+        </div>
+        {% if extension.stars > 0 %}
+            <span class="subtle small num" title="Stars are shown for context but do not affect ranking">
+                ★ {{ extension.stars }}
+            </span>
+        {% endif %}
+    </div>
+
+    {% if extension.description %}
+        <p class="card-desc">{{ extension.description|length > 190
+            ? extension.description|slice(0, 190)|trim ~ '…'
+            : extension.description }}</p>
+    {% endif %}
+
+    {% if supported is defined and supported|length %}
+        <div class="matrix" role="list" aria-label="Declared Shopware compatibility">
+            {% for version in shopwareVersions %}
+                {% set tier = supported[version.majorMinor] ?? null %}
+                <span role="listitem"
+                      class="matrix-cell {{ tier == 'explicit' ? 'is-yes' : (tier ? 'is-unverified' : '') }}"
+                      title="{{ tier == 'explicit'
+                          ? 'Declares support for Shopware ' ~ version.majorMinor
+                          : (tier ? 'Declares support for Shopware ' ~ version.majorMinor ~ ', but with an open-ended constraint we cannot verify' : 'No declared support for Shopware ' ~ version.majorMinor) }}">
+                    {{ version.majorMinor }}
+                </span>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="badges" style="margin-top: .7rem;">
+        {{ include('catalog/_badges.html.twig') }}
+    </div>
+</article>

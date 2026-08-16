@@ -11,6 +11,7 @@ use App\Catalog\Enum\IndexStatus;
 use App\Catalog\Repository\ExtensionReleaseRepository;
 use App\Catalog\Repository\ExtensionRepository;
 use App\Catalog\Repository\VendorRepository;
+use App\Catalog\SearchTextBuilder;
 use App\Compatibility\CompatibilityResolver;
 use App\Compatibility\ConstraintParser;
 use App\Compatibility\Entity\CompatibilityClaim;
@@ -54,6 +55,7 @@ final class PackageIngestor
         private readonly ConstraintParser $constraintParser,
         private readonly CompatibilityResolver $compatibilityResolver,
         private readonly SpdxAllowlist $spdx,
+        private readonly SearchTextBuilder $searchText,
     ) {
     }
 
@@ -115,6 +117,9 @@ final class PackageIngestor
         $extension->setRepositoryUrl($metadata->repositoryUrl ?? $metadata->homepage);
 
         $this->applyDeclaredLicense($extension, $metadata->license);
+
+        // Built last, so it reflects every field set above.
+        $extension->setSearchText($this->searchText->build($extension));
 
         return $extension;
     }

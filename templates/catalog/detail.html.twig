@@ -1,0 +1,178 @@
+{% extends 'base.html.twig' %}
+
+{% set technicalName = extension.technicalName %}
+
+{% block title %}{{ extension.label }} ({{ extension.packageName }}) — extdir{% endblock %}
+{% block meta_description %}{{ extension.description|default(extension.label)|slice(0, 155) }}{% endblock %}
+
+{% block body %}
+<div class="wrap page">
+
+    <div class="page-head">
+        <h1>{{ extension.label }}</h1>
+        <p class="card-package">{{ extension.packageName }}</p>
+        {% if extension.description %}
+            <p style="margin-top:.6rem">{{ extension.description }}</p>
+        {% endif %}
+        <div class="badges" style="margin-top:.9rem">
+            {{ include('catalog/_badges.html.twig') }}
+        </div>
+    </div>
+
+    <div class="detail-grid">
+        <div>
+            <section class="panel">
+                <h2>Declared Shopware compatibility</h2>
+                <div class="matrix" style="margin-bottom:.75rem">
+                    {% for version in shopwareVersions %}
+                        {% set tier = matrix[version.majorMinor] ?? null %}
+                        <span class="matrix-cell {{ tier == 'explicit' ? 'is-yes' : (tier ? 'is-unverified' : '') }}">
+                            {{ version.majorMinor }}
+                        </span>
+                    {% endfor %}
+                </div>
+                <p class="small muted">
+                    These are the versions the maintainer <strong>declares</strong> support for in
+                    <code>composer.json</code>, not versions extdir has tested. An amber cell means the
+                    constraint is open-ended — for example <code>^6.5</code>, which claims every later
+                    6.x release including ones published after the extension was last touched.
+                </p>
+            </section>
+
+            {% if releases|length %}
+            <section class="panel">
+                <h2>Releases</h2>
+                <div class="table-scroll">
+                    <table class="data">
+                        <thead>
+                        <tr>
+                            <th>Version</th>
+                            <th>Declared constraint</th>
+                            <th>Read from</th>
+                            <th>Confidence</th>
+                            <th>Released</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for release in releases %}
+                            <tr>
+                                <td class="num">{{ release.versionRaw }}</td>
+                                <td><code>{{ release.shopwareConstraint ?? '—' }}</code></td>
+                                <td class="small muted">{{ release.constraintSource.value|replace({'shopware/': ''}) }}</td>
+                                <td class="small">{{ release.constraintTier.value }}</td>
+                                <td class="small muted num">{{ release.releasedAt ? release.releasedAt|date('Y-m-d') : '—' }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <p class="small muted" style="margin-top:.75rem">
+                    The constraint column shows the maintainer's own text, verbatim. If our reading of
+                    it looks wrong, this is the value to check it against.
+                </p>
+            </section>
+            {% endif %}
+
+            <section class="panel">
+                <h2>Install</h2>
+
+                {% if extension.licenseStatus.isRedistributable %}
+                    <p class="small muted">Available on Packagist:</p>
+                    <pre class="code">composer require {{ extension.packageName }}</pre>
+                {% else %}
+                    {# §4.1: an extension with no usable licence is linked, never
+                       redistributed — so no install snippet is offered that would
+                       route a merchant through infrastructure we host. #}
+                    <p class="small" style="color:var(--danger)">
+                        No open-source licence was detected for this repository, so extdir does not
+                        publish install instructions or host anything for it. Public code is not the
+                        same as code you are licensed to redistribute. Contact the maintainer if you
+                        need clarity on the terms.
+                    </p>
+                {% endif %}
+
+                {% if technicalName and extension.licenseStatus.isRedistributable %}
+                    <p class="small muted" style="margin-top:1rem">Then activate it:</p>
+                    <pre class="code">bin/console plugin:refresh
+bin/console plugin:install --activate {{ technicalName }}</pre>
+                    <p class="small subtle">
+                        The technical name comes from <code>extra.shopware-plugin-class</code> in the
+                        package, so this is the actual name to type — not a placeholder.
+                    </p>
+                {% endif %}
+            </section>
+        </div>
+
+        <aside>
+            <section class="panel">
+                <h2>Details</h2>
+                <dl class="kv">
+                    <dt>Vendor</dt>
+                    <dd>{{ extension.vendor.name }}</dd>
+
+                    <dt>Licence</dt>
+                    <dd>{{ extension.licenseSpdx ?? extension.licenseStatus.badgeLabel }}</dd>
+
+                    {% if technicalName %}
+                        <dt>Plugin name</dt>
+                        <dd><code>{{ technicalName }}</code></dd>
+                    {% endif %}
+
+                    <dt>Last commit</dt>
+                    <dd class="num">{{ extension.lastCommitAt ? extension.lastCommitAt|date('Y-m-d') : 'unknown' }}</dd>
+
+                    <dt>Last release</dt>
+                    <dd class="num">{{ extension.lastReleaseAt ? extension.lastReleaseAt|date('Y-m-d') : 'unknown' }}</dd>
+
+                    {% if extension.stars > 0 %}
+                        <dt>Stars</dt>
+                        <dd class="num">{{ extension.stars }}</dd>
+                    {% endif %}
+
+                    <dt>Ranking score</dt>
+                    <dd class="num">{{ extension.rankScore|number_format(1) }} / 100</dd>
+                </dl>
+                <p class="small subtle" style="margin-top:.75rem">
+                    <a href="{{ path('ranking') }}">How this score is calculated</a>
+                </p>
+            </section>
+
+            <section class="panel">
+                <h2>Links</h2>
+                <ul style="list-style:none;padding:0;margin:0;font-size:.875rem">
+                    {% if extension.repositoryUrl %}
+                        <li><a href="{{ extension.repositoryUrl }}" rel="noopener nofollow">Source repository →</a></li>
+                    {% endif %}
+                    <li><a href="https://packagist.org/packages/{{ extension.packageName }}" rel="noopener nofollow">Packagist →</a></li>
+                    {% if extension.supportLink %}
+                        <li><a href="{{ extension.supportLink }}" rel="noopener nofollow">Support →</a></li>
+                    {% endif %}
+                    {% if extension.manufacturerLink %}
+                        <li><a href="{{ extension.manufacturerLink }}" rel="noopener nofollow">Maintainer →</a></li>
+                    {% endif %}
+                </ul>
+            </section>
+
+            {% if extension.categories|length %}
+                <section class="panel">
+                    <h2>Categories</h2>
+                    <div class="badges">
+                        {% for category in extension.categories %}
+                            <a class="badge" href="{{ path('home', {category: category.key}) }}">{{ category.label }}</a>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+
+            <section class="panel">
+                <h2>Something wrong?</h2>
+                <p class="small muted">
+                    This entry is generated from public package metadata. If you maintain this
+                    extension and something here is wrong — or you want it removed — see the
+                    <a href="{{ path('takedown') }}">takedown policy</a>.
+                </p>
+            </section>
+        </aside>
+    </div>
+</div>
+{% endblock %}

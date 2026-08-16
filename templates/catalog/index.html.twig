@@ -1,0 +1,173 @@
+{% extends 'base.html.twig' %}
+
+{% macro facet_link(criteria, facet, value, label, count, active) %}
+    {% set target = active ? criteria.with(facet, null) : criteria.with(facet, value) %}
+    <li>
+        <a class="{{ active ? 'is-active' : '' }}" href="{{ path('home', target.toQueryParameters) }}"
+           {{ active ? 'aria-current="true"' : '' }}>
+            <span>{{ label }}</span>
+            <span class="count">{{ count }}</span>
+        </a>
+    </li>
+{% endmacro %}
+
+{% block title %}
+    {%- if criteria.query -%}
+        {{ criteria.query }} — extdir
+    {%- elseif criteria.shopwareVersion -%}
+        Shopware {{ criteria.shopwareVersion }} extensions — extdir
+    {%- else -%}
+        Open-source Shopware 6 extensions — extdir
+    {%- endif -%}
+{% endblock %}
+
+{% block meta_description %}
+    Find open-source Shopware 6 extensions and see which Shopware versions they
+    declare support for, whether they are still maintained, and how they are licensed.
+{% endblock %}
+
+{% block body %}
+<div class="wrap page">
+
+    <div class="page-head">
+        <h1>Open-source Shopware 6 extensions</h1>
+        <p>
+            {{ result.total }} extensions indexed from Packagist. Every entry shows the Shopware
+            versions its maintainer <em>declares</em> support for, when the repository was last
+            touched, and whether its licence actually permits reuse.
+        </p>
+    </div>
+
+    <div class="catalog">
+        <aside class="facets" aria-label="Filters">
+            {% if criteria.hasFilters %}
+                <p><a class="facet-clear" href="{{ path('home') }}">← Clear all filters</a></p>
+            {% endif %}
+
+            <div class="facet">
+                <h2>Shopware version</h2>
+                <ul>
+                    {% for version in shopwareVersions|reverse %}
+                        {% set count = result.facet('shopware')[version.majorMinor] ?? 0 %}
+                        {% if count > 0 or criteria.shopwareVersion == version.majorMinor %}
+                            {{ _self.facet_link(criteria, 'shopware', version.majorMinor,
+                                version.majorMinor ~ (version.current ? ' (current)' : ''),
+                                count, criteria.shopwareVersion == version.majorMinor) }}
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="facet">
+                <h2>Maintenance</h2>
+                <ul>
+                    {% for state, label in {
+                        'current': 'Actively maintained',
+                        'lagging': 'Behind current release',
+                        'dormant': 'Dormant',
+                        'abandoned': 'Abandoned'
+                    } %}
+                        {% set count = result.facet('maintenance')[state] ?? 0 %}
+                        {% if count > 0 or criteria.maintenance == state %}
+                            {{ _self.facet_link(criteria, 'maintenance', state, label, count,
+                                criteria.maintenance == state) }}
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="facet">
+                <h2>Licence</h2>
+                <ul>
+                    {% for state, label in {
+                        'permissive': 'Permissive (MIT, Apache…)',
+                        'copyleft': 'Copyleft (GPL, MPL…)',
+                        'rejected': 'Not open source',
+                        'unknown': 'No licence found'
+                    } %}
+                        {% set count = result.facet('licence')[state] ?? 0 %}
+                        {% if count > 0 or criteria.licence == state %}
+                            {{ _self.facet_link(criteria, 'licence', state, label, count,
+                                criteria.licence == state) }}
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="facet">
+                <h2>Category</h2>
+                <ul>
+                    {% for key, category in categories %}
+                        {% set count = result.facet('category')[key] ?? 0 %}
+                        {% if count > 0 or criteria.category == key %}
+                            {{ _self.facet_link(criteria, 'category', key, category.label, count,
+                                criteria.category == key) }}
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </aside>
+
+        <div>
+            <div class="results-head">
+                <p class="results-count">
+                    {% if criteria.query %}
+                        {{ result.total }} result{{ result.total == 1 ? '' : 's' }} for
+                        <strong>{{ criteria.query }}</strong>
+                    {% else %}
+                        Showing {{ result.total }} extension{{ result.total == 1 ? '' : 's' }}
+                    {% endif %}
+                </p>
+
+                <form class="sort-form" method="get" action="{{ path('home') }}">
+                    {% for key, value in criteria.toQueryParameters %}
+                        {% if key != 'sort' and key != 'page' %}
+                            <input type="hidden" name="{{ key }}" value="{{ value }}">
+                        {% endif %}
+                    {% endfor %}
+                    <label for="sort">Sort by</label>
+                    <select id="sort" name="sort" onchange="this.form.submit()">
+                        {% for value, label in sortLabels %}
+                            <option value="{{ value }}" {{ criteria.sort == value ? 'selected' : '' }}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <noscript><button type="submit">Apply</button></noscript>
+                </form>
+            </div>
+
+            {% if result.isEmpty %}
+                <div class="empty">
+                    <p><strong>Nothing matched those filters.</strong></p>
+                    <p class="small">
+                        Note that search terms shorter than three characters are ignored — the
+                        database index does not store them.
+                    </p>
+                    <p><a href="{{ path('home') }}">Clear filters</a></p>
+                </div>
+            {% else %}
+                <div class="card-list">
+                    {% for extension in result.extensions %}
+                        {{ include('catalog/_card.html.twig', {
+                            extension: extension,
+                            supported: matrices[extension.id] ?? {},
+                            shopwareVersions: shopwareVersions
+                        }) }}
+                    {% endfor %}
+                </div>
+
+                {% if result.pageCount > 1 %}
+                    <nav class="pagination" aria-label="Pagination">
+                        {% if result.hasPreviousPage %}
+                            <a rel="prev" href="{{ path('home', criteria.with('page', criteria.page - 1).toQueryParameters) }}">← Previous</a>
+                        {% endif %}
+                        <span class="num">Page {{ criteria.page }} of {{ result.pageCount }}</span>
+                        {% if result.hasNextPage %}
+                            <a rel="next" href="{{ path('home', criteria.with('page', criteria.page + 1).toQueryParameters) }}">Next →</a>
+                        {% endif %}
+                    </nav>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

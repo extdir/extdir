@@ -7,6 +7,7 @@ namespace App\Compatibility\Repository;
 use App\Catalog\Entity\Extension;
 use App\Catalog\Entity\ExtensionRelease;
 use App\Compatibility\Entity\CompatibilityClaim;
+use App\Compatibility\Enum\ConstraintTier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -61,16 +62,70 @@ class CompatibilityClaimRepository extends ServiceEntityRepository
             // 'explicit' beats 'caret' beats 'wildcard' beats 'absent'; the enum
             // cases are ordered strongest-first, so a lower index wins.
             if (null === $existing || self::tierRank($row['tier']) < self::tierRank($existing)) {
-                $matrix[$row['majorMinor']] = $row['tier'];
+                $matrix[$row['majorMinor']] = self::tierValue($row['tier']);
             }
         }
 
         return $matrix;
     }
 
-    private static function tierRank(string $tier): int
+    /**
+     * Matrix rows for many extensions in one query.
+     *
+     * The listing renders a compatibility strip on every card, so doing this per
+     * extension would be one query per result — the single most likely way for a
+     * page that must stay fast to stop being fast.
+     *
+     * @param list<Extension> $extensions
+     *
+     * @return array<int, array<string, string>> extension id => majorMinor => tier
+     */
+    public function findMatrixForExtensions(array $extensions): array
     {
-        return match ($tier) {
+        if ([] === $extensions) {
+            return [];
+        }
+
+        /** @var list<array{extensionId: int, majorMinor: string, tier: string}> $rows */
+        $rows = $this->createQueryBuilder('c')
+            ->select('IDENTITY(c.extension) AS extensionId', 'sv.majorMinor AS majorMinor', 'c.tier AS tier')
+            ->join('c.shopwareVersion', 'sv')
+            ->join('c.release', 'r')
+            ->where('c.extension IN (:extensions)')
+            ->andWhere('c.satisfied = true')
+            ->andWhere('r.stable = true')
+            ->andWhere('sv.shownInMatrix = true')
+            ->setParameter('extensions', $extensions)
+            ->getQuery()
+            ->getArrayResult();
+
+        $matrices = [];
+        foreach ($rows as $row) {
+            $id = (int) $row['extensionId'];
+            $existing = $matrices[$id][$row['majorMinor']] ?? null;
+
+            if (null === $existing || self::tierRank($row['tier']) < self::tierRank($existing)) {
+                $matrices[$id][$row['majorMinor']] = self::tierValue($row['tier']);
+            }
+        }
+
+        return $matrices;
+    }
+
+    /**
+     * Doctrine hydrates an enum-typed column as the enum itself even through
+     * getArrayResult(), so rows arrive holding ConstraintTier rather than a string.
+     * Both shapes are accepted here so a mapping change cannot silently break the
+     * matrix.
+     */
+    private static function tierValue(ConstraintTier|string $tier): string
+    {
+        return $tier instanceof ConstraintTier ? $tier->value : $tier;
+    }
+
+    private static function tierRank(ConstraintTier|string $tier): int
+    {
+        return match (self::tierValue($tier)) {
             'explicit' => 0,
             'caret' => 1,
             'wildcard' => 2,

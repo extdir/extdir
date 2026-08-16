@@ -1,0 +1,43 @@
+{#
+    Status badges shared by the card and the detail page.
+
+    Two of these are load-bearing rather than decorative:
+
+    - The licence badge renders docs/brief.md §4.1. "License unknown" must be visible
+      and must read as a warning, because an unlicensed repository is not open
+      source and nothing about it may be redistributed.
+    - The disclosure badge renders §4.6. Where the maintainer of this directory is
+      also the publisher of an extension, that has to be stated on the extension
+      itself, not buried on an about page.
+#}
+
+{% set licence = extension.licenseStatus %}
+<span class="badge {{ licence.value == 'unknown' or licence.value == 'rejected' ? 'badge--danger' : 'badge--ok' }}"
+      title="{{ licence.value == 'unknown'
+          ? 'No licence detected. Public code is not the same as open source, so this is indexed and linked only — never mirrored or rebuilt.'
+          : (licence.value == 'rejected'
+              ? 'The declared licence is not an accepted open-source licence, so this is indexed and linked only.'
+              : 'Detected from composer.json. Verified against the repository files before anything is ever redistributed.') }}">
+    {{ extension.licenseSpdx ?? licence.badgeLabel }}
+</span>
+
+{% set maintenance = extension.maintenanceStatus %}
+{% if maintenance.value != 'unknown' %}
+    <span class="badge {{ maintenance.warrantsWarning ? 'badge--danger' : (maintenance.value == 'lagging' ? 'badge--warn' : 'badge--ok') }}"
+          title="{{ maintenance.value == 'current'
+              ? 'Committed to since the current Shopware version shipped'
+              : (maintenance.value == 'lagging'
+                  ? 'No activity since the current Shopware version shipped, but active before that'
+                  : (maintenance.value == 'abandoned'
+                      ? 'Marked abandoned by its maintainer on Packagist'
+                      : 'No activity across two or more Shopware releases and idle for over two years')) }}">
+        {{ maintenance.value|capitalize }}
+    </span>
+{% endif %}
+
+{% if extension.vendor.maintainerOperated %}
+    <span class="badge badge--disclosure"
+          title="Published by the same person who operates extdir. Ranked by the same public algorithm as every other extension, with no special treatment.">
+        Maintained by the extdir maintainer
+    </span>
+{% endif %}
