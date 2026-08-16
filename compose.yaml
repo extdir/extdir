@@ -1,0 +1,71 @@
+services:
+  db:
+    # Pinned to match Uberspace production exactly (MariaDB 10.6.19).
+    # 10.6 has no native UUID type and JSON is LONGTEXT + json_valid — the schema
+    # depends on those constraints, so drifting this version hides real breakage.
+    image: mariadb:10.6
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: extdir
+      MARIADB_USER: extdir
+      MARIADB_PASSWORD: extdir
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      # innodb_ft_min_token_size is deliberately left at its default of 3.
+      # It cannot be changed on Uberspace shared hosting, so tuning it locally
+      # would make short-term search work here and fail in production.
+    ports:
+      - '13306:3306'
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      args:
+        UID: ${UID:-1000}
+    volumes:
+      - .:/app:cached
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: 'mysql://extdir:extdir@db:3306/extdir?serverVersion=10.6.19-MariaDB&charset=utf8mb4'
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - '8080:80'
+    volumes:
+      - .:/app:cached
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - php
+
+  # One worker per transport so a stuck build queue cannot starve ingestion
+  # (see the deployment notes — this mirrors the supervisord layout on Uberspace).
+  worker-ingest:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      args:
+        UID: ${UID:-1000}
+    volumes:
+      - .:/app:cached
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: 'mysql://extdir:extdir@db:3306/extdir?serverVersion=10.6.19-MariaDB&charset=utf8mb4'
+    command: php bin/console messenger:consume ingest enrich --time-limit=3600 --memory-limit=256M -v
+    restart: unless-stopped
+
+volumes:
+  db-data:

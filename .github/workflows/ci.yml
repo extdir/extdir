@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PHP_VERSION: '8.3'
+
+jobs:
+  static:
+    name: Static analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: intl, pdo_mysql, zip
+          coverage: none
+          tools: composer:v2
+
+      - uses: ramsey/composer-install@v3
+
+      - name: Warm the container
+        # PHPStan's Symfony extension reads the compiled container to resolve
+        # autowired service types; without it the analysis silently gets weaker
+        # rather than failing, which is the worst of both outcomes.
+        run: bin/console cache:warmup --env=dev
+        env:
+          APP_ENV: dev
+          DATABASE_URL: 'mysql://root:root@127.0.0.1:3306/extdir?serverVersion=10.6.19-MariaDB&charset=utf8mb4'
+
+      - run: vendor/bin/phpstan analyse --no-progress --error-format=github
+        env:
+          DATABASE_URL: 'mysql://root:root@127.0.0.1:3306/extdir?serverVersion=10.6.19-MariaDB&charset=utf8mb4'
+
+      - run: vendor/bin/php-cs-fixer check --diff
+        env:
+          PHP_CS_FIXER_IGNORE_ENV: 1
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        # Must match Uberspace production. The schema depends on 10.6 behaviour
+        # (no native UUID type, JSON as LONGTEXT), so testing against a newer
+        # server would pass here and break on deploy.
+        image: mariadb:10.6
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: extdir
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      DATABASE_URL: 'mysql://root:root@127.0.0.1:3306/extdir?serverVersion=10.6.19-MariaDB&charset=utf8mb4'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: intl, pdo_mysql, zip
+          coverage: none
+          tools: composer:v2
+
+      - uses: ramsey/composer-install@v3
+
+      - name: Create the test database
+        # doctrine.yaml appends a _test suffix in the test environment, so the
+        # database the service container created is not the one tests use.
+        run: bin/console doctrine:database:create --if-not-exists --env=test
+
+      - name: Apply migrations
+        run: bin/console doctrine:migrations:migrate --no-interaction --env=test
+
+      - name: Assert migrations match the mapping
+        # Catches the common failure where an entity changed but no migration was
+        # generated. Without this the drift is only discovered on deploy, by which
+        # point the fix has to be written against a live database.
+        run: bin/console doctrine:schema:validate --env=test
+
+      - run: vendor/bin/phpunit

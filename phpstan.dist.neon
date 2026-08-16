@@ -1,0 +1,18 @@
+parameters:
+    level: 8
+    paths:
+        - bin/
+        - config/
+        - public/
+        - src/
+        - tests/
+
+    # Lets PHPStan resolve service types from the real container instead of
+    # guessing at autowired constructor arguments.
+    symfony:
+        containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
+
+    # Teaches PHPStan the entity mappings, so repository return types and
+    # getArrayResult() shapes are checked rather than treated as mixed.
+    doctrine:
+        objectManagerLoader: tests/object-manager.php

@@ -1,0 +1,53 @@
+framework:
+    messenger:
+        failure_transport: failed
+
+        # One transport per concern, each consumed by its own worker. A build that
+        # wedges must not stop ingestion, and a full ingest backlog must not delay a
+        # user-triggered submission check.
+        transports:
+            # High volume, low urgency: package discovery and per-package metadata.
+            ingest:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    queue_name: ingest
+                retry_strategy:
+                    max_retries: 3
+                    delay: 5000
+                    multiplier: 4
+                    max_delay: 3600000
+
+            # GitHub GraphQL enrichment. Rate limits are the binding constraint, so
+            # retries back off hard rather than burning quota.
+            enrich:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    queue_name: enrich
+                retry_strategy:
+                    max_retries: 5
+                    delay: 30000
+                    multiplier: 3
+                    max_delay: 3600000
+
+            # Build dispatch. Deliberately few retries: a failed build is usually a
+            # real problem with the source repository, and retrying it wastes CI
+            # minutes on code that will fail again the same way.
+            build:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    queue_name: build
+                retry_strategy:
+                    max_retries: 1
+                    delay: 60000
+
+            failed: 'doctrine://default?queue_name=failed'
+
+        routing: {}
+
+when@test:
+    framework:
+        messenger:
+            transports:
+                ingest: 'in-memory://'
+                enrich: 'in-memory://'
+                build: 'in-memory://'
