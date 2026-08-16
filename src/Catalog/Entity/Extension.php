@@ -80,6 +80,18 @@ class Extension
     #[ORM\Column(type: Types::JSON)]
     private array $descriptions = [];
 
+    /**
+     * composer.json `keywords`, kept so categories can be recomputed offline.
+     *
+     * The taxonomy rules will change as gaps show up in the corpus. Storing the
+     * inputs means re-categorising 422 extensions is a local pass over the database
+     * rather than another full crawl of Packagist.
+     *
+     * @var list<string>
+     */
+    #[ORM\Column(type: Types::JSON)]
+    private array $keywords = [];
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $repositoryUrl = null;
 
@@ -254,6 +266,18 @@ class Extension
     public function setDescriptions(array $descriptions): void
     {
         $this->descriptions = $descriptions;
+    }
+
+    /** @return list<string> */
+    public function getKeywords(): array
+    {
+        return $this->keywords;
+    }
+
+    /** @param list<string> $keywords */
+    public function setKeywords(array $keywords): void
+    {
+        $this->keywords = $keywords;
     }
 
     public function getRepositoryUrl(): ?string

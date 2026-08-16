@@ -55,6 +55,41 @@ final class SpdxAllowlist
         'LGPL-3.0-or-later',
         'MPL-2.0',
         'EUPL-1.2',
+        'OSL-3.0',
+        'EPL-2.0',
+        'CDDL-1.0',
+    ];
+
+    /**
+     * Full license *names* mapped to SPDX identifiers.
+     *
+     * The `license` field is specified to hold an SPDX identifier, but maintainers
+     * paste the human-readable name that GitHub's licence picker shows them. Seen
+     * live in the corpus as "GNU General Public License v3.0". Treating that as
+     * unrecognised would strip redistribution rights from a package whose author
+     * stated their licence perfectly clearly, just not in the expected notation.
+     *
+     * @var array<string, string>
+     */
+    private const NAME_ALIASES = [
+        'mitlicense' => 'MIT',
+        'theunlicense' => 'Unlicense',
+        'apachelicense20' => 'Apache-2.0',
+        'apachelicenseversion20' => 'Apache-2.0',
+        'bsd2clauselicense' => 'BSD-2-Clause',
+        'bsd3clauselicense' => 'BSD-3-Clause',
+        'gnugeneralpubliclicensev20' => 'GPL-2.0-only',
+        'gnugeneralpubliclicensev20orlater' => 'GPL-2.0-or-later',
+        'gnugeneralpubliclicensev30' => 'GPL-3.0-only',
+        'gnugeneralpubliclicensev30orlater' => 'GPL-3.0-or-later',
+        'gnuaffserogeneralpubliclicensev30' => 'AGPL-3.0-only',
+        'gnuaffserogeneralpubliclicensev30orlater' => 'AGPL-3.0-or-later',
+        'gnuaffgeneralpubliclicensev30' => 'AGPL-3.0-only',
+        'gnulessergeneralpubliclicensev21' => 'LGPL-2.1-only',
+        'gnulessergeneralpubliclicensev30' => 'LGPL-3.0-only',
+        'mozillapubliclicense20' => 'MPL-2.0',
+        'europeanunionpubliclicense12' => 'EUPL-1.2',
+        'opensoftwarelicense30' => 'OSL-3.0',
     ];
 
     /**
@@ -109,7 +144,12 @@ final class SpdxAllowlist
             }
         }
 
-        return null;
+        // Last resort: a spelled-out licence name. Compared with punctuation and
+        // spacing stripped, so "GNU General Public License v3.0" and
+        // "gnu general public license v3" both resolve.
+        $collapsed = strtolower((string) preg_replace('/[^a-z0-9]/i', '', $candidate));
+
+        return self::NAME_ALIASES[$collapsed] ?? null;
     }
 
     /**

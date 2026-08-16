@@ -31,6 +31,13 @@ framework:
                     delay: 2000
                     multiplier: 3
 
+            # OAuth endpoints live on github.com, not api.github.com.
+            github.oauth:
+                base_uri: 'https://github.com/'
+                headers:
+                    User-Agent: '%env(EXTDIR_USER_AGENT)%'
+                    Accept: 'application/json'
+
             github.api:
                 base_uri: 'https://api.github.com/'
                 headers:

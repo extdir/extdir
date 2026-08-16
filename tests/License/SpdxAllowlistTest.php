@@ -151,6 +151,53 @@ final class SpdxAllowlistTest extends TestCase
         self::assertSame(LicenseStatus::Rejected, $this->allowlist->classify('proprietary'));
     }
 
+    /**
+     * Maintainers paste the name GitHub's licence picker shows them instead of the
+     * SPDX identifier. Found live in the corpus. Rejecting it would strip
+     * redistribution rights from a package whose author stated their licence
+     * perfectly clearly, just not in the expected notation.
+     */
+    #[DataProvider('spelledOutNameProvider')]
+    public function testSpelledOutLicenseNamesResolve(string $name, string $expectedSpdx): void
+    {
+        self::assertSame($expectedSpdx, $this->allowlist->normalise($name));
+        self::assertTrue($this->allowlist->classify($name)->isRedistributable());
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function spelledOutNameProvider(): iterable
+    {
+        yield 'GPL v3 as GitHub spells it' => ['GNU General Public License v3.0', 'GPL-3.0-only'];
+        yield 'lowercase, no punctuation' => ['gnu general public license v3 0', 'GPL-3.0-only'];
+        yield 'MIT spelled out' => ['MIT License', 'MIT'];
+        yield 'Apache spelled out' => ['Apache License 2.0', 'Apache-2.0'];
+        yield 'MPL spelled out' => ['Mozilla Public License 2.0', 'MPL-2.0'];
+    }
+
+    /**
+     * OSL-3.0 appears in the corpus and is OSI-approved. It was previously rejected,
+     * which wrongly marked three real open-source extensions as non-redistributable.
+     */
+    public function testOslIsRecognisedAsCopyleft(): void
+    {
+        self::assertSame(LicenseStatus::Copyleft, $this->allowlist->classify('OSL-3.0'));
+        self::assertSame('OSL-3.0', $this->allowlist->normalise('OSL-3.0'));
+    }
+
+    /**
+     * `proprietary` is the value composer's own project skeleton writes, and 71
+     * packages in the corpus still carry it. It must stay rejected — the whole
+     * point of §4.1 is that we do not decide on an author's behalf that they meant
+     * something more permissive than what they wrote.
+     */
+    public function testSkeletonDefaultStaysRejected(): void
+    {
+        self::assertSame(LicenseStatus::Rejected, $this->allowlist->classify('proprietary'));
+        self::assertFalse($this->allowlist->classify('proprietary')->isRedistributable());
+    }
+
     public function testFirstAcceptedIdentifierIgnoresUnknownEntries(): void
     {
         self::assertSame('MIT', $this->allowlist->firstAcceptedIdentifier(['proprietary', 'MIT']));
