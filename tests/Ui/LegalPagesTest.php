@@ -151,6 +151,28 @@ final class LegalPagesTest extends WebTestCase
     }
 
     /**
+     * The policy must not claim a data processing agreement that has not been
+     * concluded. A privacy policy asserting a contract you do not hold is worse
+     * than one that stays quiet, because it is the first document a supervisory
+     * authority reads — and it is the kind of claim that gets copied from a
+     * generator and never checked.
+     */
+    public function testTheDataProcessingAgreementIsOnlyClaimedWhenItExists(): void
+    {
+        $client = static::createClient();
+        $text = $client->request('GET', '/privacy')->filter('body')->text();
+
+        // Asserted as an equivalence rather than a branch: the page must claim the
+        // agreement exactly when it does exist, which stays meaningful in both
+        // states and leaves no dead code once the flag is flipped.
+        self::assertSame(
+            LegalController::HOSTING_DPA_CONCLUDED,
+            str_contains($text, 'besteht ein Vertrag über Auftragsverarbeitung'),
+            'The privacy policy must claim an Art. 28 agreement if and only if one has been concluded.',
+        );
+    }
+
+    /**
      * The takedown route must explain how to reach a human, or the policy is
      * decorative.
      */

@@ -50,6 +50,23 @@ final class LegalController extends AbstractController
         'email' => 'legal@extdir.com',
     ];
 
+    /**
+     * Whether a data processing agreement under Art. 28 GDPR has actually been
+     * concluded with the hosting provider.
+     *
+     * Deliberately a switch rather than a sentence in the template. The privacy
+     * policy previously stated the agreement existed, which was written from the
+     * standard generator wording and never verified — and a privacy policy that
+     * claims a contract you do not hold is worse than one that stays quiet, because
+     * it is the document a supervisory authority reads first.
+     *
+     * Hosting is processing: server logs contain IP addresses, which are personal
+     * data. Art. 28(3) requires the agreement in writing, so this is not optional
+     * paperwork to be deferred — it is a precondition for the site being lawful to
+     * operate. Flip this to true once it is signed and the paragraph appears.
+     */
+    public const HOSTING_DPA_CONCLUDED = false;
+
     #[Route('/imprint', name: 'imprint', methods: ['GET'])]
     public function imprint(): Response
     {
@@ -59,7 +76,10 @@ final class LegalController extends AbstractController
     #[Route('/privacy', name: 'privacy', methods: ['GET'])]
     public function privacy(): Response
     {
-        return $this->render('legal/privacy.html.twig', ['operator' => self::OPERATOR]);
+        return $this->render('legal/privacy.html.twig', [
+            'operator' => self::OPERATOR,
+            'hostingDpaConcluded' => self::HOSTING_DPA_CONCLUDED,
+        ]);
     }
 
     #[Route('/terms', name: 'terms', methods: ['GET'])]
