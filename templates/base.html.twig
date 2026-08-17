@@ -73,8 +73,10 @@
         <div>
             <p class="footer-heading">Legal</p>
             <ul>
-                <li><a href="{{ path('imprint') }}">Imprint</a></li>
-                <li><a href="{{ path('privacy') }}">Privacy</a></li>
+                {# "Impressum" stays untranslated: it is the term German visitors look for,
+                   and the page it names is a German legal obligation. #}
+                <li><a href="{{ path('imprint') }}">Impressum</a></li>
+                <li><a href="{{ path('privacy') }}">Datenschutz / Privacy</a></li>
                 <li><a href="{{ path('terms') }}">Terms</a></li>
                 <li><a href="{{ path('takedown') }}">Takedown policy</a></li>
             </ul>

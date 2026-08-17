@@ -100,6 +100,57 @@ final class LegalPagesTest extends WebTestCase
     }
 
     /**
+     * The site is written in English, but it is operated from Germany and § 5 DDG
+     * is a German obligation — so the operative text is German, with the English
+     * version offered as a translation. A well-meaning cleanup that dropped the
+     * German would quietly remove the part that actually satisfies the law.
+     */
+    public function testTheImprintKeepsItsGermanLegalBasis(): void
+    {
+        $client = static::createClient();
+        $text = $client->request('GET', '/imprint')->filter('body')->text();
+
+        self::assertStringContainsString('§ 5 DDG', $text, 'the DDG basis must be named');
+        self::assertStringContainsString('§ 18 Abs. 2 MStV', $text, 'editorial responsibility must be named');
+        self::assertStringContainsString('Haftung für Inhalte', $text);
+        self::assertStringContainsString('Haftung für Links', $text);
+    }
+
+    /**
+     * Likewise for the privacy policy: the legal bases have to be stated, and
+     * Art. 21 objection rights are the section readers most often look for.
+     */
+    public function testThePrivacyPolicyStatesItsLegalBases(): void
+    {
+        $client = static::createClient();
+        $text = $client->request('GET', '/privacy')->filter('body')->text();
+
+        self::assertStringContainsString('Art. 6 Abs. 1 lit. f DSGVO', $text);
+        self::assertStringContainsString('Widerspruchsrecht', $text);
+        self::assertStringContainsString('Aufsichtsbehörde', $text);
+    }
+
+    /**
+     * The policy claims no cookies and no tracking. That claim is only safe while
+     * it stays true, so it is worth failing loudly if a banner or analytics ever
+     * appears without the policy being updated with it.
+     */
+    public function testNoCookiesAreSetOnAnyPublicPage(): void
+    {
+        $client = static::createClient();
+
+        foreach (['/imprint', '/privacy', '/terms', '/takedown'] as $path) {
+            $client->request('GET', $path);
+
+            self::assertCount(
+                0,
+                $client->getResponse()->headers->getCookies(),
+                \sprintf('%s set a cookie, but the privacy policy states none are used.', $path),
+            );
+        }
+    }
+
+    /**
      * The takedown route must explain how to reach a human, or the policy is
      * decorative.
      */
