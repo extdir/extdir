@@ -25,10 +25,23 @@ use App\Signals\RepositoryEnricher;
  */
 final class GitHubReleaseAssets implements ReleaseAssetSource
 {
+    /**
+     * 100 releases, 10 assets each.
+     *
+     * Both numbers are load-bearing in opposite directions. Dropping releases to
+     * 50 to dodge a timeout silently cost coverage: extensions with a long history
+     * — frosh/tools has 108 tagged releases — lost the maintainer archives for
+     * everything older, and 281 releases quietly downgraded to source zipballs
+     * with nothing in the output to show it.
+     *
+     * The document size that actually caused the timeouts came from the asset
+     * fan-out (100 x 20 nodes), so that is where the reduction belongs. A release
+     * carrying more than ten attachments is not a case worth breaking history for.
+     */
     private const QUERY = <<<'GRAPHQL'
         query($owner: String!, $name: String!) {
             repository(owner: $owner, name: $name) {
-                releases(first: 50, orderBy: {field: CREATED_AT, direction: DESC}) {
+                releases(first: 100, orderBy: {field: CREATED_AT, direction: DESC}) {
                     nodes {
                         tagName
                         isDraft
