@@ -30,7 +30,7 @@ class LicenseFinding
     #[ORM\Column(type: Types::BIGINT)]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Extension::class)]
+    #[ORM\ManyToOne(targetEntity: Extension::class, inversedBy: 'licenseFindings')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Extension $extension;
 

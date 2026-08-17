@@ -6,6 +6,7 @@ namespace App\Signals;
 
 use App\Catalog\Entity\Extension;
 use App\Ingestion\GitHub\GitHubClient;
+use App\License\LicenseResolver;
 use App\Signals\Entity\RepositorySnapshot;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -30,6 +31,7 @@ final class RepositoryEnricher
 
     public function __construct(
         private readonly GitHubClient $github,
+        private readonly LicenseResolver $licenses,
         private readonly EntityManagerInterface $em,
     ) {
     }
@@ -182,6 +184,17 @@ final class RepositoryEnricher
 
         $extension->setLastCommitAt($lastCommit);
         $extension->setPopularity($snapshot->getStars(), $snapshot->getForks());
+
+        // GitHub runs licensee over the repository's licence file — the detector
+        // docs/brief.md §4.1 asks for, already paid for by this query. It was being
+        // fetched and thrown away, which left 13 openly licensed extensions
+        // classified from a stale composer.json default instead.
+        $licenseInfo = \is_array($repo['licenseInfo'] ?? null) ? $repo['licenseInfo'] : [];
+        $this->licenses->applyDetectorResult(
+            $extension,
+            \is_string($licenseInfo['spdxId'] ?? null) ? $licenseInfo['spdxId'] : null,
+            'licensee (via GitHub API)',
+        );
     }
 
     private static function intOf(mixed $value): int

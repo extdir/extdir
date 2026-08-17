@@ -21,6 +21,16 @@
     {{ extension.licenseSpdx ?? licence.badgeLabel }}
 </span>
 
+{# When the repository's licence file disagrees with composer.json, say so rather
+   than silently preferring one. For the maintainer it is a one-line bug in their
+   own manifest; for a merchant it explains why we say MIT where the package
+   metadata says proprietary. #}
+{% if extension.licenseEvidence.value == 'detector' %}
+    <span class="badge" title="Detected from the LICENSE file in the repository, which is the actual grant. Some packages still carry composer's default &quot;proprietary&quot; value in composer.json without having changed it.">
+        from LICENSE file
+    </span>
+{% endif %}
+
 {% set maintenance = extension.maintenanceStatus %}
 {% if maintenance.value != 'unknown' %}
     <span class="badge {{ maintenance.warrantsWarning ? 'badge--danger' : (maintenance.value == 'lagging' ? 'badge--warn' : 'badge--ok') }}"

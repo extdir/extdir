@@ -8,6 +8,8 @@ use App\Catalog\Enum\DiscoverySource;
 use App\Catalog\Enum\IndexStatus;
 use App\Catalog\Enum\SourceHost;
 use App\Catalog\Repository\ExtensionRepository;
+use App\License\Entity\LicenseFinding;
+use App\License\Enum\FindingSource;
 use App\License\Enum\LicenseStatus;
 use App\Signals\Enum\MaintenanceStatus;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -136,6 +138,16 @@ class Extension
     #[ORM\Column(length: 16, enumType: LicenseStatus::class)]
     private LicenseStatus $licenseStatus = LicenseStatus::Unknown;
 
+    /**
+     * Which kind of evidence the effective licence rests on.
+     *
+     * A detector reading the repository's LICENSE file outranks a composer.json
+     * declaration, so the page can say where the answer came from rather than
+     * asking the reader to take it on trust.
+     */
+    #[ORM\Column(length: 32, enumType: FindingSource::class, options: ['default' => 'composer_json'])]
+    private FindingSource $licenseEvidence = FindingSource::ComposerJson;
+
     #[ORM\Column(length: 16, enumType: IndexStatus::class)]
     private IndexStatus $indexStatus = IndexStatus::Pending;
 
@@ -195,6 +207,10 @@ class Extension
     #[ORM\OneToMany(targetEntity: ExtensionRelease::class, mappedBy: 'extension', cascade: ['persist', 'remove'])]
     private Collection $releases;
 
+    /** @var Collection<int, LicenseFinding> */
+    #[ORM\OneToMany(targetEntity: LicenseFinding::class, mappedBy: 'extension')]
+    private Collection $licenseFindings;
+
     /** @var Collection<int, Category> */
     #[ORM\ManyToMany(targetEntity: Category::class)]
     #[ORM\JoinTable(name: 'extension_category')]
@@ -209,6 +225,7 @@ class Extension
         $this->firstSeenAt = new \DateTimeImmutable();
         $this->releases = new ArrayCollection();
         $this->categories = new ArrayCollection();
+        $this->licenseFindings = new ArrayCollection();
     }
 
     /**
@@ -387,10 +404,38 @@ class Extension
         return $this->licenseStatus;
     }
 
-    public function applyLicense(?string $spdx, LicenseStatus $status): void
+    public function applyLicense(
+        ?string $spdx,
+        LicenseStatus $status,
+        FindingSource $evidence = FindingSource::ComposerJson,
+    ): void {
+        // A weaker source must not overwrite a stronger one. Without this, every
+        // Packagist re-crawl would reset an extension back to the manifest's
+        // "proprietary" after the licence file had already corrected it.
+        if (!$evidence->isAuthoritative() && $this->licenseEvidence->isAuthoritative()) {
+            return;
+        }
+
+        $this->licenseSpdx = $spdx;
+        $this->licenseStatus = $status;
+        $this->licenseEvidence = $evidence;
+    }
+
+    /**
+     * Sets the licence unconditionally. Only LicenseResolver::reconcile() may use
+     * this: it is the one place that has looked at every finding and can therefore
+     * overrule an earlier conclusion in either direction.
+     */
+    public function forceLicense(?string $spdx, LicenseStatus $status, FindingSource $evidence): void
     {
         $this->licenseSpdx = $spdx;
         $this->licenseStatus = $status;
+        $this->licenseEvidence = $evidence;
+    }
+
+    public function getLicenseEvidence(): FindingSource
+    {
+        return $this->licenseEvidence;
     }
 
     public function getDiscoverySource(): DiscoverySource
@@ -544,6 +589,12 @@ class Extension
         if (!$this->releases->contains($release)) {
             $this->releases->add($release);
         }
+    }
+
+    /** @return Collection<int, LicenseFinding> */
+    public function getLicenseFindings(): Collection
+    {
+        return $this->licenseFindings;
     }
 
     /** @return Collection<int, Category> */
