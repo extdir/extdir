@@ -99,8 +99,26 @@
                 <h2>Install</h2>
 
                 {% if extension.licenseStatus.isRedistributable %}
-                    <p class="small muted">Available on Packagist:</p>
-                    <pre class="code">composer require {{ extension.packageName }}</pre>
+                    {% if extension.onPackagist %}
+                        <p class="small muted">Available on Packagist:</p>
+                        <pre class="code">composer require {{ extension.packageName }}</pre>
+                    {% else %}
+                        {# Not on Packagist, so a bare `composer require` fails with
+                           "could not be found in any version". §9 asks for both paths;
+                           printing only the first would be actively misleading. #}
+                        <p class="small muted">
+                            This extension is <strong>not published on Packagist</strong>, so
+                            <code>composer require</code> alone cannot find it. Add extdir as a
+                            repository once:
+                        </p>
+                        <pre class="code">composer config repositories.extdir composer https://extdir.com/repo
+composer require {{ extension.packageName }}</pre>
+                        <p class="small subtle">
+                            Or point Composer straight at the source, with no third party involved:
+                        </p>
+                        <pre class="code">composer config repositories.{{ extension.slug }} vcs {{ extension.repositoryUrl }}
+composer require {{ extension.packageName }}</pre>
+                    {% endif %}
                 {% else %}
                     {# §4.1: an extension with no usable licence is linked, never
                        redistributed — so no install snippet is offered that would

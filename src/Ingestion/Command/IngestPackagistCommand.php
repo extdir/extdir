@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Ingestion\Command;
 
+use App\Catalog\Enum\DiscoverySource;
+use App\Catalog\Repository\ExtensionRepository;
 use App\Ingestion\PackageIngestor;
 use App\Ingestion\Packagist\PackagistClient;
 use Doctrine\ORM\EntityManagerInterface;
@@ -31,6 +33,7 @@ final class IngestPackagistCommand extends Command
     public function __construct(
         private readonly PackagistClient $packagist,
         private readonly PackageIngestor $ingestor,
+        private readonly ExtensionRepository $extensions,
         private readonly EntityManagerInterface $em,
     ) {
         parent::__construct();
@@ -96,6 +99,11 @@ final class IngestPackagistCommand extends Command
 
         $io->progressFinish();
 
+        $corrected = $this->markPackagesMissingFromPackagist($packages, null === $limit || !\is_string($limit));
+        if ($corrected > 0) {
+            $io->writeln(\sprintf(' %d extensions marked as not available on Packagist.', $corrected));
+        }
+
         $io->success(\sprintf(
             '%d ingested, %d skipped (no usable versions), %d failed.',
             $ingested,
@@ -111,6 +119,44 @@ final class IngestPackagistCommand extends Command
         }
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * Packagist's list is the authority on what Packagist carries, so anything the
+     * index holds that the list does not mention is not installable from there.
+     *
+     * That fact drives the Composer repository: publishing a package Packagist
+     * already serves would insert us into an install path that works without us,
+     * and failing to publish one it does not serve leaves it uninstallable. Deriving
+     * it from the crawl keeps it self-correcting — a package that later appears on
+     * Packagist stops being published here on the next run.
+     *
+     * @param list<string> $packagistPackages
+     */
+    private function markPackagesMissingFromPackagist(array $packagistPackages, bool $fullCrawl): int
+    {
+        // A truncated crawl says nothing about the packages it never looked at.
+        if (!$fullCrawl) {
+            return 0;
+        }
+
+        $onPackagist = array_fill_keys($packagistPackages, true);
+        $corrected = 0;
+
+        foreach ($this->extensions->findBy([]) as $extension) {
+            $shouldBe = isset($onPackagist[$extension->getPackageName()])
+                ? DiscoverySource::Packagist
+                : DiscoverySource::GitHubTopic;
+
+            if ($extension->getDiscoverySource() !== $shouldBe) {
+                $extension->forceDiscoverySource($shouldBe);
+                ++$corrected;
+            }
+        }
+
+        $this->em->flush();
+
+        return $corrected;
     }
 
     private function ingestOne(SymfonyStyle $io, string $packageName): int

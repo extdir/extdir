@@ -7,6 +7,7 @@ namespace App\Ingestion;
 use App\Catalog\Entity\Extension;
 use App\Catalog\Entity\ExtensionRelease;
 use App\Catalog\Entity\Vendor;
+use App\Catalog\Enum\DiscoverySource;
 use App\Catalog\Enum\IndexStatus;
 use App\Catalog\Repository\ExtensionReleaseRepository;
 use App\Catalog\Repository\ExtensionRepository;
@@ -62,8 +63,11 @@ final class PackageIngestor
     /**
      * @param list<array<string, mixed>> $versions delta-expanded p2 entries
      */
-    public function ingest(string $packageName, array $versions): ?Extension
-    {
+    public function ingest(
+        string $packageName,
+        array $versions,
+        DiscoverySource $discoveredVia = DiscoverySource::Packagist,
+    ): ?Extension {
         if ([] === $versions) {
             return null;
         }
@@ -72,6 +76,7 @@ final class PackageIngestor
         $latestStable = $this->pickLatestStable($sorted);
 
         $extension = $this->upsertExtension($packageName, $latestStable ?? $sorted[0]);
+        $extension->setDiscoverySource($discoveredVia);
 
         $shopwareVersions = $this->shopwareVersions->findOrdered();
         $existing = $this->releases->findKeyedByVersion($extension);

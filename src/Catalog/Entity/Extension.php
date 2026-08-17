@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Catalog\Entity;
 
+use App\Catalog\Enum\DiscoverySource;
 use App\Catalog\Enum\IndexStatus;
 use App\Catalog\Enum\SourceHost;
 use App\Catalog\Repository\ExtensionRepository;
@@ -137,6 +138,13 @@ class Extension
 
     #[ORM\Column(length: 16, enumType: IndexStatus::class)]
     private IndexStatus $indexStatus = IndexStatus::Pending;
+
+    /**
+     * Which crawler found this. Decides whether it is published in our Composer
+     * repository — see DiscoverySource.
+     */
+    #[ORM\Column(length: 16, enumType: DiscoverySource::class, options: ['default' => 'packagist'])]
+    private DiscoverySource $discoverySource = DiscoverySource::Packagist;
 
     #[ORM\Column(length: 16, enumType: MaintenanceStatus::class)]
     private MaintenanceStatus $maintenanceStatus = MaintenanceStatus::Unknown;
@@ -383,6 +391,38 @@ class Extension
     {
         $this->licenseSpdx = $spdx;
         $this->licenseStatus = $status;
+    }
+
+    public function getDiscoverySource(): DiscoverySource
+    {
+        return $this->discoverySource;
+    }
+
+    /**
+     * Packagist is authoritative once a package appears there, so a GitHub-only
+     * extension that later gets published upgrades rather than staying pinned to
+     * how it was first found.
+     */
+    public function setDiscoverySource(DiscoverySource $source): void
+    {
+        if (DiscoverySource::Packagist === $source || DiscoverySource::Packagist !== $this->discoverySource) {
+            $this->discoverySource = $source;
+        }
+    }
+
+    /**
+     * Sets the source unconditionally, including downgrading away from Packagist.
+     * Only the Packagist crawl may do this, because only it knows what the list
+     * actually contains.
+     */
+    public function forceDiscoverySource(DiscoverySource $source): void
+    {
+        $this->discoverySource = $source;
+    }
+
+    public function isOnPackagist(): bool
+    {
+        return $this->discoverySource->isOnPackagist();
     }
 
     public function getIndexStatus(): IndexStatus
