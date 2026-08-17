@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Distribution\Resolver;
 
 use App\Catalog\Entity\Extension;
+use App\Catalog\Enum\SourceHost;
+use App\Distribution\Enum\DistSource;
 use App\Ingestion\GitHub\GitHubClient;
 use App\Signals\RepositoryEnricher;
 
@@ -21,7 +23,7 @@ use App\Signals\RepositoryEnricher;
  * Fetched per repository in one GraphQL query covering all tags at once, then held
  * in memory for the resolver chain to consult per release.
  */
-final class ReleaseAssetIndex
+final class GitHubReleaseAssets implements ReleaseAssetSource
 {
     private const QUERY = <<<'GRAPHQL'
         query($owner: String!, $name: String!) {
@@ -43,7 +45,13 @@ final class ReleaseAssetIndex
 
     public function __construct(
         private readonly GitHubClient $github,
+        private readonly AssetNaming $naming,
     ) {
+    }
+
+    public function supports(Extension $extension): bool
+    {
+        return SourceHost::GitHub === $extension->getSourceHost();
     }
 
     /**
@@ -87,7 +95,7 @@ final class ReleaseAssetIndex
 
             $assets[$tag] = new ResolvedDownload(
                 url: $asset['url'],
-                source: \App\Distribution\Enum\DistSource::ReleaseAsset,
+                source: DistSource::ReleaseAsset,
                 commitSha: \is_string($commit) ? $commit : null,
                 sizeBytes: $asset['size'],
             );
@@ -124,13 +132,7 @@ final class ReleaseAssetIndex
                 continue;
             }
 
-            if (!str_ends_with(strtolower($name), '.zip')) {
-                continue;
-            }
-
-            // Signature and checksum files are named after the archive they
-            // describe, so they end in .zip only after another suffix is stripped.
-            if (preg_match('/\.(sha256|sha512|md5|asc|sig)\.zip$/i', $name)) {
+            if (!$this->naming->isPluginArchive($name)) {
                 continue;
             }
 

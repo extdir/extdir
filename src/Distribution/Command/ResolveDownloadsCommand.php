@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Distribution\Command;
 
-use App\Catalog\Enum\SourceHost;
 use App\Catalog\Repository\ExtensionRepository;
 use App\Distribution\DownloadResolver;
 use App\Ingestion\GitHub\GitHubClient;
@@ -50,10 +49,11 @@ final class ResolveDownloadsCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
+        // GitHub authorisation is only needed for GitHub-hosted extensions. The
+        // other forges are read unauthenticated, so a missing token degrades the
+        // result rather than preventing the command from running.
         if (!$this->github->isAuthorised()) {
-            $io->error('GitHub is not authorised. Run app:github:authorize first.');
-
-            return Command::FAILURE;
+            $io->warning('GitHub is not authorised — GitHub release archives will be skipped. Run app:github:authorize to include them.');
         }
 
         // Only ids are held across the loop. The entity manager is cleared
@@ -67,14 +67,14 @@ final class ResolveDownloadsCommand extends Command
             $extension = $this->extensions->findOneByPackageName($package);
             $ids = null === $extension ? [] : [(int) $extension->getId()];
         } else {
+            // Every host is processed, not just GitHub. Even where no release-asset
+            // source exists for a forge, Packagist still supplies a source archive —
+            // filtering by host previously left 310 perfectly resolvable releases
+            // with no download at all.
             $ids = array_map(
                 static fn ($e): int => (int) $e->getId(),
-                array_filter(
-                    $this->extensions->findBy([]),
-                    static fn ($e): bool => SourceHost::GitHub === $e->getSourceHost(),
-                ),
+                $this->extensions->findBy([]),
             );
-            $ids = array_values($ids);
         }
 
         $limit = $input->getOption('limit');

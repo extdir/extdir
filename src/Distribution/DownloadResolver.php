@@ -8,7 +8,7 @@ use App\Catalog\Entity\Extension;
 use App\Catalog\Entity\ExtensionRelease;
 use App\Distribution\Entity\Artifact;
 use App\Distribution\Repository\ArtifactRepository;
-use App\Distribution\Resolver\ReleaseAssetIndex;
+use App\Distribution\Resolver\ReleaseAssetRegistry;
 use App\Distribution\Resolver\ResolvedDownload;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -33,7 +33,7 @@ use Doctrine\ORM\EntityManagerInterface;
 final class DownloadResolver
 {
     public function __construct(
-        private readonly ReleaseAssetIndex $releaseAssets,
+        private readonly ReleaseAssetRegistry $releaseAssets,
         private readonly Resolver\DownloadPicker $picker,
         private readonly ArtifactRepository $artifacts,
         private readonly EntityManagerInterface $em,
