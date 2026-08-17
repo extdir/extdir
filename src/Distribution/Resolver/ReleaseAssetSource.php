@@ -29,7 +29,13 @@ interface ReleaseAssetSource
     /**
      * Maintainer-attached archives keyed by git tag.
      *
-     * @return array<string, ResolvedDownload>
+     * Returns null when the lookup itself failed, and an empty array when the
+     * forge answered but the releases carry no archives. Collapsing those two into
+     * one value is what let a transient API timeout silently overwrite a
+     * maintainer's release archive with a source zipball — the data got quietly
+     * worse on every flaky run, with nothing in the output to show it.
+     *
+     * @return array<string, ResolvedDownload>|null
      */
-    public function forExtension(Extension $extension): array;
+    public function forExtension(Extension $extension): ?array;
 }

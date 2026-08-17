@@ -28,13 +28,13 @@ final class GitHubReleaseAssets implements ReleaseAssetSource
     private const QUERY = <<<'GRAPHQL'
         query($owner: String!, $name: String!) {
             repository(owner: $owner, name: $name) {
-                releases(first: 100, orderBy: {field: CREATED_AT, direction: DESC}) {
+                releases(first: 50, orderBy: {field: CREATED_AT, direction: DESC}) {
                     nodes {
                         tagName
                         isDraft
                         isPrerelease
                         tagCommit { oid }
-                        releaseAssets(first: 20) {
+                        releaseAssets(first: 10) {
                             nodes { name downloadUrl size contentType }
                         }
                     }
@@ -59,7 +59,7 @@ final class GitHubReleaseAssets implements ReleaseAssetSource
      *
      * @return array<string, ResolvedDownload>
      */
-    public function forExtension(Extension $extension): array
+    public function forExtension(Extension $extension): ?array
     {
         $repo = RepositoryEnricher::parseRepository($extension->getRepositoryUrl());
 
@@ -68,10 +68,17 @@ final class GitHubReleaseAssets implements ReleaseAssetSource
         }
 
         $data = $this->github->graphql(self::QUERY, ['owner' => $repo[0], 'name' => $repo[1]]);
+
+        if (null === $data) {
+            // Transport error or rate limit — not evidence that there are no
+            // archives, so the caller must leave existing ones alone.
+            return null;
+        }
+
         $nodes = $data['repository']['releases']['nodes'] ?? null;
 
         if (!\is_array($nodes)) {
-            return [];
+            return null;
         }
 
         $assets = [];

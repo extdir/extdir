@@ -32,9 +32,12 @@ final class ReleaseAssetRegistry
     }
 
     /**
-     * @return array<string, ResolvedDownload>
+     * Null means the lookup failed and existing artifacts must be left alone; an
+     * empty array means there genuinely are no maintainer archives.
+     *
+     * @return array<string, ResolvedDownload>|null
      */
-    public function forExtension(Extension $extension): array
+    public function forExtension(Extension $extension): ?array
     {
         foreach ($this->sources as $source) {
             if ($source->supports($extension)) {

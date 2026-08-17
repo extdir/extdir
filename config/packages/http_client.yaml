@@ -40,6 +40,11 @@ framework:
 
             github.api:
                 base_uri: 'https://api.github.com/'
+                # The release-asset query returns a large document; the global
+                # 15s max_duration was low enough that 66 of 422 lookups hit an
+                # idle timeout on a single run.
+                timeout: 20
+                max_duration: 45
                 headers:
                     User-Agent: '%env(EXTDIR_USER_AGENT)%'
                     Accept: 'application/vnd.github+json'

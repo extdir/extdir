@@ -87,6 +87,7 @@ final class ReleaseAssetSourceTest extends TestCase
         $assets = (new GitLabReleaseAssets($client, new AssetNaming(), new NullLogger()))
             ->forExtension($this->extension('https://gitlab.com/x/y'));
 
+        self::assertNotNull($assets);
         self::assertArrayHasKey('v2.1.0', $assets);
         self::assertSame(DistSource::ReleaseAsset, $assets['v2.1.0']->source);
         self::assertStringContainsString('downloads/Plugin.zip', $assets['v2.1.0']->url);
@@ -117,10 +118,16 @@ final class ReleaseAssetSourceTest extends TestCase
     }
 
     /**
-     * A self-hosted forge being down, slow or behind a login is routine. It must
-     * degrade to the Packagist source archive, never abort a crawl of 422 packages.
+     * A self-hosted forge being down, slow or behind a login is routine, so it must
+     * never abort a crawl of 422 packages — but it must report *failure*, not "no
+     * archives".
+     *
+     * The distinction is not academic. A single run of 66 API timeouts previously
+     * overwrote 378 maintainer release archives with source zipballs, because an
+     * empty result was indistinguishable from a failed lookup and the resolver
+     * dutifully wrote the weaker answer over the stronger one.
      */
-    public function testAnUnreachableForgeYieldsNothingRatherThanThrowing(): void
+    public function testAFailedLookupIsReportedAsFailureNotAsEmpty(): void
     {
         $client = new MockHttpClient(static function (): MockResponse {
             throw new \Symfony\Component\HttpClient\Exception\TransportException('connection timed out');
@@ -129,7 +136,34 @@ final class ReleaseAssetSourceTest extends TestCase
         $assets = (new GitLabReleaseAssets($client, new AssetNaming(), new NullLogger()))
             ->forExtension($this->extension('https://gitlab.example.invalid/x/y'));
 
+        self::assertNull($assets, 'a transport failure must not look like "no archives"');
+    }
+
+    /**
+     * A 404 genuinely means the project has no releases endpoint we can read, so
+     * that is an empty result rather than a failure — there is nothing to protect.
+     */
+    public function testAMissingProjectIsAnEmptyResultNotAFailure(): void
+    {
+        $client = new MockHttpClient(new MockResponse('', ['http_code' => 404]));
+
+        $assets = (new GitLabReleaseAssets($client, new AssetNaming(), new NullLogger()))
+            ->forExtension($this->extension('https://gitlab.com/x/missing'));
+
         self::assertSame([], $assets);
+    }
+
+    /**
+     * A 500 from the forge is a failure, not an answer.
+     */
+    public function testAServerErrorIsAFailure(): void
+    {
+        $client = new MockHttpClient(new MockResponse('', ['http_code' => 502]));
+
+        $assets = (new GitLabReleaseAssets($client, new AssetNaming(), new NullLogger()))
+            ->forExtension($this->extension('https://gitlab.com/x/y'));
+
+        self::assertNull($assets);
     }
 
     public function testGiteaReadsReleaseAttachments(): void
@@ -147,6 +181,7 @@ final class ReleaseAssetSourceTest extends TestCase
         $assets = (new GiteaReleaseAssets($client, new AssetNaming(), new NullLogger()))
             ->forExtension($this->extension('https://codeberg.org/x/y'));
 
+        self::assertNotNull($assets);
         self::assertArrayHasKey('v3.0.0', $assets);
         self::assertSame(4096, $assets['v3.0.0']->sizeBytes);
     }

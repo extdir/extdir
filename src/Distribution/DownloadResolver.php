@@ -7,6 +7,7 @@ namespace App\Distribution;
 use App\Catalog\Entity\Extension;
 use App\Catalog\Entity\ExtensionRelease;
 use App\Distribution\Entity\Artifact;
+use App\Distribution\Enum\DistSource;
 use App\Distribution\Repository\ArtifactRepository;
 use App\Distribution\Resolver\ReleaseAssetRegistry;
 use App\Distribution\Resolver\ResolvedDownload;
@@ -47,11 +48,19 @@ final class DownloadResolver
      */
     public function resolveExtension(Extension $extension): array
     {
-        // One GraphQL call covers every tag of the repository, so this is fetched
-        // once per extension rather than once per release.
+        // One call covers every tag of the repository, so this is fetched once per
+        // extension rather than once per release.
         $assets = $extension->getLicenseStatus()->isRedistributable()
             ? $this->releaseAssets->forExtension($extension)
             : [];
+
+        // A failed lookup is not evidence that the maintainer publishes no
+        // archives. Treating it as such overwrites a real release archive with a
+        // source zipball, and the data gets quietly worse every time the forge has
+        // a bad minute — which is exactly what a run of 66 API timeouts did to
+        // 378 releases before this distinction existed.
+        $lookupFailed = null === $assets;
+        $assets ??= [];
 
         $counts = [];
         $resolved = 0;
@@ -64,6 +73,10 @@ final class DownloadResolver
             $download = $this->resolveRelease($release, $assets);
 
             if (null === $download) {
+                continue;
+            }
+
+            if ($lookupFailed && $this->wouldDowngrade($release, $download)) {
                 continue;
             }
 
@@ -83,6 +96,16 @@ final class DownloadResolver
     public function resolveRelease(ExtensionRelease $release, array $assets): ?ResolvedDownload
     {
         return $this->picker->pick($release, $assets);
+    }
+
+    /**
+     * Whether writing this download would replace a maintainer archive with
+     * something weaker.
+     */
+    private function wouldDowngrade(ExtensionRelease $release, ResolvedDownload $download): bool
+    {
+        return DistSource::ReleaseAsset->value === $release->getDistSource()
+            && DistSource::ReleaseAsset !== $download->source;
     }
 
     private function persist(ExtensionRelease $release, ResolvedDownload $download): void

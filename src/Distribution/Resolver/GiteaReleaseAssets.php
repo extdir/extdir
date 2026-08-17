@@ -35,7 +35,7 @@ final class GiteaReleaseAssets implements ReleaseAssetSource
         return SourceHost::Gitea === $extension->getSourceHost();
     }
 
-    public function forExtension(Extension $extension): array
+    public function forExtension(Extension $extension): ?array
     {
         $target = $this->parse($extension->getRepositoryUrl());
 
@@ -53,7 +53,7 @@ final class GiteaReleaseAssets implements ReleaseAssetSource
             ]);
 
             if (200 !== $response->getStatusCode()) {
-                return [];
+                return 404 === $response->getStatusCode() ? [] : null;
             }
 
             /** @var list<array<string, mixed>> $releases */
@@ -61,7 +61,7 @@ final class GiteaReleaseAssets implements ReleaseAssetSource
         } catch (HttpExceptionInterface|\JsonException $e) {
             $this->logger->info('Gitea releases unavailable', ['url' => $url, 'error' => $e->getMessage()]);
 
-            return [];
+            return null;
         }
 
         $assets = [];

@@ -38,7 +38,7 @@ final class GitLabReleaseAssets implements ReleaseAssetSource
         return SourceHost::GitLab === $extension->getSourceHost();
     }
 
-    public function forExtension(Extension $extension): array
+    public function forExtension(Extension $extension): ?array
     {
         $target = $this->parse($extension->getRepositoryUrl());
 
@@ -61,7 +61,7 @@ final class GitLabReleaseAssets implements ReleaseAssetSource
             ]);
 
             if (200 !== $response->getStatusCode()) {
-                return [];
+                return 404 === $response->getStatusCode() ? [] : null;
             }
 
             /** @var list<array<string, mixed>> $releases */
@@ -74,7 +74,7 @@ final class GitLabReleaseAssets implements ReleaseAssetSource
                 'error' => $e->getMessage(),
             ]);
 
-            return [];
+            return null;
         }
 
         return $this->mapReleases($releases, $base);
