@@ -35,7 +35,7 @@ jobs:
         # PHPStan's Symfony extension reads the compiled container to resolve
         # autowired service types; without it the analysis silently gets weaker
         # rather than failing, which is the worst of both outcomes.
-        run: bin/console cache:warmup --env=dev
+        run: php bin/console cache:warmup --env=dev
         env:
           APP_ENV: dev
           DATABASE_URL: 'mysql://root:root@127.0.0.1:3306/extdir?serverVersion=10.6.19-MariaDB&charset=utf8mb4'
@@ -88,20 +88,20 @@ jobs:
         # every functional test that renders a page fails with "The
         # "@hotwired/stimulus" vendor asset is missing" — which looks like a
         # template bug rather than a missing build step.
-        run: bin/console importmap:install
+        run: php bin/console importmap:install
 
       - name: Create the test database
         # doctrine.yaml appends a _test suffix in the test environment, so the
         # database the service container created is not the one tests use.
-        run: bin/console doctrine:database:create --if-not-exists --env=test
+        run: php bin/console doctrine:database:create --if-not-exists --env=test
 
       - name: Apply migrations
-        run: bin/console doctrine:migrations:migrate --no-interaction --env=test
+        run: php bin/console doctrine:migrations:migrate --no-interaction --env=test
 
       - name: Assert migrations match the mapping
         # Catches the common failure where an entity changed but no migration was
         # generated. Without this the drift is only discovered on deploy, by which
         # point the fix has to be written against a live database.
-        run: bin/console doctrine:schema:validate --env=test
+        run: php bin/console doctrine:schema:validate --env=test
 
       - run: vendor/bin/phpunit
