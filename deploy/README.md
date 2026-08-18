@@ -4,6 +4,27 @@ Everything here is specific to a shared host with no root, no Docker and no proc
 isolation. That constraint is the reason for most of the decisions below, not an
 inconvenience to work around.
 
+## How the domain is served
+
+Uberspace serves **`~/websites/<domain>/`** as that domain's DocumentRoot, so the
+whole application sits at the web root with the front controller one level down in
+`public/`. The directory name must therefore match the domain exactly:
+`~/websites/extdir.com`, not `~/websites/extdir`.
+
+Two `.htaccess` files make that work, and both are required:
+
+- **`.htaccess`** at the root rewrites everything into `public/` and blocks
+  `config/`, `src/`, `var/`, `migrations/`, `deploy/` and every dotfile. Without it
+  the site does not serve *and* `.env.local` — which holds the database password
+  and the GitHub client secret — is readable over the internet.
+- **`public/.htaccess`** is the front controller, plus a one-year immutable cache
+  for AssetMapper's content-hashed filenames.
+
+One rule worth not "tidying": `/assets/` is rewritten unconditionally, *before* the
+file-exists check. The repository also has a top-level `assets/` holding the source
+`app.js` and `app.css`, and without that ordering Apache serves the un-built source
+instead of the compiled asset.
+
 ## One-time setup
 
 ### 1. Web and mail domains
@@ -11,6 +32,7 @@ inconvenience to work around.
 ```bash
 uberspace web domain add extdir.com
 uberspace mail domain add extdir.com
+mkdir -p ~/websites/extdir.com
 ```
 
 ### 2. DNS records
@@ -60,18 +82,24 @@ mysql -e "CREATE DATABASE ${USER}_extdir DEFAULT CHARACTER SET utf8mb4 COLLATE u
 
 ### 4. Secrets
 
-`.env.local` on the server, never synced from a developer machine:
+**The first `deploy/deploy.sh` run writes `.env.local` for you.** It reads the
+MariaDB user and password out of `~/.my.cnf` — which Uberspace generates — and
+URL-encodes the password into the DSN. The password is never typed, never copied
+and never lands in a file on a laptop.
 
+It leaves the GitHub App fields blank; fill those in on the server and re-run:
+
+```bash
+ssh uberspace
+cd ~/websites/extdir.com
+$EDITOR .env.local      # GITHUB_APP_ID, GITHUB_APP_CLIENT_ID, GITHUB_APP_CLIENT_SECRET
 ```
-APP_ENV=prod
-APP_SECRET=<generate: php -r 'echo bin2hex(random_bytes(16));'>
 
-# $HOSTNAME, not 127.0.0.1 — see the gotcha below.
-DATABASE_URL="mysql://<user>:<pass>@$HOSTNAME:3306/${USER}_extdir?serverVersion=10.6.19-MariaDB&charset=utf8mb4"
+To regenerate it from scratch (leaked secret, changed credentials):
 
-GITHUB_APP_ID=…
-GITHUB_APP_CLIENT_ID=…
-GITHUB_APP_CLIENT_SECRET=…
+```bash
+ssh uberspace 'rm ~/websites/extdir.com/.env.local ~/websites/extdir.com/.env.local.php'
+deploy/deploy.sh
 ```
 
 Then authorise the crawler once, interactively:
@@ -99,6 +127,28 @@ Refuses to run with a dirty working tree, runs the tests and PHPStan locally
 first, syncs, migrates, warms the cache, restarts the workers, and finally checks
 that `/health` reports `ok`. A deploy that leaves the site unhealthy exits
 non-zero rather than reporting success.
+
+| Flag | When |
+|---|---|
+| `--dry-run` | Show what rsync would transfer; change nothing |
+| `--skip-tests` | Hotfix path only |
+| `--allow-dirty` | Ship uncommitted work; not a habit worth forming |
+| `--remote-only` | Re-run remote setup without syncing — refresh `.env.local`, re-run migrations |
+
+It expects an SSH alias, not a hostname:
+
+```
+# ~/.ssh/config
+Host uberspace
+    HostName sirius.uberspace.de
+    User amer
+```
+
+The rsync exclude list is **deliberately not `.gitignore`**. `tests/`, `.github/`,
+`compose.yaml` and `docker/` are tracked but have no business in production, while
+`vendor/` and `assets/vendor/` are untracked and regenerated on the server.
+`.env.local` is excluded in both directions — syncing a laptop's copy over the
+server's is how a deploy ends in `Access denied for user`.
 
 ## The Uberspace gotcha that will cost you an hour
 

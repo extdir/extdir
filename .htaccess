@@ -1,0 +1,55 @@
+# Root .htaccess for Uberspace.
+#
+# Uberspace serves ~/websites/<domain>/ as the DocumentRoot, so the whole
+# application sits at the web root with the front controller one level down in
+# /public/. Without this file two things go wrong at once: nothing routes to
+# Symfony, and .env.local, config/, src/, var/ and migrations/ are all readable
+# over the internet.
+#
+# .env.local holds the database password and the GitHub client secret.
+
+# Dotfiles: .env, .env.local, .git, .editorconfig, and anything else added later.
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# Top-level files that describe the build rather than serve it.
+<FilesMatch "(composer\.(json|lock)|symfony\.lock|importmap\.php|phpunit.*\.xml|phpstan.*\.neon|compose\.yaml)">
+    Require all denied
+</FilesMatch>
+
+# Source and config formats, at any depth.
+<FilesMatch "\.(md|log|sql|sh|bak|dist|ya?ml|twig|neon|ini)$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Canonical host. Harmless before www is routed; run
+    # `uberspace web domain add www.extdir.com` to make it take effect.
+    RewriteCond %{HTTP_HOST} ^www\.extdir\.com$ [NC]
+    RewriteRule ^(.*)$ https://extdir.com/$1 [L,R=301]
+
+    # Application directories are never served directly.
+    RewriteRule ^(config|src|var|bin|migrations|tests|templates|translations|deploy|docker|builder)/ - [F,L]
+
+    # Defence in depth: no PHP execution anywhere under vendor/.
+    RewriteCond %{REQUEST_URI} \.(php|phtml|phar)$
+    RewriteRule ^vendor/ - [F,L]
+
+    # /assets/ is always AssetMapper output and is rewritten unconditionally.
+    #
+    # This rule comes before the "file exists" check on purpose. The repository
+    # also has a top-level assets/ directory holding the *source* app.js and
+    # app.css, and without this the existence check would match those and serve
+    # the un-built source instead of the compiled, content-hashed file.
+    RewriteRule ^assets/(.*)$ /public/assets/$1 [L]
+
+    # Everything else falls through to the front controller, unless the file
+    # genuinely exists at the root (robots.txt would, if it were ever static).
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^(.*)$ /public/$1 [L]
+</IfModule>

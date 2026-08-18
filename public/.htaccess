@@ -1,0 +1,49 @@
+# Front controller and asset caching.
+#
+# Requests reach here after the root .htaccess rewrites them into /public/.
+
+<IfModule mod_negotiation.c>
+    # Without this, a request for /index could be served by index.php via content
+    # negotiation, which produces two URLs for the same page.
+    Options -MultiViews
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Reconstruct the Authorization header. Some Apache/FastCGI combinations drop
+    # it, which would silently break the GitHub OAuth callback and the Composer
+    # repository for anyone using an authenticated client.
+    RewriteCond %{HTTP:Authorization} .+
+    RewriteRule ^ - [E=HTTP_AUTHORIZATION:%0]
+
+    # Real files — compiled assets, mostly — are served as they are.
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
+
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+    <IfModule mod_alias.c>
+        # No rewrite module: send everything to the front controller so the site
+        # degrades to working-but-ugly rather than to a directory listing.
+        RedirectMatch 307 ^/$ /index.php/
+    </IfModule>
+</IfModule>
+
+# AssetMapper emits content-hashed filenames (app-3f2a91.css), so a given URL
+# never changes contents. Cache it hard; a new build produces a new URL.
+<IfModule mod_headers.c>
+    <FilesMatch "-[0-9a-f]{7,}\.(css|js|woff2?|png|svg|jpg|webp|avif)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+
+    # Everything else is server-rendered and must not be cached by proxies in a
+    # way that outlives a crawl.
+    <FilesMatch "\.php$">
+        Header set X-Content-Type-Options "nosniff"
+        Header set X-Frame-Options "SAMEORIGIN"
+        Header set Referrer-Policy "strict-origin-when-cross-origin"
+    </FilesMatch>
+</IfModule>
