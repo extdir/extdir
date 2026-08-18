@@ -77,10 +77,16 @@ DirectoryIndex index.php
 # DirectoryIndex, and the absolute %{ENV:BASE}/index.php substitution, which is
 # what lets the front controller be reached from a docroot one level up.
 
-# AssetMapper emits content-hashed filenames (app-3f2a91.css), so a given URL
-# never changes contents. Cache it hard; a new build produces a new URL.
+# AssetMapper emits content-hashed filenames, so a given URL never changes contents.
+# Cache it hard; a new build produces a new URL.
+#
+# The character class matters. AssetMapper hashes are base64url — "app-8WdGWfX.css",
+# mixed case with - and _ — not hex. An earlier [0-9a-f] pattern here matched nothing
+# at all, so every asset was refetched on every visit while appearing to be
+# configured correctly. Only AssetMapper writes into public/assets, so the loose
+# class cannot accidentally pin a hand-placed file.
 <IfModule mod_headers.c>
-    <FilesMatch "-[0-9a-f]{7,}\.(css|js|woff2?|png|svg|jpg|webp|avif)$">
+    <FilesMatch "-[A-Za-z0-9_-]{7,12}\.(css|js|woff2?|png|svg|jpe?g|webp|avif)$">
         Header set Cache-Control "public, max-age=31536000, immutable"
     </FilesMatch>
 
