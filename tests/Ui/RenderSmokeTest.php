@@ -94,6 +94,46 @@ final class RenderSmokeTest extends WebTestCase
         self::assertSame(0, $empty->count(), 'A facet section rendered with no options in it.');
     }
 
+    /**
+     * The restore must be synchronous and in the head.
+     *
+     * If it ever becomes a deferred module the page paints light first and corrects
+     * itself, which is a white flash on every navigation for anyone who chose dark —
+     * the precise failure the inline script exists to prevent, and one that is easy
+     * to reintroduce while tidying scripts out of templates.
+     */
+    public function testTheThemeIsRestoredBeforeFirstPaint(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/');
+
+        $html = (string) $client->getResponse()->getContent();
+        $head = substr($html, 0, strpos($html, '</head>') ?: 0);
+
+        self::assertStringContainsString('extdir-theme', $head, 'The restore script must be in the head.');
+        self::assertStringContainsString('data-theme', $head);
+        self::assertDoesNotMatchRegularExpression(
+            '/<script[^>]*\b(defer|async|type="module")[^>]*>[^<]*extdir-theme/',
+            $head,
+            'The restore must not be deferred.',
+        );
+    }
+
+    public function testTheThemeToggleOffersSystemAsWellAsLightAndDark(): void
+    {
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/');
+
+        $values = $crawler->filter('.theme-toggle [data-theme-value]')->each(
+            static fn (\Symfony\Component\DomCrawler\Crawler $node): string => (string) $node->attr('data-theme-value'),
+        );
+
+        // Without "system" a visitor who tries the toggle can never go back to
+        // following their machine, and a laptop that darkens each evening stays
+        // light forever because of one click.
+        self::assertSame(['system', 'light', 'dark'], $values);
+    }
+
     public function testAnUnknownPathRendersTheNotFoundPage(): void
     {
         $client = static::createClient(['debug' => false]);

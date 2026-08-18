@@ -33,6 +33,28 @@
             werden müsste.
         </p>
 
+        {# Local storage has to be disclosed even though it needs no consent, because a
+           policy that describes an application doing something other than what it does
+           is worse than one that stays quiet. The same reasoning is why the data
+           processing agreement is behind a flag rather than simply asserted. #}
+        <h3>Farbschema (localStorage)</h3>
+        <p>
+            Wenn Sie das Farbschema oben umschalten, wird Ihre Auswahl unter dem Schlüssel
+            <code>extdir-theme</code> im <strong>localStorage</strong> Ihres Browsers gespeichert —
+            der Wert <code>light</code> oder <code>dark</code>, sonst nichts. Diese Angabe wird
+            nicht an den Server übertragen, nicht ausgewertet und nicht mit anderen Daten
+            zusammengeführt.
+        </p>
+        <p>
+            Es handelt sich nicht um ein Cookie und nicht um eine Einwilligungsfrage: die
+            Speicherung ist gemäß § 25 Abs. 2 Nr. 2 TTDSG unbedingt erforderlich, um genau den
+            Dienst bereitzustellen, den Sie mit dem Klick ausdrücklich angefordert haben — nämlich
+            sich Ihre Auswahl zu merken. Solange Sie nichts umschalten, wird nichts gespeichert;
+            die Voreinstellung <em>Auto</em> folgt allein der Einstellung Ihres Betriebssystems.
+            Sie können den Eintrag jederzeit über die Browsereinstellungen löschen oder auf
+            <em>Auto</em> zurückschalten, was ihn ebenfalls entfernt.
+        </p>
+
         <h2>2. Verantwortliche Stelle</h2>
         <p>Verantwortlich für die Datenverarbeitung auf dieser Website ist:</p>
         <address>
@@ -200,6 +222,14 @@
             no user accounts. Nothing is loaded from an external CDN, so browsing does not disclose
             your IP address to anyone but the server hosting this site. There is no consent banner
             because there is nothing to consent to.
+        </p>
+        <p>
+            One exception, stated because it is storage even though it is not a cookie: if you use
+            the colour-theme switch, your choice is kept in your browser's localStorage under
+            <code>extdir-theme</code> — the single word <code>light</code> or <code>dark</code>. It
+            is never sent to the server. No consent is required because it is strictly necessary to
+            provide the thing you explicitly asked for by clicking, but it is disclosed rather than
+            passed over. Choosing <em>Auto</em> deletes it again.
         </p>
         <p>
             The hosting provider records standard server logs (IP address, timestamp, requested URL,

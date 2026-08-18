@@ -12,6 +12,27 @@
        cold load. #}
     <link rel="preload" href="{{ asset('fonts/geist-sans-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="{{ asset('fonts/geist-mono-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+    {# Applied before the first paint, and therefore inline and synchronous.
+       A module from the importmap is deferred, so restoring the choice there
+       would paint the wrong theme first and then correct it — a white flash on
+       every navigation for anyone who chose dark. That flash is the whole reason
+       this cannot be a Stimulus controller.
+
+       Only 'light' and 'dark' are ever written; anything else, including a
+       cleared choice, falls through to the CSS media query. #}
+    <script>
+        (function () {
+            try {
+                var choice = localStorage.getItem('extdir-theme');
+                if (choice === 'light' || choice === 'dark') {
+                    document.documentElement.setAttribute('data-theme', choice);
+                }
+            } catch (e) {
+                /* Private mode, or storage disabled. The system preference still
+                   applies, so there is nothing to recover from. */
+            }
+        })();
+    </script>
     {% block stylesheets %}
         {{ importmap('app') }}
     {% endblock %}
@@ -74,10 +95,30 @@
                 {% endif %}
             </nav>
 
-            {# The trademark rule requires this from day one and on every page, so it
-               lives in the chrome rather than in a strip that could be dismissed or
-               scrolled past. #}
-            <p class="header-disclaimer">Not affiliated with Shopware AG · a community project</p>
+            <div class="header-nav-end">
+                {# Three states, not two. "System" is the default and has to remain
+                   reachable, or someone who tries the toggle can never get back to
+                   following their machine. #}
+                <div class="theme-toggle" data-controller="theme" role="group" aria-label="Colour theme">
+                    <button type="button" class="theme-btn" data-action="theme#choose" data-theme-value="system"
+                            data-theme-target="button" aria-pressed="false" title="Follow the system setting">
+                        Auto
+                    </button>
+                    <button type="button" class="theme-btn" data-action="theme#choose" data-theme-value="light"
+                            data-theme-target="button" aria-pressed="false" title="Always light">
+                        Light
+                    </button>
+                    <button type="button" class="theme-btn" data-action="theme#choose" data-theme-value="dark"
+                            data-theme-target="button" aria-pressed="false" title="Always dark">
+                        Dark
+                    </button>
+                </div>
+
+                {# The trademark rule requires this from day one and on every page, so it
+                   lives in the chrome rather than in a strip that could be dismissed or
+                   scrolled past. #}
+                <p class="header-disclaimer">Not affiliated with Shopware AG · a community project</p>
+            </div>
         </div>
     </div>
 </header>

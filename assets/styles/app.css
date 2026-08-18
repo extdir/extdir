@@ -129,33 +129,84 @@
     color-scheme: light;
 }
 
+/* --- dark palette ----------------------------------------------------
+   Values defined once, applied from two places: the system preference for
+   anyone who has not chosen, and an explicit data-theme for anyone who has.
+   Writing the palette twice is how the two drift apart, and a theme that is
+   subtly wrong in one path is worse than no theme at all. */
+:root {
+    --dark-canvas: #0d0d0f;
+    --dark-surface: #151517;
+    --dark-surface-sunk: #101012;
+    --dark-surface-raised: #1c1c1f;
+    --dark-border: #26262a;
+    --dark-border-strong: #3d3d43;
+    --dark-ink: #f2f2f3;
+    --dark-ink-muted: #a2a2ab;
+    --dark-ink-subtle: #7e7e88;
+    --dark-signal-ok: #4ade80;
+    --dark-signal-ok-bg: #0e2318;
+    --dark-signal-caution: #e3b341;
+    --dark-signal-caution-bg: #251c0c;
+    --dark-signal-risk: #ff7b72;
+    --dark-signal-risk-bg: #2b1313;
+    --dark-signal-info: #6cb6ff;
+    --dark-signal-info-bg: #10202f;
+    --dark-accent: #f2f2f3;
+    --dark-accent-ink: #0d0d0f;
+}
+
+/* No stored choice: follow the operating system. This path is what a visitor
+   with JavaScript disabled gets, so dark mode still works without scripting. */
 @media (prefers-color-scheme: dark) {
-    :root {
-        --canvas: #0d0d0f;
-        --surface: #151517;
-        --surface-sunk: #101012;
-        --surface-raised: #1c1c1f;
-        --border: #26262a;
-        --border-strong: #3d3d43;
-
-        --ink: #f2f2f3;
-        --ink-muted: #a2a2ab;
-        --ink-subtle: #7e7e88;
-
-        --signal-ok: #4ade80;
-        --signal-ok-bg: #0e2318;
-        --signal-caution: #e3b341;
-        --signal-caution-bg: #251c0c;
-        --signal-risk: #ff7b72;
-        --signal-risk-bg: #2b1313;
-        --signal-info: #6cb6ff;
-        --signal-info-bg: #10202f;
-
-        --accent: #f2f2f3;
-        --accent-ink: #0d0d0f;
-
+    :root:not([data-theme]) {
+        --canvas: var(--dark-canvas);
+        --surface: var(--dark-surface);
+        --surface-sunk: var(--dark-surface-sunk);
+        --surface-raised: var(--dark-surface-raised);
+        --border: var(--dark-border);
+        --border-strong: var(--dark-border-strong);
+        --ink: var(--dark-ink);
+        --ink-muted: var(--dark-ink-muted);
+        --ink-subtle: var(--dark-ink-subtle);
+        --signal-ok: var(--dark-signal-ok);
+        --signal-ok-bg: var(--dark-signal-ok-bg);
+        --signal-caution: var(--dark-signal-caution);
+        --signal-caution-bg: var(--dark-signal-caution-bg);
+        --signal-risk: var(--dark-signal-risk);
+        --signal-risk-bg: var(--dark-signal-risk-bg);
+        --signal-info: var(--dark-signal-info);
+        --signal-info-bg: var(--dark-signal-info-bg);
+        --accent: var(--dark-accent);
+        --accent-ink: var(--dark-accent-ink);
         color-scheme: dark;
     }
+}
+
+/* An explicit choice, restored from localStorage before first paint. It wins
+   over the system preference in both directions — someone who picks light on a
+   dark machine means it. */
+:root[data-theme="dark"] {
+        --canvas: var(--dark-canvas);
+        --surface: var(--dark-surface);
+        --surface-sunk: var(--dark-surface-sunk);
+        --surface-raised: var(--dark-surface-raised);
+        --border: var(--dark-border);
+        --border-strong: var(--dark-border-strong);
+        --ink: var(--dark-ink);
+        --ink-muted: var(--dark-ink-muted);
+        --ink-subtle: var(--dark-ink-subtle);
+        --signal-ok: var(--dark-signal-ok);
+        --signal-ok-bg: var(--dark-signal-ok-bg);
+        --signal-caution: var(--dark-signal-caution);
+        --signal-caution-bg: var(--dark-signal-caution-bg);
+        --signal-risk: var(--dark-signal-risk);
+        --signal-risk-bg: var(--dark-signal-risk-bg);
+        --signal-info: var(--dark-signal-info);
+        --signal-info-bg: var(--dark-signal-info-bg);
+        --accent: var(--dark-accent);
+        --accent-ink: var(--dark-accent-ink);
+    color-scheme: dark;
 }
 
 /* ============================================================ RESET */
@@ -729,3 +780,31 @@ table.data td.num, table.data th.num { text-align: right; font-variant-numeric: 
 .facet-clear { font-size: var(--t-small); color: var(--signal-info); font-weight: 500; }
 .facet-clear-wrap { margin-bottom: var(--s-4); }
 .error-note { margin-top: var(--s-6); }
+
+/* ============================================================ THEME TOGGLE */
+
+.header-nav-end { display: flex; align-items: center; gap: var(--s-4); flex-wrap: wrap; }
+
+.theme-toggle {
+    display: inline-flex;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+.theme-btn {
+    font: inherit; cursor: pointer;
+    font-size: var(--t-micro); text-transform: uppercase; letter-spacing: 0.07em;
+    font-weight: 500;
+    padding: 0.1875rem var(--s-2);
+    background: var(--surface); color: var(--ink-subtle);
+    border: 0;
+}
+.theme-btn + .theme-btn { border-left: 1px solid var(--border); }
+.theme-btn:hover { color: var(--ink); background: var(--surface-sunk); }
+/* aria-pressed carries this for assistive technology; the class carries it visually.
+   Neither is sufficient alone. */
+.theme-btn.is-active { background: var(--accent); color: var(--accent-ink); }
+
+@media (max-width: 760px) {
+    .header-nav-end { width: 100%; justify-content: space-between; }
+}

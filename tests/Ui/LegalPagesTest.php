@@ -292,6 +292,29 @@ final class LegalPagesTest extends WebTestCase
     }
 
     /**
+     * Storing a theme is still storing something on someone's device. It needs no
+     * consent under § 25 Abs. 2 Nr. 2 TTDSG, being strictly necessary for the thing
+     * the visitor explicitly asked for by clicking — but an undisclosed store would
+     * make the policy describe an application that does not exist, which is the same
+     * failure as claiming a data processing agreement we never signed.
+     */
+    public function testTheThemePreferenceIsDisclosedInBothLanguages(): void
+    {
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/privacy');
+        $text = $crawler->filter('body')->text();
+
+        self::assertStringContainsString('localStorage', $text);
+        self::assertStringContainsString('extdir-theme', $text);
+        self::assertStringContainsString('TTDSG', $text, 'The German half must name its legal basis.');
+        self::assertStringContainsString(
+            'Auto',
+            $text,
+            'The policy must say how to remove the stored value.',
+        );
+    }
+
+    /**
      * The published operator details, read from the environment exactly as the
      * controller reads them. Asserting against .env.test rather than a literal
      * means these tests also prove the env wiring works — a typo in the variable
