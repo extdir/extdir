@@ -1,3 +1,14 @@
+parameters:
+    # Which channel access_control demands. Null imposes nothing, which is what
+    # local development over plain HTTP needs; production overrides it to https
+    # at the bottom of this file.
+    #
+    # It is a parameter rather than a second access_control block because Symfony
+    # refuses to merge that key across configuration sections — "Configuration
+    # path security.access_control cannot be overwritten" — and the failure only
+    # appears when the prod container is built, which is to say on the server.
+    app.required_channel: ~
+
 security:
     # No password hashers are configured. There are no passwords: the only way in
     # is GitHub, which already knows who controls which repository. A directory
@@ -22,19 +33,21 @@ security:
                 path: logout
                 target: home
 
+    # First match wins, so the specific paths come before the catch-all.
+    #
+    # Everything a visitor sees stays public. Only the maintainer area needs an
+    # identity, and moderation needs a role that no amount of GitHub standing can
+    # grant you — it is set by hand.
+    #
+    # The final rule exists to carry the channel requirement across the whole
+    # site, not to restrict anything: the OAuth callback carries an authorisation
+    # code in the query string, so plaintext would hand that code to anyone on the
+    # path, and the privacy policy tells visitors this site uses TLS.
     access_control:
-        # Everything a visitor sees stays public. Only the maintainer area needs an
-        # identity, and moderation needs a role that no amount of GitHub standing
-        # can grant you — it is set by hand.
-        - { path: ^/moderate, roles: ROLE_MODERATOR }
-        - { path: ^/my, roles: ROLE_USER }
+        - { path: ^/moderate, roles: ROLE_MODERATOR, requires_channel: '%app.required_channel%' }
+        - { path: ^/my, roles: ROLE_USER, requires_channel: '%app.required_channel%' }
+        - { path: ^/, roles: PUBLIC_ACCESS, requires_channel: '%app.required_channel%' }
 
 when@prod:
-    security:
-        access_control:
-            # HTTPS everywhere in production, not only on the pages that handle a
-            # session. The OAuth callback carries an authorisation code in the query
-            # string, so serving it over plaintext would hand that code to anyone on
-            # the path — and the privacy policy states that this site uses TLS,
-            # which should be true rather than aspirational.
-            - { path: ^/, requires_channel: https }
+    parameters:
+        app.required_channel: https

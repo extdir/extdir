@@ -40,6 +40,17 @@ jobs:
           APP_ENV: dev
           DATABASE_URL: 'mysql://root:root@127.0.0.1:3306/extdir?serverVersion=10.6.19-MariaDB&charset=utf8mb4'
 
+      - name: Build the production container
+        # CI otherwise only ever exercises dev and test, so configuration that is
+        # only valid in those environments passes here and fails on the server.
+        # A when@prod block that redefined security.access_control got all the way
+        # to a live deploy exactly this way.
+        run: php bin/console cache:clear --env=prod --no-debug
+        env:
+          APP_ENV: prod
+          APP_SECRET: ci-only-not-a-secret
+          DATABASE_URL: 'mysql://root:root@127.0.0.1:3306/extdir?serverVersion=10.6.19-MariaDB&charset=utf8mb4'
+
       - run: vendor/bin/phpstan analyse --no-progress --error-format=github
         env:
           DATABASE_URL: 'mysql://root:root@127.0.0.1:3306/extdir?serverVersion=10.6.19-MariaDB&charset=utf8mb4'
