@@ -39,12 +39,23 @@
     RewriteCond %{REQUEST_URI} \.(php|phtml|phar)$
     RewriteRule ^vendor/ - [F,L]
 
-    # /assets/ is always AssetMapper output and is rewritten unconditionally.
+    # /assets/ is AssetMapper output, served from the compiled directory.
     #
     # This rule comes before the "file exists" check on purpose. The repository
     # also has a top-level assets/ directory holding the *source* app.js and
     # app.css, and without this the existence check would match those and serve
     # the un-built source instead of the compiled, content-hashed file.
+    #
+    # It only fires when the compiled file is actually there. That condition is
+    # what makes local development work: in dev, AssetMapper computes hashes live
+    # and serves them through the kernel, so the URL in the page is whatever the
+    # current source hashes to. Rewriting unconditionally pinned every request to
+    # public/assets/, and the moment app.css was edited without recompiling, the
+    # hash in the page no longer existed on disk — every stylesheet 404'd and the
+    # site rendered unstyled. Falling through to the front controller instead lets
+    # Symfony serve it. In production the compiled file is always present, so the
+    # condition is satisfied and the front controller is never involved.
+    RewriteCond %{DOCUMENT_ROOT}/public/assets/$1 -f
     RewriteRule ^assets/(.*)$ /public/assets/$1 [L]
 
     # Everything else falls through to the front controller, unless the file

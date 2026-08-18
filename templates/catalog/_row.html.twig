@@ -1,0 +1,98 @@
+{#
+    One extension, as a row in a reference table.
+
+    Not a card. A card is a self-contained object you look at one at a time, and this
+    is a list you read down — someone comparing forty shipping extensions needs the
+    licence column to be in the same place every time, which bordered boxes with their
+    own internal layout cannot give.
+
+    The compatibility cell carries version numbers rather than dots. An earlier
+    version used ● and ◐ in fixed columns, which meant tracing every mark back to a
+    header far above to learn what it referred to, across a page where two thirds of
+    the cells were empty. A chip that says "6.7" needs no legend and no header.
+
+    Wording stays "declares" and never "works with": this is the maintainer's own
+    constraint from composer.json, not a test result.
+#}
+<article class="row {{ compact ? 'row--compact' : '' }}">
+    <div class="row-main">
+        <h2 class="row-title">
+            <a href="{{ path('extension_detail', {slug: extension.slug}) }}">{{ extension.label }}</a>
+        </h2>
+        <span class="row-package">{{ extension.packageName }}</span>
+        {% if extension.description and not compact %}
+            <p class="row-desc">{{ extension.description|length > 160
+                ? extension.description|slice(0, 160)|trim ~ '…'
+                : extension.description }}</p>
+        {% endif %}
+    </div>
+
+    <div class="row-versions">
+        {% set declared = [] %}
+        {% for version in shopwareVersions %}
+            {% set tier = supported[version.majorMinor] ?? null %}
+            {% if tier %}
+                {% set declared = declared|merge([{v: version.majorMinor, tier: tier}]) %}
+            {% endif %}
+        {% endfor %}
+
+        {% if declared|length %}
+            {% for item in declared %}
+                {# The ring and the ˚ both mark an open-ended constraint. Two signals
+                   rather than a second colour, so the distinction survives greyscale
+                   and colour-vision deficiency. #}
+                <span class="chip chip--version {{ item.tier == 'explicit' ? 'is-explicit' : 'is-open' }}"
+                      title="{{ item.tier == 'explicit'
+                          ? 'Declares support for Shopware ' ~ item.v
+                          : 'Declares support for Shopware ' ~ item.v ~ ' through an open-ended constraint, which claims releases published after the extension was last touched' }}">
+                    {{ item.v }}{{ item.tier == 'explicit' ? '' : '˚' }}
+                </span>
+            {% endfor %}
+        {% else %}
+            <span class="row-none" title="No parsable shopware/core constraint in composer.json">none declared</span>
+        {% endif %}
+    </div>
+
+    <div class="row-licence">
+        {% set licence = extension.licenseStatus %}
+        <span class="chip {{ licence.value == 'unknown' or licence.value == 'rejected' ? 'chip--danger' : 'chip--quiet' }}"
+              title="{{ licence.value == 'unknown'
+                  ? 'No licence detected. Public code is not the same as open source, so this is indexed and linked only.'
+                  : (licence.value == 'rejected'
+                      ? 'The declared licence is not an accepted open-source licence.'
+                      : 'Detected from composer.json, verified against the repository.') }}">
+            {{ extension.licenseSpdx ?? licence.badgeLabel }}
+        </span>
+    </div>
+
+    <div class="row-touched">
+        {% if extension.lastCommitAt %}
+            {# Last commit, not last release. A maintainer who has not tagged in a year
+               but is still merging fixes is in a different situation from one who has
+               vanished, and the release date cannot tell them apart. #}
+            <time datetime="{{ extension.lastCommitAt|date('Y-m-d') }}"
+                  class="num {{ extension.maintenanceStatus.value == 'abandoned' or extension.maintenanceStatus.value == 'dormant' ? 'is-stale' : '' }}"
+                  title="Last commit {{ extension.lastCommitAt|date('j M Y') }} — {{ extension.maintenanceStatus.value }}">
+                {{ extension.lastCommitAt|ago }}
+            </time>
+        {% else %}
+            <span class="row-none" title="Not enriched yet, or the forge exposes no commit history we can read">—</span>
+        {% endif %}
+    </div>
+
+    {# The full badge set lives on the detail page. Repeating it here would say the
+       licence and the maintenance state a second time, since both already have their
+       own column.
+
+       The disclosure badge is the exception and is not optional: where the operator
+       of this directory is also the publisher of an extension, that has to be stated
+       on the extension itself rather than on an about page nobody opens. #}
+    {% if extension.vendor.maintainerOperated %}
+        <div class="row-flags">
+            <span class="chip chip--disclosure"
+                  title="Published by the same person who operates extdir. Ranked by the same public algorithm as every other extension, with no special treatment.">
+                extdir maintainer
+            </span>
+        </div>
+    {% endif %}
+</article>

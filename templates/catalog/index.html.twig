@@ -6,7 +6,7 @@
         <a class="{{ active ? 'is-active' : '' }}" href="{{ path('home', target.toQueryParameters) }}"
            {{ active ? 'aria-current="true"' : '' }}>
             <span>{{ label }}</span>
-            <span class="count">{{ count }}</span>
+            <span class="count num">{{ count }}</span>
         </a>
     </li>
 {% endmacro %}
@@ -45,135 +45,192 @@
     <div class="catalog">
         <aside class="facets" aria-label="Filters">
             {% if criteria.hasFilters %}
-                <p><a class="facet-clear" href="{{ path('home') }}">← Clear all filters</a></p>
+                <p class="facet-clear-wrap">
+                    <a class="facet-clear" href="{{ path('home', criteria.isCompact ? {view: 'compact'} : {}) }}">Clear all filters</a>
+                </p>
             {% endif %}
 
-            <div class="facet">
-                <h2>Shopware version</h2>
-                <ul>
-                    {% for version in shopwareVersions|reverse %}
-                        {% set count = result.facet('shopware')[version.majorMinor] ?? 0 %}
-                        {% if count > 0 or criteria.shopwareVersion == version.majorMinor %}
-                            {{ _self.facet_link(criteria, 'shopware', version.majorMinor,
-                                version.majorMinor ~ (version.current ? ' (current)' : ''),
-                                count, criteria.shopwareVersion == version.majorMinor) }}
-                        {% endif %}
-                    {% endfor %}
-                </ul>
-            </div>
+            {# Each block is rendered only when it has options with results. A facet
+               heading with nothing under it — which "Maintenance" was, before
+               enrichment ran — reads as a broken page. #}
+            {% set versionOptions = [] %}
+            {% for version in shopwareVersions|reverse %}
+                {% set count = result.facet('shopware')[version.majorMinor] ?? 0 %}
+                {% if count > 0 or criteria.shopwareVersion == version.majorMinor %}
+                    {% set versionOptions = versionOptions|merge([{
+                        value: version.majorMinor,
+                        label: version.majorMinor ~ (version.current ? ' · current' : ''),
+                        count: count
+                    }]) %}
+                {% endif %}
+            {% endfor %}
 
-            <div class="facet">
-                <h2>Maintenance</h2>
-                <ul>
-                    {% for state, label in {
-                        'current': 'Actively maintained',
-                        'lagging': 'Behind current release',
-                        'dormant': 'Dormant',
-                        'abandoned': 'Abandoned'
-                    } %}
-                        {% set count = result.facet('maintenance')[state] ?? 0 %}
-                        {% if count > 0 or criteria.maintenance == state %}
-                            {{ _self.facet_link(criteria, 'maintenance', state, label, count,
-                                criteria.maintenance == state) }}
-                        {% endif %}
-                    {% endfor %}
-                </ul>
-            </div>
+            {% if versionOptions|length %}
+                <div class="facet">
+                    <h2>Shopware version</h2>
+                    <ul>
+                        {% for option in versionOptions %}
+                            {{ _self.facet_link(criteria, 'shopware', option.value, option.label,
+                                option.count, criteria.shopwareVersion == option.value) }}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
 
-            <div class="facet">
-                <h2>Licence</h2>
-                <ul>
-                    {% for state, label in {
-                        'permissive': 'Permissive (MIT, Apache…)',
-                        'copyleft': 'Copyleft (GPL, MPL…)',
-                        'rejected': 'Not open source',
-                        'unknown': 'No licence found'
-                    } %}
-                        {% set count = result.facet('licence')[state] ?? 0 %}
-                        {% if count > 0 or criteria.licence == state %}
-                            {{ _self.facet_link(criteria, 'licence', state, label, count,
-                                criteria.licence == state) }}
-                        {% endif %}
-                    {% endfor %}
-                </ul>
-            </div>
+            {% set maintenanceOptions = [] %}
+            {% for state, label in {
+                'current': 'Actively maintained',
+                'lagging': 'Behind current release',
+                'dormant': 'Dormant',
+                'abandoned': 'Abandoned'
+            } %}
+                {% set count = result.facet('maintenance')[state] ?? 0 %}
+                {% if count > 0 or criteria.maintenance == state %}
+                    {% set maintenanceOptions = maintenanceOptions|merge([{value: state, label: label, count: count}]) %}
+                {% endif %}
+            {% endfor %}
 
-            <div class="facet">
-                <h2>Category</h2>
-                <ul>
-                    {% for key, category in categories %}
-                        {% set count = result.facet('category')[key] ?? 0 %}
-                        {% if count > 0 or criteria.category == key %}
-                            {{ _self.facet_link(criteria, 'category', key, category.label, count,
-                                criteria.category == key) }}
-                        {% endif %}
-                    {% endfor %}
-                </ul>
-            </div>
+            {% if maintenanceOptions|length %}
+                <div class="facet">
+                    <h2>Maintenance</h2>
+                    <ul>
+                        {% for option in maintenanceOptions %}
+                            {{ _self.facet_link(criteria, 'maintenance', option.value, option.label,
+                                option.count, criteria.maintenance == option.value) }}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            {% set licenceOptions = [] %}
+            {% for state, label in {
+                'permissive': 'Permissive (MIT, Apache…)',
+                'copyleft': 'Copyleft (GPL, MPL…)',
+                'rejected': 'Not open source',
+                'unknown': 'No licence found'
+            } %}
+                {% set count = result.facet('licence')[state] ?? 0 %}
+                {% if count > 0 or criteria.licence == state %}
+                    {% set licenceOptions = licenceOptions|merge([{value: state, label: label, count: count}]) %}
+                {% endif %}
+            {% endfor %}
+
+            {% if licenceOptions|length %}
+                <div class="facet">
+                    <h2>Licence</h2>
+                    <ul>
+                        {% for option in licenceOptions %}
+                            {{ _self.facet_link(criteria, 'licence', option.value, option.label,
+                                option.count, criteria.licence == option.value) }}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            {% set categoryOptions = [] %}
+            {% for key, category in categories %}
+                {% set count = result.facet('category')[key] ?? 0 %}
+                {% if count > 0 or criteria.category == key %}
+                    {% set categoryOptions = categoryOptions|merge([{value: key, label: category.label, count: count}]) %}
+                {% endif %}
+            {% endfor %}
+
+            {% if categoryOptions|length %}
+                {# 28 categories is the longest thing on this page by some margin.
+                   Collapsed behind a native <details> so it costs nothing when closed
+                   and needs no JavaScript to open. #}
+                <div class="facet">
+                    <h2>Category</h2>
+                    <ul>
+                        {% for option in categoryOptions|slice(0, 8) %}
+                            {{ _self.facet_link(criteria, 'category', option.value, option.label,
+                                option.count, criteria.category == option.value) }}
+                        {% endfor %}
+                    </ul>
+
+                    {% if categoryOptions|length > 8 %}
+                        <details class="facet-more" {{ criteria.category and criteria.category not in categoryOptions|slice(0, 8)|column('value') ? 'open' : '' }}>
+                            <summary>{{ categoryOptions|length - 8 }} more categories</summary>
+                            <ul>
+                                {% for option in categoryOptions|slice(8) %}
+                                    {{ _self.facet_link(criteria, 'category', option.value, option.label,
+                                        option.count, criteria.category == option.value) }}
+                                {% endfor %}
+                            </ul>
+                        </details>
+                    {% endif %}
+                </div>
+            {% endif %}
         </aside>
 
         <div>
             <div class="results-head">
                 <p class="results-count">
                     {% if criteria.query %}
-                        {{ result.total }} result{{ result.total == 1 ? '' : 's' }} for
+                        <strong class="num">{{ result.total }}</strong> result{{ result.total == 1 ? '' : 's' }} for
                         <strong>{{ criteria.query }}</strong>
                     {% else %}
-                        Showing {{ result.total }} extension{{ result.total == 1 ? '' : 's' }}
+                        <strong class="num">{{ result.total }}</strong> extension{{ result.total == 1 ? '' : 's' }}
                     {% endif %}
                 </p>
 
-                <form class="sort-form" method="get" action="{{ path('home') }}">
-                    {% for key, value in criteria.toQueryParameters %}
-                        {% if key != 'sort' and key != 'page' %}
-                            <input type="hidden" name="{{ key }}" value="{{ value }}">
-                        {% endif %}
-                    {% endfor %}
-                    <label for="sort">Sort by</label>
-                    <select class="select" id="sort" name="sort" onchange="this.form.submit()">
-                        {% for value, label in sortLabels %}
-                            <option value="{{ value }}" {{ criteria.sort == value ? 'selected' : '' }}>{{ label }}</option>
+                <div class="results-controls">
+                    {# Density, not a filter. Two links rather than a control, so it
+                       works without JavaScript and each state has its own URL. #}
+                    <div class="view-toggle" role="group" aria-label="Row density">
+                        <a href="{{ path('home', criteria.with('view', 'comfortable').toQueryParameters) }}"
+                           class="{{ criteria.isCompact ? '' : 'is-active' }}"
+                           {{ criteria.isCompact ? '' : 'aria-current="true"' }}>Detailed</a>
+                        <a href="{{ path('home', criteria.with('view', 'compact').toQueryParameters) }}"
+                           class="{{ criteria.isCompact ? 'is-active' : '' }}"
+                           {{ criteria.isCompact ? 'aria-current="true"' : '' }}>Compact</a>
+                    </div>
+
+                    <form class="sort-form" method="get" action="{{ path('home') }}">
+                        {% for key, value in criteria.toQueryParameters %}
+                            {% if key != 'sort' and key != 'page' %}
+                                <input type="hidden" name="{{ key }}" value="{{ value }}">
+                            {% endif %}
                         {% endfor %}
-                    </select>
-                    <noscript><button class="btn" type="submit">Apply</button></noscript>
-                </form>
+                        <label for="sort">Sort</label>
+                        <select class="select" id="sort" name="sort" onchange="this.form.submit()">
+                            {% for value, label in sortLabels %}
+                                <option value="{{ value }}" {{ criteria.sort == value ? 'selected' : '' }}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <noscript><button class="btn btn--sm" type="submit">Apply</button></noscript>
+                    </form>
+                </div>
             </div>
 
             {% if result.isEmpty %}
                 <div class="empty">
                     <p><strong>Nothing matched those filters.</strong></p>
                     <p class="small">
-                        Note that search terms shorter than three characters are ignored — the
-                        database index does not store them.
+                        Search terms shorter than three characters are ignored — the database index
+                        does not store them.
                     </p>
-                    <p><a href="{{ path('home') }}">Clear filters</a></p>
+                    <p><a class="link-arrow" href="{{ path('home') }}">Clear filters</a></p>
                 </div>
             {% else %}
-                {# One custom property drives both the header and every card's grid, so
-                   the columns cannot drift apart as the version list grows. #}
-                <div style="--matrix-cols: {{ shopwareVersions|length }}">
-                    <div class="matrix-header" aria-hidden="true">
-                        <span class="matrix-header-label">Declares support for</span>
-                        {% for version in shopwareVersions %}
-                            <span class="v {{ version.current ? 'is-current' : '' }}">{{ version.majorMinor }}</span>
-                        {% endfor %}
+                <div class="rows {{ criteria.isCompact ? 'rows--compact' : '' }}">
+                    {# Column headers, so every row is read against a label rather than
+                       against a legend. They stay put while the list scrolls. #}
+                    <div class="rows-head" aria-hidden="true">
+                        <span>Extension</span>
+                        <span>Declares Shopware</span>
+                        <span>Licence</span>
+                        <span class="rows-head-touched">Last commit</span>
                     </div>
 
-                    <p class="matrix-legend">
-                        <span><span class="matrix-cell is-yes" aria-hidden="true">●</span> declared</span>
-                        <span><span class="matrix-cell is-unverified" aria-hidden="true">◐</span> open-ended constraint</span>
-                        <span><span class="matrix-cell" aria-hidden="true">·</span> not declared</span>
-                    </p>
-
-                <div class="card-list">
                     {% for extension in result.extensions %}
-                        {{ include('catalog/_card.html.twig', {
+                        {{ include('catalog/_row.html.twig', {
                             extension: extension,
                             supported: matrices[extension.id] ?? {},
-                            shopwareVersions: shopwareVersions
+                            shopwareVersions: shopwareVersions,
+                            compact: criteria.isCompact
                         }) }}
                     {% endfor %}
-                </div>
                 </div>
 
                 {% if result.pageCount > 1 %}

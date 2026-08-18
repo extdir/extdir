@@ -25,6 +25,17 @@ final readonly class SearchCriteria
     public const SORT_NAME = 'name';
     public const SORT_STARS = 'stars';
 
+    /**
+     * Row density. Comfortable carries the description; compact is one line per
+     * extension for someone comparing forty of them rather than reading three.
+     *
+     * In the URL rather than a cookie, for the same reason every filter is: the view
+     * survives filtering, it can be pasted to a colleague, and the site continues to
+     * set no cookies at all — which the privacy policy states and a test enforces.
+     */
+    public const VIEW_COMFORTABLE = 'comfortable';
+    public const VIEW_COMPACT = 'compact';
+
     public function __construct(
         public ?string $query = null,
         public ?string $shopwareVersion = null,
@@ -33,6 +44,7 @@ final readonly class SearchCriteria
         public ?string $maintenance = null,
         public string $sort = self::SORT_RANK,
         public int $page = 1,
+        public string $view = self::VIEW_COMFORTABLE,
     ) {
     }
 
@@ -55,7 +67,15 @@ final readonly class SearchCriteria
             maintenance: self::cleanFilter($request->query->get('maintenance')),
             sort: $sort,
             page: max(1, (int) $request->query->get('page', 1)),
+            view: self::VIEW_COMPACT === $request->query->get('view')
+                ? self::VIEW_COMPACT
+                : self::VIEW_COMFORTABLE,
         );
+    }
+
+    public function isCompact(): bool
+    {
+        return self::VIEW_COMPACT === $this->view;
     }
 
     /**
@@ -109,6 +129,9 @@ final readonly class SearchCriteria
             sort: 'sort' === $facet ? (string) $value : $this->sort,
             // Any facet change invalidates the current page number.
             page: 'page' === $facet ? max(1, (int) $value) : 1,
+            // Density is not a facet. Changing a filter must not silently throw the
+            // reader back to the other layout.
+            view: 'view' === $facet ? (string) $value : $this->view,
         );
     }
 
@@ -137,15 +160,20 @@ final readonly class SearchCriteria
             $params['page'] = $this->page;
         }
 
+        if (self::VIEW_COMFORTABLE !== $this->view) {
+            $params['view'] = $this->view;
+        }
+
         return $params;
     }
 
     /**
      * Query parameters for the canonical URL.
      *
-     * Sort is dropped: reordering the same result set produces a page that is
-     * word-for-word identical to a search engine, so every ordering would compete
-     * with the others for the same query. Facets and page are kept, because those
+     * Sort and view are dropped: reordering or re-spacing the same result set
+     * produces a page that is word-for-word identical to a search engine, so every
+     * variant would compete with the others for the same query. Facets and page are
+     * kept, because those
      * genuinely change what is on the page — a paginated result canonicalised back
      * to page one is a documented way to make everything past the first page
      * invisible.
@@ -155,7 +183,7 @@ final readonly class SearchCriteria
     public function toCanonicalParameters(): array
     {
         $params = $this->toQueryParameters();
-        unset($params['sort']);
+        unset($params['sort'], $params['view']);
 
         return $params;
     }

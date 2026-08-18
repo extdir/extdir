@@ -19,9 +19,14 @@
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
 
+{% set route = app.request.attributes.get('_route') %}
+
 <header class="site-header">
-    <div class="wrap header-inner">
+    {# Two tiers. Search is the primary action on a directory and was previously
+       sharing one row with five navigation links at the same visual weight. #}
+    <div class="wrap masthead">
         <a class="brand" href="{{ path('home') }}">
+            <img class="brand-icon" src="{{ asset('images/favicon.svg') }}" alt="" width="22" height="22">
             <span class="brand-mark">ext<span>dir</span></span>
         </a>
 
@@ -31,26 +36,27 @@
                    value="{{ app.request.query.get('q') }}" autocomplete="off">
             <button class="btn btn--primary" type="submit">Search</button>
         </form>
+    </div>
 
-        <nav class="header-nav" aria-label="Main">
-            <a href="{{ path('home') }}">Extensions</a>
-            <a href="{{ path('ranking') }}">Ranking</a>
-            <a href="{{ path('about') }}">About</a>
-            {% if app.user %}
-                <a href="{{ path('my_extensions') }}">Your extensions</a>
-                <a href="{{ path('logout') }}">Sign out</a>
-            {% endif %}
-        </nav>
+    <div class="header-nav-bar">
+        <div class="wrap header-nav-inner">
+            <nav class="header-nav" aria-label="Main">
+                <a href="{{ path('home') }}" class="{{ route == 'home' ? 'is-current' : '' }}">Extensions</a>
+                <a href="{{ path('ranking') }}" class="{{ route == 'ranking' ? 'is-current' : '' }}">Ranking</a>
+                <a href="{{ path('about') }}" class="{{ route == 'about' ? 'is-current' : '' }}">About</a>
+                {% if app.user %}
+                    <a href="{{ path('my_extensions') }}" class="{{ route == 'my_extensions' ? 'is-current' : '' }}">Your extensions</a>
+                    <a href="{{ path('logout') }}">Sign out</a>
+                {% endif %}
+            </nav>
+
+            {# The trademark rule requires this from day one and on every page, so it
+               lives in the chrome rather than in a strip that could be dismissed or
+               scrolled past. #}
+            <p class="header-disclaimer">Not affiliated with Shopware AG · a community project</p>
+        </div>
     </div>
 </header>
-
-{# the trademark rule requires the non-affiliation disclaimer to be present from day
-   one, not added later. It sits above the fold rather than only in the footer. #}
-<div class="disclaimer-strip">
-    <div class="wrap">
-        Not affiliated with Shopware AG. A community project, run by volunteers.
-    </div>
-</div>
 
 <main id="main">
     {% for type, messages in app.flashes %}

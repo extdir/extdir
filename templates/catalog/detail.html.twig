@@ -19,6 +19,31 @@
         {% if extension.description %}
             <p class="lede detail-lede">{{ extension.description }}</p>
         {% endif %}
+
+        {# Compatibility first, before anything else. It is the question that brought
+           the reader here, and it used to sit in a panel below the fold. #}
+        <div class="detail-compat">
+            <span class="detail-compat-label">Declares Shopware</span>
+            <div class="detail-compat-chips">
+                {% set anyDeclared = false %}
+                {% for version in shopwareVersions %}
+                    {% set tier = matrix[version.majorMinor] ?? null %}
+                    {% if tier %}
+                        {% set anyDeclared = true %}
+                        <span class="chip chip--version {{ tier == 'explicit' ? 'is-explicit' : 'is-open' }}"
+                              title="{{ tier == 'explicit'
+                                  ? 'Declares support for Shopware ' ~ version.majorMinor
+                                  : 'Open-ended constraint covering Shopware ' ~ version.majorMinor }}">
+                            {{ version.majorMinor }}{{ tier == 'explicit' ? '' : '˚' }}
+                        </span>
+                    {% endif %}
+                {% endfor %}
+                {% if not anyDeclared %}
+                    <span class="row-none">No parsable constraint in composer.json</span>
+                {% endif %}
+            </div>
+        </div>
+
         <div class="badges detail-badges">
             {{ include('catalog/_badges.html.twig') }}
         </div>
@@ -27,29 +52,12 @@
     <div class="detail-grid">
         <div>
             <section class="panel">
-                <h2>Declared Shopware compatibility</h2>
-                {# Labelled columns here rather than the list view's bare glyphs: this
-                   is the page someone lands on from a search engine, with no header
-                   above to say which column is which. #}
-                <div class="matrix-detail">
-                    {% for version in shopwareVersions %}
-                        {% set tier = matrix[version.majorMinor] ?? null %}
-                        <div class="matrix-detail-col">
-                            <span class="matrix-detail-version num">{{ version.majorMinor }}</span>
-                            <span class="matrix-cell {{ tier == 'explicit' ? 'is-yes' : (tier ? 'is-unverified' : '') }}"
-                                  title="{{ tier == 'explicit'
-                                      ? 'Declared'
-                                      : (tier ? 'Declared with an open-ended constraint' : 'Not declared') }}">
-                                <span aria-hidden="true">{{ tier == 'explicit' ? '●' : (tier ? '◐' : '·') }}</span>
-                                <span class="visually-hidden">{{ tier == 'explicit' ? 'declared' : (tier ? 'open-ended' : 'not declared') }}</span>
-                            </span>
-                        </div>
-                    {% endfor %}
-                </div>
+                <h2>About that compatibility</h2>
                 <p class="small muted">
                     These are the versions the maintainer <strong>declares</strong> support for in
-                    <code>composer.json</code>, not versions extdir has tested. An amber cell means the
-                    constraint is open-ended — for example <code>^6.5</code>, which claims every later
+                    <code>composer.json</code>, not versions extdir has tested. A dashed chip marked
+                    <code>˚</code> means the constraint is open-ended — for example <code>^6.5</code>,
+                    which claims every later
                     6.x release including ones published after the extension was last touched.
                 </p>
             </section>
