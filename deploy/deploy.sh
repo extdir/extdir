@@ -85,6 +85,15 @@ RSYNC_EXCLUDES=(
     --exclude '.env.local' --exclude '.env.local.php'
 )
 
+# Only tracked files are deployed. Everything the server needs is either in git
+# or generated on the server (vendor/, var/, compiled assets), so anything
+# untracked is local scratch and has no business on a public web host. Deriving
+# this from git rather than listing names means a new local file is excluded the
+# moment it appears, without anyone remembering to update this script.
+while IFS= read -r untracked; do
+    RSYNC_EXCLUDES+=(--exclude "/$untracked")
+done < <(git ls-files --others --directory)
+
 if [ "$REMOTE_ONLY" -eq 0 ]; then
     if [ "$DRY_RUN" -eq 1 ]; then
         rsync -az --delete --dry-run "${RSYNC_EXCLUDES[@]}" ./ "$REMOTE:$REMOTE_PATH/"

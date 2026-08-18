@@ -34,18 +34,6 @@
             "src/Repository/.gitignore"
         ]
     },
-    "doctrine/doctrine-fixtures-bundle": {
-        "version": "4.3",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "3.0",
-            "ref": "1f5514cfa15b947298df4d771e694e578d4c204d"
-        },
-        "files": [
-            "src/DataFixtures/AppFixtures.php"
-        ]
-    },
     "doctrine/doctrine-migrations-bundle": {
         "version": "3.7",
         "recipe": {
@@ -96,6 +84,18 @@
             "phpunit.dist.xml",
             "tests/bootstrap.php",
             "bin/phpunit"
+        ]
+    },
+    "symfony/apache-pack": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "1.0",
+            "ref": "5d454ec6cc4c700ed3d963f3803e1d427d9669fb"
+        },
+        "files": [
+            "public/.htaccess"
         ]
     },
     "symfony/asset-mapper": {
