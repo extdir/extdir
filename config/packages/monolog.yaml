@@ -48,8 +48,16 @@ when@prod:
                 type: console
                 process_psr_3_messages: false
                 channels: ["!event", "!doctrine"]
+            # A file, not stderr. Doctrine ORM and var-exporter both emit a
+            # deprecation on every single request and every console command
+            # under PHP 8.3 — they want native lazy objects, which need 8.4.
+            # Uberspace mails cron stderr to the account, so leaving these on
+            # stderr means an email per scheduled crawl about something that
+            # cannot be fixed until the PHP upgrade. They stay logged, because
+            # they are the upgrade checklist; they just stay out of the way.
             deprecation:
-                type: stream
+                type: rotating_file
                 channels: [deprecation]
-                path: php://stderr
+                path: "%kernel.logs_dir%/deprecation.log"
+                max_files: 3
                 formatter: monolog.formatter.json
