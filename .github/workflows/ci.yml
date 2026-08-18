@@ -83,6 +83,13 @@ jobs:
 
       - uses: ramsey/composer-install@v3
 
+      - name: Install frontend vendor assets
+        # assets/vendor is gitignored, so a fresh checkout has none. Without this
+        # every functional test that renders a page fails with "The
+        # "@hotwired/stimulus" vendor asset is missing" — which looks like a
+        # template bug rather than a missing build step.
+        run: bin/console importmap:install
+
       - name: Create the test database
         # doctrine.yaml appends a _test suffix in the test environment, so the
         # database the service container created is not the one tests use.

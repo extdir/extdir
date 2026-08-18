@@ -53,6 +53,9 @@ php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migratio
 
 php bin/console cache:clear --env=prod --no-debug
 php bin/console cache:warmup --env=prod --no-debug
+
+# assets/vendor is not in git, so a first deploy has nothing to compile.
+php bin/console importmap:install
 php bin/console asset-map:compile --env=prod --no-debug
 
 # Workers hold the old code in memory until they are restarted; without this a
