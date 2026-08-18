@@ -164,6 +164,40 @@
         </aside>
 
         <div>
+            {# Active filters restated where the results are. A tick in the sidebar
+               tells you what is selected only if you look at the sidebar; after
+               scrolling, a reader has no idea why the list is short. Each token is
+               also the way to remove that one filter. #}
+            {% if criteria.hasFilters %}
+                <div class="tokens">
+                    {% if criteria.query %}
+                        <a class="token" href="{{ path('home', criteria.with('query', null).toQueryParameters) }}">
+                            <span class="token-key">search</span> {{ criteria.query }}
+                        </a>
+                    {% endif %}
+                    {% if criteria.shopwareVersion %}
+                        <a class="token" href="{{ path('home', criteria.with('shopware', null).toQueryParameters) }}">
+                            <span class="token-key">shopware</span> {{ criteria.shopwareVersion }}
+                        </a>
+                    {% endif %}
+                    {% if criteria.maintenance %}
+                        <a class="token" href="{{ path('home', criteria.with('maintenance', null).toQueryParameters) }}">
+                            <span class="token-key">maintenance</span> {{ criteria.maintenance }}
+                        </a>
+                    {% endif %}
+                    {% if criteria.licence %}
+                        <a class="token" href="{{ path('home', criteria.with('licence', null).toQueryParameters) }}">
+                            <span class="token-key">licence</span> {{ criteria.licence }}
+                        </a>
+                    {% endif %}
+                    {% if criteria.category %}
+                        <a class="token" href="{{ path('home', criteria.with('category', null).toQueryParameters) }}">
+                            <span class="token-key">category</span> {{ categories[criteria.category].label ?? criteria.category }}
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+
             <div class="results-head">
                 <p class="results-count">
                     {% if criteria.query %}
@@ -213,14 +247,17 @@
                     <p><a class="link-arrow" href="{{ path('home') }}">Clear filters</a></p>
                 </div>
             {% else %}
-                <div class="rows {{ criteria.isCompact ? 'rows--compact' : '' }}">
+                <div class="rows {{ criteria.isCompact ? 'rows--compact' : '' }}"
+                     role="listbox" aria-label="Extensions"
+                     tabindex="-1">
                     {# Column headers, so every row is read against a label rather than
                        against a legend. They stay put while the list scrolls. #}
                     <div class="rows-head" aria-hidden="true">
                         <span>Extension</span>
                         <span>Declares Shopware</span>
                         <span>Licence</span>
-                        <span class="rows-head-touched">Last commit</span>
+                        <span class="ta-r">Last commit</span>
+                        <span></span>
                     </div>
 
                     {% for extension in result.extensions %}

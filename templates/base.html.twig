@@ -10,13 +10,13 @@
     {# The two font faces used above the fold. Without the hint they are only
        discovered once the stylesheet has parsed, which is a visible reflow on a
        cold load. #}
-    <link rel="preload" href="{{ asset('fonts/ibm-plex-sans-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="{{ asset('fonts/ibm-plex-sans-latin-600-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ asset('fonts/geist-sans-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ asset('fonts/geist-mono-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
     {% block stylesheets %}
         {{ importmap('app') }}
     {% endblock %}
 </head>
-<body>
+<body data-controller="shortcuts">
 <a class="skip-link" href="#main">Skip to content</a>
 
 {% set route = app.request.attributes.get('_route') %}
@@ -27,15 +27,34 @@
     <div class="wrap masthead">
         <a class="brand" href="{{ path('home') }}">
             <img class="brand-icon" src="{{ asset('images/favicon.svg') }}" alt="" width="22" height="22">
-            <span class="brand-mark">ext<span>dir</span></span>
+            <span class="brand-mark">ext<b>dir</b></span>
         </a>
 
         <form class="header-search" action="{{ path('home') }}" method="get" role="search">
             <label class="visually-hidden" for="header-q">Search extensions</label>
             <input class="input" id="header-q" type="search" name="q" placeholder="Search extensions…"
-                   value="{{ app.request.query.get('q') }}" autocomplete="off">
+                   value="{{ app.request.query.get('q') }}" autocomplete="off"
+                   data-shortcuts-target="search">
+            {# The hint is the affordance. A shortcut nobody can see is a shortcut
+               nobody uses, and this reader expects one to exist. #}
+            <kbd class="kbd" aria-hidden="true">/</kbd>
             <button class="btn btn--primary" type="submit">Search</button>
         </form>
+
+        {# Provenance in the chrome, where the sceptic looks first. Stating how current
+           the data is before being asked is most of the trust argument, and a
+           directory that hides its crawl age is asking to be taken on faith. #}
+        <div class="header-meta">
+            {% if catalogueStatus is defined and catalogueStatus.total > 0 %}
+                <p class="data-status {{ catalogueStatus.stale ? 'is-stale' : '' }}"
+                   title="{{ catalogueStatus.stale
+                       ? 'The last successful crawl is older than two days.'
+                       : 'Refreshed from Packagist and the source forges.' }}">
+                    <span class="num">{{ catalogueStatus.total }}</span> extensions
+                    {%- if catalogueStatus.crawledAt %} · {{ catalogueStatus.crawledAt|ago }} old{% endif %}
+                </p>
+            {% endif %}
+        </div>
     </div>
 
     <div class="header-nav-bar">
@@ -74,7 +93,6 @@
             <p class="footer-brand">extdir</p>
             <p class="muted small">
                 A community-run directory of open-source Shopware 6 extensions.
-                Operated and maintained by <a href="https://runio.dev" rel="noopener">runio.dev</a>.
             </p>
             <p class="muted small">
                 Not affiliated with, endorsed by, or connected to Shopware AG.
@@ -113,6 +131,16 @@
                 they cannot inspect.
             </p>
         </div>
+    </div>
+
+    <div class="wrap footer-base">
+        <p class="powered-by">
+            Powered by <a href="https://runio.dev" rel="noopener">runio.dev</a>
+            <span class="subtle">— operator and maintainer</span>
+        </p>
+        <p class="powered-by">
+            <a href="{{ path('ranking') }}">Ranking is algorithmic and public</a>
+        </p>
     </div>
 </footer>
 </body>

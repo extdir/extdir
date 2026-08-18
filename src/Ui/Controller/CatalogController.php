@@ -11,6 +11,7 @@ use App\Catalog\Search\ExtensionSearch;
 use App\Catalog\Search\SearchCriteria;
 use App\Compatibility\Repository\CompatibilityClaimRepository;
 use App\Compatibility\Repository\ShopwareVersionRepository;
+use App\Ui\CatalogueStatus;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,6 +26,7 @@ final class CatalogController extends AbstractController
         private readonly ShopwareVersionRepository $shopwareVersions,
         private readonly CategoryRepository $categories,
         private readonly CompatibilityClaimRepository $claims,
+        private readonly CatalogueStatus $status,
     ) {
     }
 
@@ -41,6 +43,7 @@ final class CatalogController extends AbstractController
             'categories' => $this->categories->findAllKeyed(),
             'matrices' => $this->claims->findMatrixForExtensions($result->extensions),
             'sortLabels' => SearchCriteria::sortLabels(),
+            'catalogueStatus' => $this->status->toArray(),
         ]);
     }
 
@@ -61,6 +64,7 @@ final class CatalogController extends AbstractController
             'shopwareVersions' => $this->shopwareVersions->findShownInMatrix(),
             'matrix' => $this->claims->findMatrixForExtension($extension),
             'releases' => $this->recentStableReleases($extension),
+            'catalogueStatus' => $this->status->toArray(),
         ]);
     }
 

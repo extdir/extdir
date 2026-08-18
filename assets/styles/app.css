@@ -1,182 +1,234 @@
 /*
- * extdir styles.
+ * extdir — design system.
  *
- * The shape of this file mirrors how the site is built: tokens, then the handful of
- * primitives every page is assembled from, then the few places that need something
- * of their own. Thirteen templates share eight primitives, so almost all visual work
- * happens above the "pages" heading.
+ * Order: tokens, primitives, then the few places that need something of their own.
+ * Thirteen templates share these primitives, so nearly all visual work happens above
+ * the "pages" heading and nothing below it invents its own spacing or colour.
  *
- * Two constraints are not preferences:
+ * Three rules this file holds itself to:
  *
- * Colour. Shopware's brand blue is deliberately avoided as the primary accent, so
- * the directory never reads as an official Shopware property. The palette is a warm
- * slate with a burnt-sienna accent.
+ * 1. Colour means something. Every colour outside the neutral ramp is a signal —
+ *    compatible, caution, risk, informational — and nothing is tinted for decoration.
+ *    That is not minimalism for its own sake: this site asks people to trust data
+ *    about someone else's software, and an interface that decorates is an interface
+ *    that might also be dressing up its data. Restraint is the trust signal.
  *
- * Fonts. IBM Plex is served from this repository, never from a CDN. Embedding Google
- * Fonts from Google's servers was held to breach the GDPR in LG München I, 20 January
- * 2022, 3 O 17493/20, and that ruling started a wave of German warning letters. A
- * site whose own Impressum argues about § 5 DDG cannot be loading typefaces from a US
- * CDN on every page view. Plex is SIL OFL; assets/fonts/LICENSE.txt travels with it,
- * for the same reason the licence gate demands it of everyone else.
+ * 2. Never colour alone. Anything colour distinguishes is also distinguished by text
+ *    or shape, so it survives greyscale, colour-blindness and a bad monitor.
+ *
+ * 3. Depth comes from borders and background steps, never drop shadows. Shadows are
+ *    what make a technical reference look like a consumer app.
+ *
+ * Shopware's brand blue is deliberately absent: the trademark rule forbids this
+ * reading as an official Shopware property.
+ *
+ * Fonts are served from this repository, never a CDN. Embedding Google Fonts from
+ * Google's servers was held to breach the GDPR in LG München I, 20 January 2022,
+ * 3 O 17493/20, which began a wave of German warning letters — untenable for a site
+ * whose own Impressum argues § 5 DDG. Geist is SIL OFL and assets/fonts/LICENSE-geist.txt
+ * travels with it, exactly as the licence gate demands of everyone we index.
  */
 
-/* ---------- fonts ---------- */
+/* ============================================================ FONTS */
 
 @font-face {
-    font-family: 'IBM Plex Sans';
-    src: url('../fonts/ibm-plex-sans-latin-400-normal.woff2') format('woff2');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
+    font-family: 'Geist';
+    src: url('../fonts/geist-sans-latin-400-normal.woff2') format('woff2');
+    font-weight: 400; font-style: normal; font-display: swap;
 }
-
 @font-face {
-    font-family: 'IBM Plex Sans';
-    src: url('../fonts/ibm-plex-sans-latin-600-normal.woff2') format('woff2');
-    font-weight: 600;
-    font-style: normal;
-    font-display: swap;
+    font-family: 'Geist';
+    src: url('../fonts/geist-sans-latin-500-normal.woff2') format('woff2');
+    font-weight: 500; font-style: normal; font-display: swap;
 }
-
 @font-face {
-    font-family: 'IBM Plex Mono';
-    src: url('../fonts/ibm-plex-mono-latin-400-normal.woff2') format('woff2');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
+    font-family: 'Geist';
+    src: url('../fonts/geist-sans-latin-600-normal.woff2') format('woff2');
+    font-weight: 600; font-style: normal; font-display: swap;
+}
+@font-face {
+    font-family: 'Geist Mono';
+    src: url('../fonts/geist-mono-latin-400-normal.woff2') format('woff2');
+    font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+    font-family: 'Geist Mono';
+    src: url('../fonts/geist-mono-latin-500-normal.woff2') format('woff2');
+    font-weight: 500; font-style: normal; font-display: swap;
 }
 
-/* ---------- tokens ---------- */
+/* ============================================================ TOKENS */
 
 :root {
-    --bg: #fbfaf9;
+    /* --- neutral ramp -------------------------------------------------
+       Named by role, not by value. A component asks for "the sunken
+       surface", so re-tuning the ramp moves everything coherently. */
+    --canvas: #fcfcfb;
     --surface: #ffffff;
-    --surface-sunk: #f5f2ef;
-    --border: #e3ded8;
-    --border-strong: #c9c1b7;
-    --fg: #1b1917;
-    --muted: #605a52;
-    --subtle: #8a8279;
+    --surface-sunk: #f4f4f2;
+    --surface-raised: #ffffff;
+    --border: #e4e4e1;
+    --border-strong: #c8c7c2;
 
-    /* Accent and warn were the same hex until this rewrite, which meant a selected
-       filter and an unverifiable-constraint warning were indistinguishable. Accent
-       now says "you chose this"; warn says "be careful". They must never converge
-       again. */
-    --accent: #9a3f12;
-    --accent-soft: #fbeee5;
-    --accent-strong: #7d3210;
+    --ink: #16161a;
+    --ink-muted: #56565e;
+    --ink-subtle: #6e6e75;
 
-    --ok: #166534;
-    --ok-soft: #e8f3ea;
-    --warn: #96590a;
-    --warn-soft: #fdf4e3;
-    --danger: #a51d16;
-    --danger-soft: #fdeeed;
+    /* --- signals -------------------------------------------------------
+       The only colours in the system. Each one answers a question the
+       reader actually has, and each is paired with text or shape wherever
+       it appears. */
+    --signal-ok: #096b3f;          /* declared, maintained, permissive */
+    --signal-ok-bg: #e8f5ee;
+    --signal-caution: #8a5207;     /* open-ended, lagging, needs a look */
+    --signal-caution-bg: #fcf3e4;
+    --signal-risk: #a3161b;        /* unlicensed, abandoned, not redistributable */
+    --signal-risk-bg: #fdeded;
+    --signal-info: #0b4f8f;        /* interactive, selected, informational */
+    --signal-info-bg: #e9f1fa;
 
-    --radius: 8px;
-    --radius-sm: 5px;
-    --wrap: 1180px;
+    /* Interaction. Deliberately not one of the four signals: "you are here"
+       and "this is fine" are different statements and must not share a hue. */
+    --accent: #1c1c22;
+    --accent-ink: #ffffff;
 
-    /* One scale, so vertical rhythm is a decision rather than an accident. */
-    --space-1: .25rem;
-    --space-2: .5rem;
-    --space-3: .75rem;
-    --space-4: 1rem;
-    --space-5: 1.5rem;
-    --space-6: 2rem;
-    --space-7: 3rem;
-    --space-8: 4.5rem;
+    /* --- geometry ------------------------------------------------------
+       An 8px grid. Half steps exist for optical work inside components. */
+    --s-1: 0.25rem;
+    --s-2: 0.5rem;
+    --s-3: 0.75rem;
+    --s-4: 1rem;
+    --s-5: 1.5rem;
+    --s-6: 2rem;
+    --s-7: 3rem;
+    --s-8: 4rem;
+    --s-9: 6rem;
 
-    --step--1: .8125rem;
-    --step-0: .9375rem;
-    --step-1: 1.0625rem;
-    --step-2: 1.375rem;
-    --step-3: 1.875rem;
-    --step-4: 2.5rem;
+    --radius: 6px;
+    --radius-sm: 4px;
+    --wrap: 1240px;
 
-    --sans: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-    --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    /* --- type ----------------------------------------------------------
+       Every step carries its own line height and tracking. Large text needs
+       tighter tracking and shorter leading than small text; letting the
+       browser scale one setting across six sizes is the difference between
+       typography and defaults. */
+    --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    --t-micro: 0.6875rem;
+    --t-small: 0.8125rem;
+    --t-body: 0.9375rem;
+    --t-lead: 1.0625rem;
+    --t-h3: 1.1875rem;
+    --t-h2: 1.5rem;
+    --t-h1: 2.125rem;
+    --t-display: 3rem;
 
     font-size: 16px;
+    color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --bg: #161513;
-        --surface: #1e1c1a;
-        --surface-sunk: #14130f;
-        --border: #322f2b;
-        --border-strong: #4c4740;
-        --fg: #f2efea;
-        --muted: #ada69b;
-        --subtle: #877f75;
+        --canvas: #0d0d0f;
+        --surface: #151517;
+        --surface-sunk: #101012;
+        --surface-raised: #1c1c1f;
+        --border: #26262a;
+        --border-strong: #3d3d43;
 
-        --accent: #e8895a;
-        --accent-soft: #33211a;
-        --accent-strong: #f2a077;
+        --ink: #f2f2f3;
+        --ink-muted: #a2a2ab;
+        --ink-subtle: #7e7e88;
 
-        --ok: #5fc98a;
-        --ok-soft: #142519;
-        --warn: #e0b04a;
-        --warn-soft: #2b2213;
-        --danger: #f08b83;
-        --danger-soft: #2c1817;
+        --signal-ok: #4ade80;
+        --signal-ok-bg: #0e2318;
+        --signal-caution: #e3b341;
+        --signal-caution-bg: #251c0c;
+        --signal-risk: #ff7b72;
+        --signal-risk-bg: #2b1313;
+        --signal-info: #6cb6ff;
+        --signal-info-bg: #10202f;
+
+        --accent: #f2f2f3;
+        --accent-ink: #0d0d0f;
+
+        color-scheme: dark;
     }
 }
+
+/* ============================================================ RESET */
 
 *, *::before, *::after { box-sizing: border-box; }
 
 body {
     margin: 0;
-    background: var(--bg);
-    color: var(--fg);
-    font-family: var(--sans);
-    font-size: var(--step-0);
-    line-height: 1.6;
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: var(--t-body);
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11', 'ss01';
 }
 
 a { color: inherit; text-decoration: none; }
-a:hover { text-decoration: underline; }
+a:hover { text-decoration: underline; text-underline-offset: 2px; }
 
-h1, h2, h3, h4 {
-    line-height: 1.25;
-    letter-spacing: -.015em;
-    font-weight: 600;
-}
+h1, h2, h3, h4 { margin: 0; font-weight: 600; }
+h1 { font-size: var(--t-h1); line-height: 1.15; letter-spacing: -0.025em; }
+h2 { font-size: var(--t-h2); line-height: 1.2; letter-spacing: -0.02em; }
+h3 { font-size: var(--t-h3); line-height: 1.3; letter-spacing: -0.015em; }
 
-:where(a, button, input, select, summary):focus-visible {
-    outline: 2px solid var(--accent);
+p { margin: 0 0 var(--s-4); }
+p:last-child { margin-bottom: 0; }
+
+/* ============================================================ STATES
+ *
+ * One treatment for each state, applied everywhere. Interfaces read as
+ * unfinished when the same gesture produces a different response depending on
+ * which element received it — so hover, focus and selection are defined once,
+ * here, and components inherit rather than reinvent.
+ */
+
+:where(a, button, input, select, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--signal-info);
     outline-offset: 2px;
     border-radius: var(--radius-sm);
 }
 
-/* ---------- utilities ---------- */
+:where(button, [role='button']):disabled,
+:where(button, [role='button'])[aria-disabled='true'] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 
-.wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--space-5); }
-.muted { color: var(--muted); }
-.subtle { color: var(--subtle); }
-.small { font-size: var(--step--1); }
+@media (prefers-reduced-motion: no-preference) {
+    .btn, .row, .chip, .token, .facet a, .view-toggle a {
+        transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+    }
+}
+
+/* ============================================================ UTILITIES */
+
+.wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--s-5); }
+.mono { font-family: var(--font-mono); }
 .num { font-variant-numeric: tabular-nums; }
-.mono, .code-inline { font-family: var(--mono); }
+.muted { color: var(--ink-muted); }
+.subtle { color: var(--ink-subtle); }
+.small { font-size: var(--t-small); }
+.lead { font-size: var(--t-lead); color: var(--ink-muted); line-height: 1.6; }
 
-.code-inline {
-    font-size: var(--step--1);
-    color: var(--subtle);
-    word-break: break-all;
-}
-
-.eyebrow {
-    font-size: var(--step--1);
+/* Micro-labels. Uppercase at this size needs tracking or it sets as a smear. */
+.label {
+    font-size: var(--t-micro);
     text-transform: uppercase;
-    letter-spacing: .09em;
-    color: var(--subtle);
-    margin: 0 0 var(--space-2);
-    font-weight: 600;
+    letter-spacing: 0.09em;
+    font-weight: 500;
+    color: var(--ink-subtle);
 }
-
-.lede { font-size: var(--step-1); color: var(--muted); }
 
 .visually-hidden {
     position: absolute; width: 1px; height: 1px;
@@ -186,473 +238,494 @@ h1, h2, h3, h4 {
 
 .skip-link {
     position: absolute; left: -9999px; top: 0; z-index: 100;
-    background: var(--accent); color: #fff; padding: var(--space-3) var(--space-4);
+    background: var(--accent); color: var(--accent-ink);
+    padding: var(--s-3) var(--s-4);
 }
 .skip-link:focus { left: 0; }
 
-.link-arrow { color: var(--accent); font-weight: 600; }
-.link-arrow::after { content: ' →'; }
+.link { color: var(--signal-info); }
+.link-arrow { color: var(--signal-info); font-weight: 500; }
+.link-arrow::after { content: ' \2192'; }
 
-/* ---------- controls ---------- */
+/* ============================================================ CONTROLS */
 
-/* One visual language for anything clickable. The search box, the sort select and
-   the buttons were three different heights and three different borders before. */
 .btn, .input, .select {
     font: inherit;
-    font-size: var(--step-0);
+    font-size: var(--t-body);
     line-height: 1.2;
-    /* 44px including borders — the minimum comfortable touch target. */
-    padding: .6875rem var(--space-4);
+    padding: 0.5625rem var(--s-4);
     border: 1px solid var(--border-strong);
     border-radius: var(--radius);
     background: var(--surface);
-    color: var(--fg);
+    color: var(--ink);
 }
 
-.btn { cursor: pointer; font-weight: 600; }
-.btn:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+.btn { cursor: pointer; font-weight: 500; display: inline-flex; align-items: center; gap: var(--s-2); }
+.btn:hover { background: var(--surface-sunk); text-decoration: none; }
 
-.btn--primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-.btn--primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
+.btn--primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn--primary:hover { opacity: 0.88; background: var(--accent); }
 
-.btn--quiet { border-color: var(--border); color: var(--muted); font-weight: 400; }
+.btn--sm { padding: var(--s-1) var(--s-2); font-size: var(--t-small); }
 
-.btn--danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 35%, transparent); }
-.btn--danger:hover { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
+.btn--risk { color: var(--signal-risk); border-color: color-mix(in srgb, var(--signal-risk) 40%, transparent); }
+.btn--risk:hover { background: var(--signal-risk-bg); }
 
-.input::placeholder { color: var(--subtle); }
-.select { padding-right: var(--space-6); }
+.input::placeholder { color: var(--ink-subtle); }
+.select { padding-right: var(--s-6); cursor: pointer; }
 
-/* ---------- masthead ----------
- *
- * Its own ground rather than a translucent bar floating over the page. Two tiers at
- * desktop: identity and search on top, navigation and the disclaimer below. Search is
- * the primary action on a directory and had been sharing a row with five nav links,
- * competing with them at the same weight.
- */
+/* ============================================================ MASTHEAD */
 
-.site-header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border-strong);
-    position: sticky; top: 0; z-index: 20;
-}
+.site-header { background: var(--surface); border-bottom: 1px solid var(--border); }
 
 .masthead {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
-    gap: var(--space-5);
-    padding: var(--space-3) 0;
+    gap: var(--s-5);
+    padding: var(--s-4) 0;
 }
 
-.brand { display: inline-flex; align-items: center; gap: var(--space-2); }
+.brand { display: inline-flex; align-items: center; gap: var(--s-2); }
 .brand:hover { text-decoration: none; }
-.brand-icon { width: 1.375rem; height: 1.375rem; display: block; }
+.brand-icon { width: 1.25rem; height: 1.25rem; display: block; }
 .brand-mark {
-    font-family: var(--mono);
-    font-weight: 600; font-size: 1.0625rem;
-    letter-spacing: -.04em;
+    font-family: var(--font-mono);
+    font-weight: 500; font-size: 1.0625rem;
+    letter-spacing: -0.05em;
 }
-.brand-mark span { color: var(--accent); }
+.brand-mark b { font-weight: 500; color: var(--ink-subtle); }
 
-.header-search { display: flex; gap: var(--space-2); min-width: 0; max-width: 34rem; }
-.header-search .input { flex: 1; min-width: 0; }
+.header-search { display: flex; gap: var(--s-2); min-width: 0; max-width: 30rem; position: relative; }
+.header-search .input { flex: 1; min-width: 0; padding-right: var(--s-8); }
 
-.header-nav-bar {
-    border-top: 1px solid var(--border);
-    background: var(--surface-sunk);
+/* The keyboard hint is the affordance. Developers look for it; without it the
+   shortcut may as well not exist. */
+.kbd {
+    font-family: var(--font-mono); font-size: var(--t-micro);
+    border: 1px solid var(--border-strong); border-bottom-width: 2px;
+    border-radius: var(--radius-sm);
+    padding: 0.0625rem 0.3125rem;
+    color: var(--ink-subtle); background: var(--surface-sunk);
 }
+.header-search .kbd {
+    position: absolute; right: 5.5rem; top: 50%; transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.header-meta { display: flex; align-items: center; gap: var(--s-4); }
+
+/* Provenance in the chrome. The sceptic's first question is how current this is,
+   and answering it before being asked is most of the trust argument. */
+.data-status {
+    display: inline-flex; align-items: center; gap: var(--s-2);
+    font-size: var(--t-micro); color: var(--ink-subtle);
+    font-family: var(--font-mono);
+}
+.data-status::before {
+    content: ''; width: 6px; height: 6px; border-radius: 999px;
+    background: var(--signal-ok);
+}
+.data-status.is-stale::before { background: var(--signal-caution); }
+
+.header-nav-bar { border-top: 1px solid var(--border); background: var(--surface-sunk); }
 .header-nav-inner {
     display: flex; align-items: center; justify-content: space-between;
-    gap: var(--space-4); flex-wrap: wrap;
-    padding: var(--space-2) 0;
+    gap: var(--s-4); flex-wrap: wrap; padding: var(--s-2) 0;
 }
-.header-nav {
-    display: flex; gap: var(--space-5);
-    font-size: .6875rem; text-transform: uppercase; letter-spacing: .09em;
-    font-weight: 600; color: var(--subtle);
+.header-nav { display: flex; gap: var(--s-5); }
+.header-nav a {
+    font-size: var(--t-micro); text-transform: uppercase; letter-spacing: 0.09em;
+    font-weight: 500; color: var(--ink-subtle);
+    padding: var(--s-1) 0;
+    border-bottom: 1px solid transparent;
 }
-.header-nav a:hover { color: var(--accent); text-decoration: none; }
-.header-nav a.is-current { color: var(--fg); }
+.header-nav a:hover { color: var(--ink); text-decoration: none; }
+.header-nav a.is-current { color: var(--ink); border-bottom-color: var(--ink); }
 
-/* The trademark rule requires this from day one and on every page, so it lives in
-   the chrome rather than in a dismissible strip. */
-.header-disclaimer { font-size: .6875rem; color: var(--subtle); margin: 0; }
+.header-disclaimer { font-size: var(--t-micro); color: var(--ink-subtle); margin: 0; }
 
-@media (max-width: 760px) {
-    .masthead { grid-template-columns: 1fr; gap: var(--space-3); }
-    .header-search { max-width: none; }
-    .header-nav-inner { justify-content: flex-start; }
+@media (max-width: 900px) {
+    .masthead { grid-template-columns: 1fr auto; row-gap: var(--s-3); }
+    .header-search { grid-column: 1 / -1; max-width: none; order: 3; }
+    .header-search .kbd { display: none; }
     .header-disclaimer { display: none; }
 }
 
-/* ---------- page scaffolding ---------- */
+/* ============================================================ PAGE */
 
-.page { padding: var(--space-7) 0 var(--space-8); }
-.page--narrow { max-width: 46rem; }
+.page { padding: var(--s-7) 0 var(--s-9); }
+.page--narrow { max-width: 48rem; }
 
-.page-head { margin-bottom: var(--space-6); }
-.page-head h1 { font-size: var(--step-3); margin: 0 0 var(--space-2); }
-.page-head > p { margin: 0; color: var(--muted); max-width: 62ch; }
+.page-head { margin-bottom: var(--s-6); }
+.page-head h1 { margin-bottom: var(--s-2); }
+.page-head > p { color: var(--ink-muted); max-width: 66ch; }
 
-.catalog { display: grid; grid-template-columns: 232px minmax(0, 1fr); gap: var(--space-7); align-items: start; }
-@media (max-width: 860px) { .catalog { grid-template-columns: 1fr; gap: var(--space-5); } }
+.catalog { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: var(--s-7); align-items: start; }
+@media (max-width: 900px) { .catalog { grid-template-columns: 1fr; gap: var(--s-5); } }
 
-/* ---------- facets ---------- */
+/* ============================================================ FACETS */
 
-.facets { position: sticky; top: 5rem; }
-@media (max-width: 860px) { .facets { position: static; } }
+.facets { position: sticky; top: var(--s-4); }
+@media (max-width: 900px) { .facets { position: static; } }
 
-.facet { margin-bottom: var(--space-5); }
-.facet h2 {
-    font-size: var(--step--1); text-transform: uppercase; letter-spacing: .09em;
-    color: var(--subtle); margin: 0 0 var(--space-2);
-}
+.facet { margin-bottom: var(--s-5); }
+.facet h2 { font-size: var(--t-micro); text-transform: uppercase; letter-spacing: 0.09em;
+    font-weight: 500; color: var(--ink-subtle); margin-bottom: var(--s-2); }
 .facet ul { list-style: none; margin: 0; padding: 0; }
 .facet a {
-    display: flex; justify-content: space-between; gap: var(--space-2);
-    padding: var(--space-2) var(--space-2);
+    display: flex; justify-content: space-between; gap: var(--s-2);
+    padding: var(--s-1) var(--s-2);
     border-radius: var(--radius-sm);
-    font-size: var(--step--1); color: var(--muted);
-    border-left: 2px solid transparent;
+    font-size: var(--t-small); color: var(--ink-muted);
 }
-.facet a:hover { background: var(--surface); color: var(--fg); text-decoration: none; }
-.facet a.is-active {
-    background: var(--accent-soft); color: var(--accent);
-    font-weight: 600; border-left-color: var(--accent);
+.facet a:hover { background: var(--surface-sunk); color: var(--ink); text-decoration: none; }
+.facet a.is-active { background: var(--signal-info-bg); color: var(--signal-info); font-weight: 500; }
+.facet .count { color: var(--ink-subtle); font-variant-numeric: tabular-nums; font-family: var(--font-mono); font-size: var(--t-micro); }
+.facet a.is-active .count { color: var(--signal-info); }
+
+.facet-more summary {
+    cursor: pointer; list-style: none;
+    font-size: var(--t-small); color: var(--signal-info);
+    padding: var(--s-1) var(--s-2);
 }
-.facet .count { color: var(--subtle); font-variant-numeric: tabular-nums; }
-.facet a.is-active .count { color: var(--accent); }
+.facet-more summary::-webkit-details-marker { display: none; }
+.facet-more summary::before { content: '+ '; }
+.facet-more[open] summary::before { content: '\2212 '; }
 
-.facet-clear { font-size: var(--step--1); color: var(--accent); font-weight: 600; }
+/* Active filters as removable tokens above the results. A sidebar tick tells you
+   what is selected only if you look at the sidebar; this states the current query
+   where the results are. */
+.tokens { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; margin-bottom: var(--s-4); }
+.token {
+    display: inline-flex; align-items: center; gap: var(--s-2);
+    font-size: var(--t-small);
+    padding: var(--s-1) var(--s-2);
+    border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+    background: var(--surface); color: var(--ink);
+}
+.token:hover { border-color: var(--signal-risk); color: var(--signal-risk); text-decoration: none; }
+.token .token-key { color: var(--ink-subtle); font-size: var(--t-micro); text-transform: uppercase; letter-spacing: 0.06em; }
+.token::after { content: '\00d7'; color: var(--ink-subtle); }
+.token:hover::after { color: var(--signal-risk); }
 
-/* ---------- results ---------- */
+/* ============================================================ RESULTS
+ *
+ * A reference table, not a feed of cards. Someone comparing forty shipping
+ * extensions needs the licence in the same place on every line; a card gives each
+ * entry its own internal layout and destroys that. Hairlines separate rows because a
+ * border around every row frames each one as an object rather than a line in a list.
+ */
 
 .results-head {
     display: flex; justify-content: space-between; align-items: center;
-    gap: var(--space-4); margin-bottom: var(--space-4); flex-wrap: wrap;
+    gap: var(--s-4); margin-bottom: var(--s-4); flex-wrap: wrap;
 }
-.results-count { color: var(--muted); font-size: var(--step-0); margin: 0; }
+.results-count { color: var(--ink-muted); margin: 0; }
+.results-count strong { color: var(--ink); font-family: var(--font-mono); font-weight: 500; }
+.results-controls { display: flex; align-items: center; gap: var(--s-4); flex-wrap: wrap; }
 
-.sort-form { display: flex; align-items: center; gap: var(--space-2); font-size: var(--step--1); }
-.sort-form label { color: var(--subtle); }
-.sort-form .select { padding: var(--space-2) var(--space-5) var(--space-2) var(--space-3); }
+.view-toggle { display: inline-flex; border: 1px solid var(--border-strong); border-radius: var(--radius); overflow: hidden; }
+.view-toggle a { padding: var(--s-2) var(--s-3); font-size: var(--t-small); color: var(--ink-muted); background: var(--surface); }
+.view-toggle a + a { border-left: 1px solid var(--border-strong); }
+.view-toggle a:hover { background: var(--surface-sunk); color: var(--ink); text-decoration: none; }
+.view-toggle a.is-active { background: var(--accent); color: var(--accent-ink); font-weight: 500; }
 
-/* ---------- results table ----------
- *
- * Rows, not cards. A card is a self-contained object you consider one at a time; this
- * is a list read downwards, where someone comparing forty shipping extensions needs
- * the licence to sit in the same place on every line. Hairlines separate them —
- * bordered boxes with radius and hover states put a frame around every single row and
- * turn a table into a feed.
- */
+.sort-form { display: flex; align-items: center; gap: var(--s-2); font-size: var(--t-small); }
+.sort-form label { color: var(--ink-subtle); }
+.sort-form .select { padding: var(--s-2) var(--s-5) var(--s-2) var(--s-3); font-size: var(--t-small); }
 
 .rows {
-    display: grid;
-    /* One track definition for the header and every row, so nothing can drift. */
-    --cols: minmax(0, 1fr) 15rem 8rem 5rem;
+    --cols: minmax(0, 1fr) 13rem 7rem 4.5rem 2.25rem;
     border-top: 1px solid var(--border);
 }
 
 .rows-head {
-    display: grid;
-    grid-template-columns: var(--cols);
-    gap: var(--space-4);
-    position: sticky; top: 4rem; z-index: 5;
-    padding: var(--space-2) var(--space-3);
-    background: var(--bg);
+    display: grid; grid-template-columns: var(--cols); gap: var(--s-4);
+    padding: var(--s-2) var(--s-3);
     border-bottom: 1px solid var(--border-strong);
-    font-size: .6875rem; text-transform: uppercase; letter-spacing: .1em;
-    color: var(--subtle); font-weight: 600;
+    font-size: var(--t-micro); text-transform: uppercase; letter-spacing: 0.09em;
+    color: var(--ink-subtle); font-weight: 500;
 }
-.rows-head-touched { text-align: right; }
+.rows-head .ta-r { text-align: right; }
 
 .row {
-    display: grid;
-    grid-template-columns: var(--cols);
-    gap: var(--space-1) var(--space-4);
+    display: grid; grid-template-columns: var(--cols); gap: var(--s-1) var(--s-4);
     align-items: baseline;
-    padding: var(--space-3);
+    padding: var(--s-3);
     border-bottom: 1px solid var(--border);
 }
 .row:hover { background: var(--surface); }
+/* Keyboard navigation needs a visible cursor that is not the focus ring, because the
+   row itself is not focused — the reader is moving a selection through a list. */
+.row.is-selected { background: var(--signal-info-bg); box-shadow: inset 2px 0 0 var(--signal-info); }
 
 .row-main { min-width: 0; }
-.row-title { font-size: var(--step-0); margin: 0; font-weight: 600; }
-.row-title a:hover { color: var(--accent); }
+.row-title { font-size: var(--t-body); font-weight: 500; }
+.row-title a:hover { color: var(--signal-info); }
 .row-package {
-    display: block;
-    font-family: var(--mono); font-size: .75rem; color: var(--subtle);
-    word-break: break-all;
+    display: block; font-family: var(--font-mono); font-size: var(--t-micro);
+    color: var(--ink-subtle); word-break: break-all;
 }
-.row-desc {
-    margin: var(--space-2) 0 0; color: var(--muted);
-    font-size: var(--step--1); max-width: 70ch;
-}
+.row-desc { margin: var(--s-2) 0 0; color: var(--ink-muted); font-size: var(--t-small); max-width: 72ch; }
 
-.row-versions { display: flex; flex-wrap: wrap; gap: var(--space-1); }
-.row-licence { min-width: 0; }
-.row-touched { text-align: right; font-size: var(--step--1); color: var(--muted); }
-.row-touched .is-stale { color: var(--warn); }
-.row-none { color: var(--subtle); font-size: var(--step--1); }
-.row-flags { grid-column: 1 / -1; margin-top: var(--space-1); }
+.row-versions { display: flex; flex-wrap: wrap; gap: var(--s-1); }
+.row-touched { text-align: right; font-size: var(--t-small); color: var(--ink-muted); font-family: var(--font-mono); }
+.row-touched .is-stale { color: var(--signal-caution); }
+.row-none { color: var(--ink-subtle); font-size: var(--t-small); }
+.row-flags { grid-column: 1 / -1; margin-top: var(--s-1); }
+.row-copy { justify-self: end; }
 
-/* Compact drops the description and tightens the line, roughly forty rows a screen
-   against eight. For comparing rather than reading. */
-.rows--compact .row { padding: var(--space-2) var(--space-3); align-items: center; }
-.rows--compact .row-package { font-size: .6875rem; }
+.rows--compact .row { padding: var(--s-2) var(--s-3); align-items: center; }
 
 @media (max-width: 900px) {
-    .rows { --cols: minmax(0, 1fr); }
+    .rows { --cols: minmax(0, 1fr) auto; }
     .rows-head { display: none; }
-    .row { gap: var(--space-2); padding: var(--space-4) var(--space-2); }
-    .row-touched { text-align: left; }
-    .row-versions { margin-top: var(--space-1); }
+    .row { gap: var(--s-2); padding: var(--s-4) var(--s-2); }
+    .row-main { grid-column: 1 / -1; }
+    .row-versions, .row-licence, .row-touched { grid-column: auto; text-align: left; }
+    .row-copy { justify-self: start; }
 }
 
-/* ---------- chips ----------
+/* ============================================================ CHIPS
  *
- * A chip carries its own label. The previous version used ● and ◐ in fixed columns,
- * which meant every mark had to be traced back to a header far above to learn which
- * version it referred to — across a page where two thirds of the cells were empty
- * boxes. "6.7" needs no legend.
+ * A chip carries its own label. An earlier version used ● and ◐ in fixed columns,
+ * which meant tracing every mark back to a distant header to learn which version it
+ * referred to, on a page where two thirds of the cells were empty. "6.7" needs
+ * neither header nor legend.
  */
 
 .chip {
-    display: inline-flex; align-items: center;
-    font-size: .75rem; line-height: 1.4;
-    padding: .0625rem var(--space-2);
+    display: inline-flex; align-items: center; gap: var(--s-1);
+    font-size: var(--t-micro); line-height: 1.5;
+    padding: 0.0625rem var(--s-2);
     border-radius: var(--radius-sm);
     border: 1px solid var(--border);
-    background: var(--surface-sunk); color: var(--muted);
+    background: var(--surface-sunk); color: var(--ink-muted);
     white-space: nowrap;
 }
 
-.chip--version { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.chip--version { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 500; }
 .chip--version.is-explicit {
-    color: var(--ok); background: var(--ok-soft);
-    border-color: color-mix(in srgb, var(--ok) 35%, transparent);
-    font-weight: 600;
+    color: var(--signal-ok); background: var(--signal-ok-bg);
+    border-color: color-mix(in srgb, var(--signal-ok) 30%, transparent);
 }
-/* An open-ended constraint claims every later release, including ones published
-   after the extension was last touched. Marked by a dashed edge and a ˚ in the label
-   rather than by colour alone, so it survives greyscale and colour-blindness. */
+/* An open-ended constraint claims releases published after the extension was last
+   touched. Dashed edge plus a ˚ in the label: two signals, so it survives greyscale. */
 .chip--version.is-open {
-    color: var(--warn); background: transparent;
-    border-style: dashed;
-    border-color: color-mix(in srgb, var(--warn) 55%, transparent);
+    color: var(--signal-caution); background: transparent;
+    border-style: dashed; border-color: color-mix(in srgb, var(--signal-caution) 50%, transparent);
 }
 
-.chip--quiet { color: var(--muted); }
-.chip--danger {
-    color: var(--danger); background: var(--danger-soft);
-    border-color: color-mix(in srgb, var(--danger) 35%, transparent);
-    font-weight: 600;
+.chip--risk {
+    color: var(--signal-risk); background: var(--signal-risk-bg);
+    border-color: color-mix(in srgb, var(--signal-risk) 35%, transparent); font-weight: 500;
 }
-.chip--disclosure { color: var(--accent); border-color: var(--accent); background: transparent; }
+.chip--disclosure { color: var(--signal-info); border-color: var(--signal-info); background: transparent; }
 
-/* ---------- badges (detail page) ---------- */
+.badges { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; }
+.badge { display: inline-flex; align-items: center; gap: var(--s-1);
+    font-size: var(--t-small); padding: 0.125rem var(--s-2);
+    border-radius: var(--radius-sm); border: 1px solid var(--border);
+    color: var(--ink-muted); background: var(--surface-sunk); white-space: nowrap; }
+a.badge:hover { border-color: var(--signal-info); color: var(--signal-info); text-decoration: none; }
+.badge--ok { color: var(--signal-ok); background: var(--signal-ok-bg); border-color: color-mix(in srgb, var(--signal-ok) 30%, transparent); }
+.badge--warn { color: var(--signal-caution); background: var(--signal-caution-bg); border-color: color-mix(in srgb, var(--signal-caution) 30%, transparent); }
+.badge--danger { color: var(--signal-risk); background: var(--signal-risk-bg); border-color: color-mix(in srgb, var(--signal-risk) 35%, transparent); font-weight: 500; }
+.badge--disclosure { color: var(--signal-info); border-color: var(--signal-info); background: transparent; font-weight: 500; }
 
-.badges { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
-
-.badge {
-    display: inline-flex; align-items: center; gap: var(--space-1);
-    font-size: var(--step--1); padding: .125rem var(--space-2);
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-    color: var(--muted); background: var(--surface-sunk);
-    white-space: nowrap;
+/* Copy-to-clipboard. The most frequent action an agency developer performs here is
+   taking the composer line, and it was previously only available by selecting text on
+   the detail page. */
+.copy-btn {
+    font: inherit; font-size: var(--t-micro); font-family: var(--font-mono);
+    cursor: pointer; padding: var(--s-1); line-height: 1;
+    background: transparent; border: 1px solid transparent; border-radius: var(--radius-sm);
+    color: var(--ink-subtle);
 }
-a.badge:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+.copy-btn:hover { border-color: var(--border-strong); color: var(--ink); background: var(--surface-sunk); }
+.copy-btn.is-copied { color: var(--signal-ok); border-color: color-mix(in srgb, var(--signal-ok) 35%, transparent); }
 
-.badge--ok { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 30%, transparent); background: var(--ok-soft); }
-.badge--warn { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 30%, transparent); background: var(--warn-soft); }
-.badge--danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 35%, transparent); background: var(--danger-soft); font-weight: 600; }
-.badge--disclosure { color: var(--accent); border-color: var(--accent); background: transparent; font-weight: 600; }
+/* ============================================================ DETAIL
+ *
+ * A spec sheet. This is the page an agency developer arrives at from a search engine,
+ * so everything needed to decide — compatibility, licence, maintenance, install —
+ * resolves without scrolling, and each value states where it came from.
+ */
 
-/* ---------- panels, tables, prose ---------- */
+.detail-head { border-bottom: 1px solid var(--border); padding-bottom: var(--s-5); margin-bottom: var(--s-6); }
+.detail-title-row { display: flex; align-items: baseline; gap: var(--s-3); flex-wrap: wrap; }
+.detail-package { font-family: var(--font-mono); font-size: var(--t-small); color: var(--ink-subtle); }
+.detail-lede { margin-top: var(--s-3); max-width: 70ch; }
 
-.panel {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: var(--space-5);
-    margin-bottom: var(--space-4);
+/* The facts, as a table rather than prose. Four columns on desktop so the whole
+   answer is one glance. */
+.spec {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: var(--s-5); margin-top: var(--s-5);
+    padding-top: var(--s-5); border-top: 1px solid var(--border);
 }
-.panel h2 { font-size: var(--step-0); margin: 0 0 var(--space-3); }
-.panel > :last-child { margin-bottom: 0; }
+.spec-item { min-width: 0; }
+.spec-key { display: block; margin-bottom: var(--s-2); }
+.spec-value { display: flex; flex-wrap: wrap; gap: var(--s-1); align-items: center; font-size: var(--t-body); }
+.spec-note { display: block; margin-top: var(--s-1); font-size: var(--t-micro); color: var(--ink-subtle); }
 
-.notice {
-    border: 1px solid var(--border); border-left-width: 3px;
-    border-radius: var(--radius); padding: var(--space-4);
-    margin-bottom: var(--space-5); background: var(--surface);
-}
-.notice p { margin: 0 0 var(--space-2); }
-.notice > :last-child { margin-bottom: 0; }
-.notice--ok { border-left-color: var(--ok); background: var(--ok-soft); }
-.notice--warn { border-left-color: var(--warn); background: var(--warn-soft); }
-
-.kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-2) var(--space-4); font-size: var(--step--1); }
-.kv dt { color: var(--subtle); }
-.kv dd { margin: 0; }
+.install { margin-top: var(--s-5); }
+.install-row { display: flex; gap: var(--s-2); align-items: stretch; }
+.install-row pre { flex: 1; margin: 0; }
 
 pre.code {
     background: var(--surface-sunk); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: var(--space-3) var(--space-4);
-    overflow-x: auto; font-size: var(--step--1); line-height: 1.7;
-    font-family: var(--mono);
+    border-radius: var(--radius); padding: var(--s-3) var(--s-4);
+    overflow-x: auto; font-size: var(--t-small); line-height: 1.7;
+    font-family: var(--font-mono);
 }
+code { font-family: var(--font-mono); font-size: 0.9em; }
 
-table.data { width: 100%; border-collapse: collapse; font-size: var(--step--1); }
-table.data th, table.data td { text-align: left; padding: var(--space-3); border-bottom: 1px solid var(--border); }
-table.data th {
-    color: var(--subtle); font-weight: 600; font-size: var(--step--1);
-    text-transform: uppercase; letter-spacing: .07em;
-}
+.detail-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: var(--s-7); align-items: start; }
+@media (max-width: 900px) { .detail-grid { grid-template-columns: 1fr; gap: var(--s-5); } }
+
+/* ============================================================ PANELS, TABLES, PROSE */
+
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: var(--s-5); margin-bottom: var(--s-4); }
+.panel h2 { font-size: var(--t-body); margin-bottom: var(--s-3); }
+.panel > :last-child { margin-bottom: 0; }
+
+.notice { border: 1px solid var(--border); border-left-width: 3px; border-radius: var(--radius);
+    padding: var(--s-4); margin-bottom: var(--s-5); background: var(--surface); }
+.notice--ok { border-left-color: var(--signal-ok); background: var(--signal-ok-bg); }
+.notice--warn { border-left-color: var(--signal-caution); background: var(--signal-caution-bg); }
+
+.kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--s-2) var(--s-4); font-size: var(--t-small); }
+.kv dt { color: var(--ink-subtle); }
+.kv dd { margin: 0; }
+
+table.data { width: 100%; border-collapse: collapse; font-size: var(--t-small); }
+table.data th, table.data td { text-align: left; padding: var(--s-3); border-bottom: 1px solid var(--border); }
+table.data th { color: var(--ink-subtle); font-weight: 500; font-size: var(--t-micro);
+    text-transform: uppercase; letter-spacing: 0.07em; }
 table.data tbody tr:last-child td { border-bottom: 0; }
-table.data td.num, table.data th.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.data td.num, table.data th.num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--font-mono); }
 .table-scroll { overflow-x: auto; }
 
-/* The ranking page is a table of weights, and a column of percentages does not show
-   the shape of a formula. The bar is drawn behind the number so the row still reads
-   as data rather than as a chart. */
-.weight-bar {
-    display: block; height: 4px; border-radius: 999px;
-    background: var(--accent); opacity: .55; margin-top: var(--space-1);
-}
+.weight-bar { display: block; height: 3px; border-radius: 999px; background: var(--signal-info); margin-top: var(--s-1); }
 
-.prose { max-width: 68ch; }
-.prose h2 { font-size: var(--step-1); margin: var(--space-6) 0 var(--space-2); }
-.prose h3 { font-size: var(--step-0); margin: var(--space-5) 0 var(--space-1); }
-.prose p, .prose li { color: var(--muted); }
-.prose a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
-.prose ul, .prose ol { padding-left: var(--space-5); }
-.prose li { margin-bottom: var(--space-1); }
-.prose address { font-style: normal; color: var(--fg); }
-.prose code { font-family: var(--mono); font-size: .9em; background: var(--surface-sunk); padding: .1em .35em; border-radius: var(--radius-sm); }
+.prose { max-width: 70ch; }
+.prose h2 { font-size: var(--t-h3); margin: var(--s-6) 0 var(--s-3); }
+.prose h3 { font-size: var(--t-body); margin: var(--s-5) 0 var(--s-2); }
+.prose p, .prose li { color: var(--ink-muted); }
+.prose a { color: var(--signal-info); text-decoration: underline; text-underline-offset: 2px; }
+.prose ul, .prose ol { padding-left: var(--s-5); }
+.prose li { margin-bottom: var(--s-1); }
+.prose address { font-style: normal; color: var(--ink); }
+.prose code { background: var(--surface-sunk); padding: 0.1em 0.35em; border-radius: var(--radius-sm); }
 
-/* A numbered procedure, for the verification instructions. The number is the visual
-   anchor, because the reader is switching between this page and a terminal. */
 .steps { list-style: none; margin: 0; padding: 0; counter-reset: step; }
-.steps > li {
-    counter-increment: step;
-    position: relative;
-    padding-left: var(--space-7);
-    padding-bottom: var(--space-5);
-    border-left: 1px solid var(--border);
-    margin-left: var(--space-3);
-}
+.steps > li { counter-increment: step; position: relative; padding-left: var(--s-7);
+    padding-bottom: var(--s-5); border-left: 1px solid var(--border); margin-left: var(--s-3); }
 .steps > li:last-child { border-left-color: transparent; padding-bottom: 0; }
 .steps > li::before {
-    content: counter(step);
-    position: absolute; left: calc(-1 * var(--space-4)); top: 0;
-    width: var(--space-6); height: var(--space-6);
-    display: grid; place-items: center;
-    border-radius: 999px;
-    background: var(--accent-soft); color: var(--accent);
-    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
-    font-size: var(--step--1); font-weight: 600;
+    content: counter(step); position: absolute; left: calc(-1 * var(--s-4)); top: 0;
+    width: var(--s-6); height: var(--s-6); display: grid; place-items: center;
+    border-radius: 999px; background: var(--surface); color: var(--ink);
+    border: 1px solid var(--border-strong);
+    font-family: var(--font-mono); font-size: var(--t-micro); font-weight: 500;
 }
-.steps h2 { font-size: var(--step-0); margin: 0 0 var(--space-2); }
+.steps h2 { font-size: var(--t-body); margin-bottom: var(--s-2); }
 
-/* ---------- pagination and empty states ---------- */
+/* Separates the German legal text from its English translation. Only one half is
+   authoritative, so a reader who scrolls past the join unaware is reading the wrong
+   one. */
+.rule { margin: var(--s-7) 0; border: 0; border-top: 1px solid var(--border); }
 
-.pagination { display: flex; gap: var(--space-2); align-items: center; justify-content: center; margin-top: var(--space-6); }
-.pagination a, .pagination span {
-    padding: var(--space-2) var(--space-4);
-    border: 1px solid var(--border);
-    border-radius: var(--radius); font-size: var(--step--1); background: var(--surface);
-}
-.pagination a:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
-.pagination span { color: var(--subtle); }
+.stack-sm { margin-top: var(--s-3); }
+.stack { margin-top: var(--s-4); }
+.page-note { margin-top: var(--s-6); }
+.text-danger { color: var(--signal-risk); }
+.list-plain { list-style: none; padding: 0; margin: 0; }
 
-.empty {
-    text-align: center; padding: var(--space-8) var(--space-4);
-    color: var(--muted);
-    border: 1px dashed var(--border); border-radius: var(--radius);
-}
-.empty p { margin: 0 0 var(--space-2); }
+/* ============================================================ STATES, PAGINATION, FOOTER */
 
-/* ---------- flash messages ---------- */
+.pagination { display: flex; gap: var(--s-2); align-items: center; justify-content: center; margin-top: var(--s-6); }
+.pagination a, .pagination span { padding: var(--s-2) var(--s-4); border: 1px solid var(--border);
+    border-radius: var(--radius); font-size: var(--t-small); background: var(--surface); }
+.pagination a:hover { border-color: var(--border-strong); background: var(--surface-sunk); text-decoration: none; }
+.pagination span { color: var(--ink-subtle); font-family: var(--font-mono); }
 
-.flash {
-    margin: var(--space-4) 0 0; padding: var(--space-3) var(--space-4);
-    border-radius: var(--radius); border: 1px solid var(--border);
-    border-left-width: 3px;
-    font-size: var(--step-0);
-}
-.flash--success { color: var(--ok); background: var(--ok-soft); border-color: color-mix(in srgb, var(--ok) 30%, transparent); border-left-color: var(--ok); }
-.flash--error { color: var(--danger); background: var(--danger-soft); border-color: color-mix(in srgb, var(--danger) 30%, transparent); border-left-color: var(--danger); }
-.flash--warning { color: var(--warn); background: var(--warn-soft); border-color: color-mix(in srgb, var(--warn) 30%, transparent); border-left-color: var(--warn); }
+.empty { text-align: center; padding: var(--s-9) var(--s-4); color: var(--ink-muted);
+    border: 1px dashed var(--border-strong); border-radius: var(--radius); }
 
-/* ---------- footer ---------- */
+.flash { margin: var(--s-4) 0 0; padding: var(--s-3) var(--s-4); border-radius: var(--radius);
+    border: 1px solid var(--border); border-left-width: 3px; }
+.flash--success { color: var(--signal-ok); background: var(--signal-ok-bg); border-left-color: var(--signal-ok); }
+.flash--error { color: var(--signal-risk); background: var(--signal-risk-bg); border-left-color: var(--signal-risk); }
+.flash--warning { color: var(--signal-caution); background: var(--signal-caution-bg); border-left-color: var(--signal-caution); }
 
-.site-footer {
-    border-top: 1px solid var(--border); background: var(--surface);
-    padding: var(--space-7) 0; margin-top: var(--space-8);
-}
-.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: var(--space-6); }
+.site-footer { border-top: 1px solid var(--border); background: var(--surface); padding: var(--s-7) 0; margin-top: var(--s-9); }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: var(--s-6); }
 @media (max-width: 800px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
-.footer-brand { font-weight: 600; margin: 0 0 var(--space-2); letter-spacing: -.03em; }
-.footer-heading {
-    font-size: var(--step--1); text-transform: uppercase; letter-spacing: .09em;
-    color: var(--subtle); margin: 0 0 var(--space-2);
+.footer-brand { font-family: var(--font-mono); font-weight: 500; margin-bottom: var(--s-2); letter-spacing: -0.05em; }
+.footer-heading { font-size: var(--t-micro); text-transform: uppercase; letter-spacing: 0.09em;
+    color: var(--ink-subtle); margin-bottom: var(--s-2); font-weight: 500; }
+.site-footer ul { list-style: none; margin: 0 0 var(--s-3); padding: 0; font-size: var(--t-small); }
+.site-footer li { margin-bottom: var(--s-1); }
+.site-footer a { color: var(--ink-muted); }
+.site-footer a:hover { color: var(--ink); }
+
+/* Operator credit. The ownership model is explicit that the platform belongs to the
+   extdir org and runio.dev appears as operator and maintainer — so this credits the
+   operator without implying ownership of the code. */
+.footer-base {
+    display: flex; justify-content: space-between; align-items: center; gap: var(--s-4);
+    flex-wrap: wrap;
+    margin-top: var(--s-6); padding-top: var(--s-4); border-top: 1px solid var(--border);
+    font-size: var(--t-small); color: var(--ink-subtle);
 }
-.site-footer ul { list-style: none; margin: 0 0 var(--space-3); padding: 0; font-size: var(--step--1); }
-.site-footer li { margin-bottom: var(--space-1); }
-.site-footer a { color: var(--muted); }
-.site-footer a:hover { color: var(--accent); }
+.powered-by { display: inline-flex; align-items: center; gap: var(--s-2); margin: 0; }
+.powered-by a { color: var(--ink); font-weight: 500; }
 
-/* ---------- error pages ---------- */
+/* ============================================================ ERROR PAGES */
 
-.error-page { text-align: center; padding: var(--space-8) 0; }
-.error-code {
-    font-family: var(--mono); font-size: var(--step-4);
-    color: var(--accent); margin: 0 0 var(--space-2);
-    letter-spacing: -.04em;
-}
-.error-search { display: flex; gap: var(--space-2); max-width: 26rem; margin: var(--space-6) auto 0; }
-.error-links { display: flex; flex-wrap: wrap; gap: var(--space-4); justify-content: center; margin-top: var(--space-5); font-size: var(--step--1); }
+.error-page { text-align: center; padding: var(--s-9) 0; }
+.error-code { font-family: var(--font-mono); font-size: var(--t-display); color: var(--ink-subtle);
+    margin-bottom: var(--s-2); letter-spacing: -0.05em; }
+.error-search { display: flex; gap: var(--s-2); max-width: 26rem; margin: var(--s-6) auto 0; }
+.error-links { display: flex; flex-wrap: wrap; gap: var(--s-4); justify-content: center; margin-top: var(--s-5); font-size: var(--t-small); }
 
-/* ---------- imprint address reveal ----------
- *
- * The address is fetched after a countdown rather than rendered into the page — see
- * LegalController for the reasoning and what it trades away.
- *
- * Given a deliberate frame rather than a bare button in a column of prose. Asking
- * someone to wait a minute is unusual enough that the request should look considered;
- * a default-styled button with a sentence above it reads like an unfinished form.
- */
-.reveal {
-    margin: var(--space-4) 0 var(--space-5);
-    padding: var(--space-4);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--accent);
-    border-radius: var(--radius);
-    background: var(--surface);
-    max-width: 30rem;
-}
-.reveal > p:first-child { margin-top: 0; }
+/* ============================================================ IMPRINT REVEAL */
 
-.reveal-btn {
-    font: inherit; font-size: var(--step--1); font-weight: 600;
-    cursor: pointer;
-    background: var(--surface); color: var(--fg);
-    border: 1px solid var(--border-strong); border-radius: var(--radius);
-    padding: var(--space-2) var(--space-4);
-}
-.reveal-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-.reveal-progress { margin-top: var(--space-3); }
-.reveal-track { height: 4px; border-radius: 999px; background: var(--border); overflow: hidden; }
-.reveal-bar { height: 100%; width: 0; background: var(--accent); border-radius: 999px; }
-.reveal-error { color: var(--warn); }
-.reveal address { font-style: normal; margin-top: var(--space-3); }
+/* The address is fetched after a countdown rather than rendered into the page — see
+   LegalController for the reasoning and what it trades away. Framed deliberately:
+   asking someone to wait a minute is unusual enough that it should look considered. */
+.reveal { margin: var(--s-4) 0 var(--s-5); padding: var(--s-4);
+    border: 1px solid var(--border); border-left: 3px solid var(--signal-info);
+    border-radius: var(--radius); background: var(--surface); max-width: 32rem; }
+.reveal-btn { font: inherit; font-size: var(--t-small); font-weight: 500; cursor: pointer;
+    background: var(--surface); color: var(--ink);
+    border: 1px solid var(--border-strong); border-radius: var(--radius); padding: var(--s-2) var(--s-4); }
+.reveal-btn:hover { background: var(--surface-sunk); }
+.reveal-progress { margin-top: var(--s-3); }
+.reveal-track { height: 3px; border-radius: 999px; background: var(--border); overflow: hidden; }
+.reveal-bar { height: 100%; width: 0; background: var(--signal-info); border-radius: 999px; }
+.reveal-error { color: var(--signal-caution); }
+.reveal address { font-style: normal; margin-top: var(--s-3); }
 
 @media (prefers-reduced-motion: reduce) {
-    .reveal-bar { transition: none; }
-    .row { transition: none; }
+    .reveal-bar, .row, .btn, .chip, .token { transition: none; }
 }
 
-/* The seam between the German legal text and its English translation. The two halves
-   say the same thing and only one is authoritative, so a reader who scrolls past the
-   join without noticing is reading the wrong one. */
-.rule { margin: var(--space-7) 0; border: 0; border-top: 1px solid var(--border); }
+/* ============================================================ CARRIED-OVER CLASSES
+ *
+ * Used by the maintainer and legal templates. Kept as thin aliases on the system
+ * tokens rather than left dangling, which is how a stylesheet ends up with rules
+ * nothing matches and templates styled by accident.
+ */
+
+.code-inline { font-family: var(--font-mono); font-size: var(--t-small); color: var(--ink-subtle); word-break: break-all; }
+.eyebrow { font-size: var(--t-micro); text-transform: uppercase; letter-spacing: 0.09em;
+    color: var(--ink-subtle); margin-bottom: var(--s-2); font-weight: 500; }
+.detail-badges { margin-top: var(--s-5); }
+.facet-clear { font-size: var(--t-small); color: var(--signal-info); font-weight: 500; }
+.facet-clear-wrap { margin-bottom: var(--s-4); }
+.error-note { margin-top: var(--s-6); }

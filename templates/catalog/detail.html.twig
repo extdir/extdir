@@ -12,42 +12,116 @@
 {% block body %}
 <div class="wrap page">
 
-    <div class="page-head">
-        <p class="eyebrow">Shopware 6 extension</p>
-        <h1>{{ extension.label }}</h1>
-        <p class="code-inline">{{ extension.packageName }}</p>
+    {# A spec sheet. Everything needed to decide — compatibility, licence,
+       maintenance, install — resolves without scrolling, and each value says where it
+       came from. This is the page an agency developer arrives at from a search
+       engine, usually to answer one question and leave. #}
+    <header class="detail-head">
+        <div class="detail-title-row">
+            <h1>{{ extension.label }}</h1>
+            <span class="detail-package">{{ extension.packageName }}</span>
+        </div>
+
         {% if extension.description %}
-            <p class="lede detail-lede">{{ extension.description }}</p>
+            <p class="lead detail-lede">{{ extension.description }}</p>
         {% endif %}
 
-        {# Compatibility first, before anything else. It is the question that brought
-           the reader here, and it used to sit in a panel below the fold. #}
-        <div class="detail-compat">
-            <span class="detail-compat-label">Declares Shopware</span>
-            <div class="detail-compat-chips">
-                {% set anyDeclared = false %}
-                {% for version in shopwareVersions %}
-                    {% set tier = matrix[version.majorMinor] ?? null %}
-                    {% if tier %}
-                        {% set anyDeclared = true %}
-                        <span class="chip chip--version {{ tier == 'explicit' ? 'is-explicit' : 'is-open' }}"
-                              title="{{ tier == 'explicit'
-                                  ? 'Declares support for Shopware ' ~ version.majorMinor
-                                  : 'Open-ended constraint covering Shopware ' ~ version.majorMinor }}">
-                            {{ version.majorMinor }}{{ tier == 'explicit' ? '' : '˚' }}
-                        </span>
+        <div class="spec">
+            <div class="spec-item">
+                <span class="label spec-key">Declares Shopware</span>
+                <div class="spec-value">
+                    {% set anyDeclared = false %}
+                    {% for version in shopwareVersions %}
+                        {% set tier = matrix[version.majorMinor] ?? null %}
+                        {% if tier %}
+                            {% set anyDeclared = true %}
+                            <span class="chip chip--version {{ tier == 'explicit' ? 'is-explicit' : 'is-open' }}"
+                                  title="{{ tier == 'explicit'
+                                      ? 'Declares support for Shopware ' ~ version.majorMinor
+                                      : 'Open-ended constraint covering Shopware ' ~ version.majorMinor }}">
+                                {{ version.majorMinor }}{{ tier == 'explicit' ? '' : '˚' }}
+                            </span>
+                        {% endif %}
+                    {% endfor %}
+                    {% if not anyDeclared %}
+                        <span class="row-none">none parsable</span>
                     {% endif %}
-                {% endfor %}
-                {% if not anyDeclared %}
-                    <span class="row-none">No parsable constraint in composer.json</span>
-                {% endif %}
+                </div>
+                <span class="spec-note">from <code>require</code> in composer.json</span>
+            </div>
+
+            <div class="spec-item">
+                <span class="label spec-key">Licence</span>
+                <div class="spec-value">
+                    {% set licence = extension.licenseStatus %}
+                    <span class="chip {{ licence.value == 'unknown' or licence.value == 'rejected' ? 'chip--risk' : '' }}">
+                        {{ extension.licenseSpdx ?? licence.badgeLabel }}
+                    </span>
+                </div>
+                <span class="spec-note">
+                    {%- if licence.value == 'unknown' -%}
+                        not redistributable — indexed and linked only
+                    {%- elseif extension.licenseEvidence.value == 'detector' -%}
+                        detected from the LICENSE file
+                    {%- else -%}
+                        declared in composer.json
+                    {%- endif -%}
+                </span>
+            </div>
+
+            <div class="spec-item">
+                <span class="label spec-key">Last commit</span>
+                <div class="spec-value">
+                    {% if extension.lastCommitAt %}
+                        <span class="mono num">{{ extension.lastCommitAt|date('j M Y') }}</span>
+                    {% else %}
+                        <span class="row-none">unknown</span>
+                    {% endif %}
+                </div>
+                <span class="spec-note">
+                    {{ extension.maintenanceStatus.value == 'unknown'
+                        ? 'no commit history we can read'
+                        : extension.maintenanceStatus.value }}
+                </span>
+            </div>
+
+            <div class="spec-item">
+                <span class="label spec-key">Source</span>
+                <div class="spec-value">
+                    {% if extension.repositoryUrl %}
+                        <a class="link" href="{{ extension.repositoryUrl }}" rel="noopener nofollow">
+                            {{ extension.sourceHost.value }}
+                        </a>
+                    {% else %}
+                        <span class="row-none">not recorded</span>
+                    {% endif %}
+                </div>
+                <span class="spec-note">
+                    {% if catalogueStatus.crawledAt %}crawled {{ catalogueStatus.crawledAt|ago }} ago{% endif %}
+                </span>
             </div>
         </div>
+
+        {% if extension.isOnPackagist %}
+            <div class="install">
+                <span class="label spec-key">Install</span>
+                <div class="install-row">
+                    <pre class="code">composer require {{ extension.packageName }}</pre>
+                    <button type="button" class="btn btn--sm copy-btn"
+                            data-controller="clipboard"
+                            data-action="clipboard#copy"
+                            data-clipboard-text="composer require {{ extension.packageName }}"
+                            aria-label="Copy the composer require command">
+                        <span data-copy-label>Copy</span>
+                    </button>
+                </div>
+            </div>
+        {% endif %}
 
         <div class="badges detail-badges">
             {{ include('catalog/_badges.html.twig') }}
         </div>
-    </div>
+    </header>
 
     <div class="detail-grid">
         <div>
