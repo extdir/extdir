@@ -111,10 +111,15 @@ php bin/console app:github:authorize
 ### 5. Workers and schedule
 
 ```bash
+mkdir -p ~/logs ~/backups/extdir ~/etc/services.d
 cp deploy/services/*.ini ~/etc/services.d/
 supervisorctl reread && supervisorctl update
-crontab deploy/cron/crontab
-mkdir -p ~/logs ~/backups/extdir
+
+# Append. `crontab deploy/cron/crontab` would replace the whole crontab and
+# delete the entries belonging to every other site on this account.
+crontab -l > /tmp/crontab.bak
+(crontab -l; cat deploy/cron/crontab) | crontab -
+crontab -l | tail -20
 ```
 
 ## Deploying
