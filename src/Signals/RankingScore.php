@@ -11,14 +11,14 @@ use App\Signals\Enum\MaintenanceStatus;
 /**
  * The ranking formula, in one place, as public constants.
  *
- * docs/brief.md §4.6 requires the ranking algorithm to be public, and this class is how
+ * The conflict-of-interest rule requires the ranking algorithm to be public, and this class is how
  * that promise is kept literally rather than aspirationally: the /ranking page
  * renders these same constants, so the published explanation cannot drift from the
  * code that ranks. There is no manual boosting, no featured slot and no editorial
- * override anywhere in the pipeline — and, per §4.6, no vendor is consulted here at
+ * override anywhere in the pipeline — and, per the conflict-of-interest rule, no vendor is consulted here at
  * all, including the maintainer's own.
  *
- * **Stars and forks are deliberately absent.** §8 is blunt that they mislead in this
+ * **Stars and forks are deliberately absent.** the ranking guidance is blunt that they mislead in this
  * ecosystem: an excellent extension from a German agency may have twelve stars,
  * while an abandoned toy has hundreds. Ranking on popularity would systematically
  * bury exactly the agency-built extensions merchants most need to find. Sorting the
@@ -57,7 +57,7 @@ final class RankingScore
      *
      * Recency is the right tie-breaker because it measures the same thing the
      * directory is for. Stars would also break ties, and are deliberately not used:
-     * §8 is explicit that popularity misleads here, and it would mislead just as
+     * The ranking guidance is explicit that popularity misleads here, and it would mislead just as
      * much at the top of the list as anywhere else.
      */
     public const WEIGHT_RECENCY = 0.10;

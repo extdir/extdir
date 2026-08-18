@@ -13,9 +13,9 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * Deliberately not a mirror of the official Shopware Store tree: copying it would
  * couple the directory to someone else's product decisions and edge closer to the
- * trademark caution in docs/brief.md §4.5. Assignment is by deterministic keyword rules
+ * trademark caution. Assignment is by deterministic keyword rules
  * over composer keywords, `extra.label` and descriptions, so that categorisation
- * stays auditable in the same way ranking is (§4.6).
+ * stays auditable in the same way ranking is (the conflict-of-interest rule).
  */
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[ORM\Table(name: 'category')]

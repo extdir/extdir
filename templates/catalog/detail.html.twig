@@ -108,7 +108,7 @@
                         <pre class="code">composer require {{ extension.packageName }}</pre>
                     {% else %}
                         {# Not on Packagist, so a bare `composer require` fails with
-                           "could not be found in any version". §9 asks for both paths;
+                           "could not be found in any version". The Composer surface plan asks for both paths;
                            printing only the first would be actively misleading. #}
                         <p class="small muted">
                             This extension is <strong>not published on Packagist</strong>, so
@@ -124,7 +124,7 @@ composer require {{ extension.packageName }}</pre>
 composer require {{ extension.packageName }}</pre>
                     {% endif %}
                 {% else %}
-                    {# §4.1: an extension with no usable licence is linked, never
+                    {# the licence gate: an extension with no usable licence is linked, never
                        redistributed — so no install snippet is offered that would
                        route a merchant through infrastructure we host. #}
                     <p class="small" style="color:var(--danger)">

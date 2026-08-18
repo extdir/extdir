@@ -45,7 +45,7 @@ final class ReleaseAssetSourceTest extends TestCase
     }
 
     /**
-     * Self-hosted instances are the reason §7 names GitLab at all, and a third of
+     * Self-hosted instances are the reason the discovery plan names GitLab at all, and a third of
      * the GitLab-hosted extensions in the corpus are on one. The API base has to
      * follow the repository host rather than being gitlab.com.
      */

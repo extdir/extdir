@@ -14,11 +14,11 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 /**
  * Release attachments from GitLab, including self-hosted instances.
  *
- * Self-hosted support is the point rather than a bonus. docs/brief.md §7 singles out
+ * Self-hosted support is the point rather than a bonus. The discovery plan singles out
  * GitLab because German Shopware agencies commonly run their own, and the corpus
  * bears that out: of the GitLab-hosted extensions indexed, more than a third live
  * on instances like `gitlab.jonathan-martz.de` rather than gitlab.com. A resolver
- * hardcoded to gitlab.com would miss exactly the repositories §7 is worried about.
+ * hardcoded to gitlab.com would miss exactly the repositories the discovery plan is worried about.
  *
  * No authentication is used. These are public projects, our volume is a handful of
  * requests per crawl, and asking a stranger's GitLab for a token to read something

@@ -38,7 +38,7 @@ final class PackageIngestor
      * The vendor operated by the person who runs extdir.
      *
      * Used for one thing only — setting the disclosure flag that renders a badge
-     * (docs/brief.md §4.6). It is deliberately absent from ranking, verification and
+     * (the conflict-of-interest rule). It is deliberately absent from ranking, verification and
      * ordering, and there is a test asserting that stays true. A directory whose
      * maintainer also publishes extensions has exactly one way to remain credible,
      * and this constant is the boundary of the special-casing.
@@ -133,7 +133,7 @@ final class PackageIngestor
      * Stage 1 of the license gate: read what composer.json declares.
      *
      * This is indicative only and never authorises a build — that requires a real
-     * detector run over the actual files inside CI (§4.1). What it does decide is
+     * detector run over the actual files inside CI (the licence gate). What it does decide is
      * whether the extension is fully listed or shown index-only with the "License
      * unknown — not redistributable" badge, and the default is the cautious one.
      *

@@ -7,7 +7,7 @@ namespace App\Distribution\Enum;
 /**
  * Where a downloadable archive for a release comes from.
  *
- * The order of these cases is the resolution order from docs/brief.md §4.3, and it is
+ * The order of these cases is the resolution order from the link-first rule, and it is
  * not just about storage cost. For Shopware specifically it is also about whether
  * the archive *works*: a raw git zipball contains source only, so an extension with
  * an administration or storefront bundle ships without its compiled assets and

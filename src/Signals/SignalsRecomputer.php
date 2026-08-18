@@ -14,7 +14,7 @@ use Doctrine\ORM\EntityManagerInterface;
  *
  * Works purely from stored data, so the ranking formula can be changed and the
  * whole corpus re-scored in seconds without touching GitHub or Packagist. That
- * matters more than it sounds: §4.6 requires a written rationale for ranking
+ * matters more than it sounds: the conflict-of-interest rule requires a written rationale for ranking
  * changes that would benefit the maintainer's own vendor, and being able to run
  * "before and after" cheaply is what makes that reviewable rather than theoretical.
  *

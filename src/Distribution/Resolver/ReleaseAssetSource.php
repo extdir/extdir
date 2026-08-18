@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
  * Finds the archives a maintainer attached to their releases, on one hosting
  * platform.
  *
- * docs/brief.md §9 asks for pluggable sources, and this is where that earns its keep:
+ * The Composer surface plan asks for pluggable sources, and this is where that earns its keep:
  * every forge publishes release attachments, but none of them agree on the shape.
  * GitHub answers GraphQL, GitLab and Gitea answer REST at different paths, and the
  * German half of this ecosystem runs self-hosted instances of both — so the base

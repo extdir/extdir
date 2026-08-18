@@ -15,10 +15,10 @@ The application repository holds the database credentials, the GitHub App privat
 webhook secret. This repository holds a write token for the artifact bucket. Keeping them apart
 means compromising the public-facing Symfony process does not also hand over the ability to
 overwrite artifacts that merchants download — which is the whole point of the split in
-`docs/brief.md` §4.2.
+The no-untrusted-builds rule.
 
 It also keeps every build log publicly readable, which is what makes the provenance claims in
-§4.4 checkable by someone who does not trust us.
+The verifiable-build rule checkable by someone who does not trust us.
 
 ## What it does
 

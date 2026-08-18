@@ -9,7 +9,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Finds candidate Shopware extensions by GitHub topic.
  *
- * This is the second discovery source in docs/brief.md §7, and it is what makes the
+ * This is the second discovery source in the discovery plan, and it is what makes the
  * directory more than a re-skin of Packagist. Every package indexed so far came
  * from Packagist by construction, so `composer require` already worked for all of
  * them. The extensions that are genuinely hard to find — published to GitHub with

@@ -7,7 +7,7 @@ namespace App\License;
 use App\License\Enum\LicenseStatus;
 
 /**
- * The accepted-SPDX list that docs/brief.md §4.1 requires.
+ * The accepted-SPDX list that the licence gate requires.
  *
  * Everything not named here resolves to Unknown, which means index-only. That
  * default is the entire point: the failure mode we are protecting against is
@@ -38,7 +38,7 @@ final class SpdxAllowlist
     /**
      * Copyleft licenses. Present in this ecosystem largely as Shopware 5 heritage,
      * and tracked separately so they are never presented under an "open source =
-     * MIT" label (§4.1).
+     * MIT" label (the licence gate).
      *
      * @var list<string>
      */

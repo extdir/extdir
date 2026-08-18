@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * docs/brief.md §4.6, as something the build can fail on.
+ * The conflict-of-interest rule, as something the build can fail on.
  *
  * The maintainer of this directory also publishes Shopware extensions under the
  * `runio` vendor. The brief's answer to that conflict is that ranking is
@@ -82,7 +82,7 @@ final class NoVendorExceptionsTest extends TestCase
                 $code,
                 \sprintf(
                     'The vendor "%s" is named in executable code in %s. Ranking and verification '
-                    .'must not know about specific vendors (docs/brief.md §4.6).',
+                    .'must not know about specific vendors (the conflict-of-interest rule).',
                     $vendor,
                     basename($path),
                 ),
@@ -91,7 +91,7 @@ final class NoVendorExceptionsTest extends TestCase
     }
 
     /**
-     * The disclosure flag is allowed to exist — §4.6 requires the badge — but it
+     * The disclosure flag is allowed to exist — the conflict-of-interest rule requires the badge — but it
      * must be inert. Two extensions identical apart from the vendor flag must
      * score identically.
      */

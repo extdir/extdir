@@ -13,8 +13,8 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * An append-only record of every consequential decision about an extension.
  *
- * Two rules in the brief are claims about history rather than about code. §12
- * requires a takedown procedure that was actually followed; §4.6 requires that no
+ * Two rules in the brief are claims about history rather than about code. The legal obligations
+ * requires a takedown procedure that was actually followed; the conflict-of-interest rule requires that no
  * vendor — including the one operated by this directory's maintainer — receives
  * treatment another vendor could not get. Neither can be demonstrated from current
  * state alone, only from a record of how the state was reached.

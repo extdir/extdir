@@ -22,7 +22,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 final class PackagistClient
 {
     /**
-     * Composer's own plugin type for Shopware 6 platform plugins. docs/brief.md §7
+     * Composer's own plugin type for Shopware 6 platform plugins. The discovery plan
      * makes this the discovery seed rather than GitHub search, because it is
      * structured, complete and free of the false positives a topic search returns.
      */

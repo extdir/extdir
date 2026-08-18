@@ -8,7 +8,7 @@ use App\Catalog\Entity\ExtensionRelease;
 use App\Distribution\Enum\DistSource;
 
 /**
- * The §4.3 resolution decision, with no collaborators.
+ * The link-first resolution decision, with no collaborators.
  *
  * Kept separate from DownloadResolver, which owns fetching and persistence. This
  * is the part where being wrong matters — pick the zipball over a maintainer's

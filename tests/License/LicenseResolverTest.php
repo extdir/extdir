@@ -37,7 +37,7 @@ final class LicenseResolverTest extends TestCase
      * shipping an MIT licence file. Believing the file would publish them as MIT —
      * and unlike most mistakes here, that one has a victim who is not us: a
      * merchant who deploys a modified copy in a hosted shop believing they owe
-     * nothing. §4.1 requires copyleft to be classified separately rather than
+     * nothing. The licence gate requires copyleft to be classified separately rather than
      * lumped under an "MIT/open source" label.
      */
     public function testCopyleftIsNeverDowngradedToPermissive(): void

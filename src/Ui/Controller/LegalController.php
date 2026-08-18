@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * Legally required pages.
  *
- * docs/brief.md §12 treats these as launch blockers rather than follow-up work, and
+ * The legal obligations treats these as launch blockers rather than follow-up work, and
  * names a defective Impressum as a live Abmahnung risk in Germany — not a
  * theoretical one.
  *

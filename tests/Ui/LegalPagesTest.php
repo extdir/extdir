@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
- * Guards the pages docs/brief.md §12 treats as launch blockers.
+ * Guards the pages the legal obligations treats as launch blockers.
  *
  * These are not smoke tests for their own sake. A missing or defective Impressum
  * is a live Abmahnung risk in Germany, and the realistic way it breaks is not that
@@ -84,7 +84,7 @@ final class LegalPagesTest extends WebTestCase
     }
 
     /**
-     * §4.5 requires the non-affiliation disclaimer from day one, on every page —
+     * The trademark rule requires the non-affiliation disclaimer from day one, on every page —
      * it lives in the base layout, so this checks it is actually rendering.
      */
     #[DataProvider('legalRoutes')]

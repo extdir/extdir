@@ -189,7 +189,7 @@ final class SpdxAllowlistTest extends TestCase
     /**
      * `proprietary` is the value composer's own project skeleton writes, and 71
      * packages in the corpus still carry it. It must stay rejected — the whole
-     * point of §4.1 is that we do not decide on an author's behalf that they meant
+     * point of the licence gate is that we do not decide on an author's behalf that they meant
      * something more permissive than what they wrote.
      */
     public function testSkeletonDefaultStaysRejected(): void

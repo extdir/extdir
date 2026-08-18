@@ -11,7 +11,7 @@ namespace App\License\Enum;
  * The distinction matters because the two stages carry different authority. A
  * `composer.json` license field is cheap to read at ingest and good enough to badge
  * with, but it is an unverified self-declaration. Only a real detector run over the
- * actual files may authorise redistribution (docs/brief.md §4.1: "Detect licenses with
+ * actual files may authorise redistribution (the licence gate: "Detect licenses with
  * a real detector. Never infer from the README.").
  */
 enum FindingSource: string

@@ -8,7 +8,7 @@ namespace App\Metadata;
  * The fields we care about from one release's composer.json, already normalised.
  *
  * Everything here comes from structured declarations. Nothing is scraped from a
- * README: docs/brief.md §7 says to read what is declared rather than guess from prose,
+ * README: the discovery plan says to read what is declared rather than guess from prose,
  * and README content carries its own licensing that we have no right to reuse.
  */
 final readonly class ComposerMetadata

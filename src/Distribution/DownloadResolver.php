@@ -16,7 +16,7 @@ use Doctrine\ORM\EntityManagerInterface;
 /**
  * Decides where each release should be downloaded from, link-first.
  *
- * docs/brief.md §4.3 in code. The order is:
+ * The link-first rule in code. The order is:
  *
  *   1. A ZIP the maintainer attached to a GitHub release — costs nothing and is
  *      the only form that reliably installs, because it was packaged with

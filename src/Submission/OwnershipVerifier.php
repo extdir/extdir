@@ -25,7 +25,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * push access; asking it is both more reliable than anything we could build and
  * impossible to quietly bend.
  *
- * That property is what docs/brief.md §4.6 is really asking for. A rule with no
+ * That property is what the conflict-of-interest rule is really asking for. A rule with no
  * judgement in it cannot acquire an exception for the maintainer's own vendor,
  * and OwnershipVerifierTest asserts that no vendor name appears in this class or
  * anywhere on the verification path.

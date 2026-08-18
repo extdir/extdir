@@ -18,7 +18,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * Works out where every stable release can be downloaded from.
  *
- * The summary it prints is the check on whether §4.3 is actually holding: if the
+ * The summary it prints is the check on whether the link-first rule is actually holding: if the
  * share of releases resolving to a maintainer's own archive or a tag zipball ever
  * collapses, the storage projection collapses with it and building stops being a
  * rare fallback.

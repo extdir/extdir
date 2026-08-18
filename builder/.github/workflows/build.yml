@@ -24,8 +24,8 @@ permissions:
   contents: read
 
 env:
-  # Pinned per docs/brief.md §10. An unpinned CLI makes builds unreproducible by
-  # definition, which would void the provenance claims in §4.4.
+  # Pinned per the shopware-cli notes. An unpinned CLI makes builds unreproducible by
+  # definition, which would void the provenance claims in the verifiable-build rule.
   SHOPWARE_CLI_VERSION: '0.6.9'
   ASKALONO_VERSION: '0.5.0'
 
@@ -54,7 +54,7 @@ jobs:
           sudo mv askalono /usr/local/bin/
 
       # ---------------------------------------------------------------------
-      # THE LICENCE GATE (docs/brief.md §4.1)
+      # THE LICENCE GATE (the licence gate)
       #
       # This runs before anything is built, and it fails closed. A repository
       # with no LICENSE file is "all rights reserved" — public readability is
@@ -137,7 +137,7 @@ jobs:
 
       - name: Package the extension
         working-directory: source
-        # esbuild is enabled deliberately (§10): without it, asset building needs a
+        # esbuild is enabled deliberately (the shopware-cli notes): without it, asset building needs a
         # matching Shopware installation per extension per version, which is an
         # unmanageable build matrix.
         run: |

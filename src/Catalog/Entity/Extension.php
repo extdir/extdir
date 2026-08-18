@@ -178,7 +178,7 @@ class Extension
      * Latest star and fork counts, denormalised from RepositorySnapshot.
      *
      * Shown on the card and offered as a sort option, but never fed into the
-     * ranking score — §8 is explicit that popularity misleads in this ecosystem.
+     * ranking score — the ranking guidance is explicit that popularity misleads in this ecosystem.
      * Kept here only so listing and sorting do not need a join per row.
      */
     #[ORM\Column(options: ['default' => 0])]

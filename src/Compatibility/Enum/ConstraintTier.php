@@ -29,7 +29,7 @@ enum ConstraintTier: string
 
     /**
      * Multiplier applied to the ranking score. Deliberately public and documented
-     * on /ranking — docs/brief.md §4.6 requires the algorithm be auditable, which means
+     * on /ranking — the conflict-of-interest rule requires the algorithm be auditable, which means
      * these numbers live in one place and are rendered from the source of truth.
      */
     public function rankingWeight(): float

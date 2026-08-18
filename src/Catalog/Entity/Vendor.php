@@ -31,7 +31,7 @@ class Vendor
     /**
      * Marks the vendor operated by the person who runs extdir (`runio`).
      *
-     * docs/brief.md §4.6 requires these packages to carry a visible disclosure badge.
+     * The conflict-of-interest rule requires these packages to carry a visible disclosure badge.
      * It is a display flag and nothing more — deliberately not consulted anywhere
      * in ranking or verification, and there is a test asserting exactly that. The
      * whole credibility of a directory whose maintainer also publishes extensions

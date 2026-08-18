@@ -7,7 +7,7 @@ namespace App\License\Enum;
 /**
  * The redistribution decision for an extension, derived from license detection.
  *
- * docs/brief.md §4.1 is the hard rule this enum enforces: a repository with no LICENSE
+ * The licence gate is the hard rule this enum enforces: a repository with no LICENSE
  * file is "all rights reserved", not open source. Public readability on GitHub does
  * not grant anyone the right to redistribute. Anything that is not positively
  * identified as an accepted SPDX license is `Unknown`, and `Unknown` never gets
@@ -20,7 +20,7 @@ enum LicenseStatus: string
 
     /**
      * GPL/AGPL/LGPL. Genuinely open source and redistributable, but categorised
-     * separately: §4.1 forbids lumping copyleft extensions under an "MIT/open
+     * separately: the licence gate forbids lumping copyleft extensions under an "MIT/open
      * source" label, because the obligations they place on a merchant differ.
      */
     case Copyleft = 'copyleft';

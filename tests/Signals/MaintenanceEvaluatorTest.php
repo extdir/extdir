@@ -100,7 +100,7 @@ final class MaintenanceEvaluatorTest extends TestCase
     }
 
     /**
-     * The failure mode the calendar rule in §8 would produce: a small, finished
+     * The failure mode the calendar rule in the ranking guidance would produce: a small, finished
      * plugin that still works and whose ecosystem simply has not moved.
      */
     public function testATwoYearOldCommitIsNotDormantIfNoNewShopwareShipped(): void

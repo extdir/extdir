@@ -25,7 +25,7 @@ final class PagesController extends AbstractController
      * The public ranking explanation.
      *
      * Rendered directly from the constants that do the ranking, so the published
-     * description cannot drift from the behaviour. docs/brief.md §4.6 requires the
+     * description cannot drift from the behaviour. The conflict-of-interest rule requires the
      * algorithm to be public; a hand-written page describing an algorithm that has
      * since changed would satisfy the letter of that and betray the point.
      */

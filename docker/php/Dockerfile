@@ -1,5 +1,5 @@
 # Local development image only. Production runs on Uberspace shared hosting,
-# which provides its own PHP-FPM — see docs/brief.md §5. Nothing here is deployed.
+# which provides its own PHP-FPM — see the deployment notes. Nothing here is deployed.
 FROM php:8.3-fpm-alpine
 
 # Battle-tested extension installer rather than hand-rolled docker-php-ext-install

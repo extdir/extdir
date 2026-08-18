@@ -3,7 +3,7 @@ doctrine:
         url: '%env(resolve:DATABASE_URL)%'
 
         # server_version lives in DATABASE_URL so local and CI cannot silently
-        # drift from Uberspace production (MariaDB 10.6.19). See docs/brief.md §5.
+        # drift from Uberspace production (MariaDB 10.6.19). See the deployment notes.
         charset: utf8mb4
         default_table_options:
             charset: utf8mb4

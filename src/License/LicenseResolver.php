@@ -27,7 +27,7 @@ use Doctrine\ORM\EntityManagerInterface;
  * the directory less useful while looking cautious.
  *
  * So the LICENSE file wins over the manifest when the two disagree. That is not a
- * relaxation of docs/brief.md §4.1; §4.1 names "composer.json → license, or a LICENSE
+ * relaxation of the licence gate; the licence gate names "composer.json → license, or a LICENSE
  * file" as the two accepted sources, and of the two the file is the actual grant
  * while the manifest is metadata about it. The conservative default is untouched:
  * where no licence is detected anywhere, nothing is redistributable.
@@ -105,7 +105,7 @@ final class LicenseResolver
         // Copyleft wins whenever any source claims it. Overstating a user's rights
         // is the only error here with a victim: a merchant told an AGPL plugin is
         // MIT can deploy a modified copy in a hosted shop believing they owe
-        // nothing. Understating them merely makes us look cautious. §4.1 requires
+        // nothing. Understating them merely makes us look cautious. The licence gate requires
         // copyleft to be classified separately rather than lumped under an
         // "MIT/open source" label, and this is where that is enforced.
         $winner = $copyleft ?? $permissive;

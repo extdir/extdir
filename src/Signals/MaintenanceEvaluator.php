@@ -13,7 +13,7 @@ use App\Signals\Enum\MaintenanceStatus;
  * Decides how well maintained an extension is, measured against Shopware's release
  * timeline rather than the calendar.
  *
- * docs/brief.md §8 proposes an "abandoned after 18 months" badge. This replaces it,
+ * The ranking guidance proposes an "abandoned after 18 months" badge. This replaces it,
  * because the calendar rule answers the wrong question. A finished, single-purpose
  * plugin can sit untouched for two years and work perfectly; what actually breaks
  * it is a core release. So the question is not "how old is this?" but "has anyone

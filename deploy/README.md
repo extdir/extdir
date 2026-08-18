@@ -180,5 +180,5 @@ gunzip -c ~/backups/extdir/extdir-YYYY-MM-DD.sql.gz | mysql ${USER}_extdir
 `composer install` and `npm install` execute arbitrary scripts. Extension code is
 third-party and hostile-by-default, so it is never installed or built on this
 host — that is what `extdir/builder` and its ephemeral runners are for
-(docs/brief.md §4.2). The `composer install` in the deploy script resolves extdir's
+(the no-untrusted-builds rule). The `composer install` in the deploy script resolves extdir's
 own `composer.lock` and nothing else.

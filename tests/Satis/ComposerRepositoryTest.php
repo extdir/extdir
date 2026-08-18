@@ -21,7 +21,7 @@ use PHPUnit\Framework\TestCase;
 final class ComposerRepositoryTest extends TestCase
 {
     /**
-     * The strictest application of §4.1 in the codebase.
+     * The strictest application of the licence gate in the codebase.
      *
      * Everywhere else an unlicensed extension is listed with a warning badge.
      * Here it must vanish, because publishing a package in a Composer repository

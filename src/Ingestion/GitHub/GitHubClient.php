@@ -104,7 +104,7 @@ final class GitHubClient
     /**
      * Runs a GraphQL query and returns the `data` block.
      *
-     * GraphQL rather than REST for enrichment, per docs/brief.md §7. The difference is
+     * GraphQL rather than REST for enrichment, per the discovery plan. The difference is
      * not cosmetic: REST needs roughly four calls per repository (repo, commits,
      * open issues, closed issues), so 422 extensions would cost ~1,700 of the
      * 5,000 hourly requests. One GraphQL query carrying 25 aliased repositories

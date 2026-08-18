@@ -7,8 +7,8 @@ namespace App\Submission\Enum;
 /**
  * What happened to an extension, and at whose hand.
  *
- * The audit log exists because docs/brief.md §12 requires a takedown procedure that
- * can be shown to have been followed, and §4.6 requires that no vendor gets
+ * The audit log exists because the legal obligations requires a takedown procedure that
+ * can be shown to have been followed, and the conflict-of-interest rule requires that no vendor gets
  * treatment another vendor could not. Both of those are claims about history, and
  * a claim about history needs a record — one that is written by the same code path
  * for everyone, including the maintainer of this directory.

@@ -13,7 +13,7 @@ use App\Signals\RepositoryEnricher;
 /**
  * Looks up the ZIP files maintainers attach to their GitHub releases.
  *
- * This is step one of the §4.3 resolution order and the one that pays for itself
+ * This is step one of the link-first resolution order and the one that pays for itself
  * twice: it costs no storage, and for Shopware it is usually the *only* archive
  * that actually installs. A maintainer's release ZIP was produced by
  * `shopware-cli extension package`, so it contains the compiled administration and

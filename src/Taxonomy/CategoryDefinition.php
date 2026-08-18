@@ -9,10 +9,10 @@ namespace App\Taxonomy;
  *
  * This is deliberately our own list rather than a mirror of the official Shopware
  * Store tree: copying that would couple the directory to someone else's product
- * decisions and edge closer to the trademark caution in docs/brief.md §4.5.
+ * decisions and edge closer to the trademark caution.
  *
  * Assignment is deterministic keyword matching, not classification by model. The
- * same principle that governs ranking (§4.6 — the algorithm is public) applies
+ * same principle that governs ranking (the conflict-of-interest rule — the algorithm is public) applies
  * here: a maintainer who disagrees with their category should be able to read the
  * rule, see exactly which term matched, and send a one-line pull request. That is
  * not possible with a probabilistic classifier, and category disputes are support

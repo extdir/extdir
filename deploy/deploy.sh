@@ -5,7 +5,7 @@
 # Run from a local checkout: deploy/deploy.sh
 #
 # Nothing here builds untrusted code. Dependencies are extdir's own, resolved from
-# composer.lock — docs/brief.md §4.2 forbids running composer over third-party
+# composer.lock — the no-untrusted-builds rule forbids running composer over third-party
 # extension code on this host, and that rule is about the extensions we index, not
 # about our own lockfile.
 set -euo pipefail

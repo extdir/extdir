@@ -41,7 +41,8 @@ final class RankingScoreTest extends TestCase
 
     /**
      * The published explanation is rendered from the same constants that rank, so
-     * §4.6's "the algorithm is public" cannot drift into being merely aspirational.
+     * the promise that the algorithm is public cannot drift into being merely
+     * aspirational.
      */
     public function testPublishedWeightsMatchTheOnesUsed(): void
     {
@@ -180,7 +181,7 @@ final class RankingScoreTest extends TestCase
 
     /**
      * An unlicensed extension cannot legally be redistributed, so it must rank
-     * below an otherwise identical licensed one — §4.1 expressed as ordering.
+     * below an otherwise identical licensed one — the licence gate expressed as ordering.
      */
     public function testUnlicensedRanksBelowLicensed(): void
     {
@@ -233,7 +234,7 @@ final class RankingScoreTest extends TestCase
     }
 
     /**
-     * §8 is explicit that stars mislead in this ecosystem. Guard the absence.
+     * The ranking guidance is explicit that stars mislead in this ecosystem. Guard the absence.
      */
     public function testPopularityIsNotAComponent(): void
     {

@@ -9,7 +9,7 @@ namespace App\Catalog\Enum;
  *
  * This is the visible consequence of the license gate and the takedown policy. It
  * is separate from LicenseStatus on purpose: an extension can be perfectly MIT and
- * still be `Delisted` because its author asked us to remove it, and docs/brief.md §12
+ * still be `Delisted` because its author asked us to remove it, and the legal obligations
  * requires that removal path to exist before launch rather than after the first
  * complaint.
  */
@@ -23,7 +23,7 @@ enum IndexStatus: string
 
     /**
      * Listed with an external link and a visible "License unknown — not
-     * redistributable" badge. No ZIP, no Satis entry, no mirroring (§4.1).
+     * redistributable" badge. No ZIP, no Satis entry, no mirroring (the licence gate).
      */
     case IndexOnly = 'index_only';
 

@@ -9,7 +9,7 @@ namespace App\Submission\Enum;
  *
  * Both methods answer the same question — can this person write to the repository
  * this package is built from — and neither involves us deciding who someone is.
- * That matters for docs/brief.md §4.6: verification that rests on an external,
+ * That matters for the conflict-of-interest rule: verification that rests on an external,
  * checkable fact cannot quietly acquire an exception for the maintainer's own
  * vendor, because there is no judgement call in it to bend.
  */

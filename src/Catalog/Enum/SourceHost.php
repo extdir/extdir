@@ -7,7 +7,7 @@ namespace App\Catalog\Enum;
 /**
  * Where an extension's source repository lives.
  *
- * GitLab and Gitea are not an afterthought here: docs/brief.md §7 notes they hold a
+ * GitLab and Gitea are not an afterthought here: the discovery plan notes they hold a
  * non-trivial share of the German Shopware ecosystem, where self-hosting is common
  * among agencies. They have no equivalent of GitHub's global search, so discovery
  * for those hosts is seeded from a curated namespace list rather than crawled.

@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * Stored as a time series rather than overwritten because the interesting questions
  * are about direction, not level. "Twelve stars" says nothing in an ecosystem where
- * an excellent extension from a German agency has twelve stars (docs/brief.md §8);
+ * an excellent extension from a German agency has twelve stars (the ranking guidance);
  * "issues have gone from 4 open to 40 open since the last core release" says a
  * great deal. Keeping history also means a ranking change can be evaluated against
  * past data instead of only against whatever the crawler last wrote.

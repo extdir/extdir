@@ -6,7 +6,7 @@
 /config/secrets/prod/prod.decrypt.private.php
 # Symfony's recipe commits the dev decrypt key, on the assumption that dev
 # secrets are throwaway values. That assumption does not hold here: this
-# repository is public (docs/brief.md §13) and the dev vault can end up holding a
+# repository is public (the open-source commitment) and the dev vault can end up holding a
 # real GitHub App private key. Committing the key next to the ciphertext it
 # opens would publish the secret itself.
 /config/secrets/dev/dev.decrypt.private.php

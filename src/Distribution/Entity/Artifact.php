@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * The provenance record for one downloadable archive.
  *
- * docs/brief.md §4.4 requires that every artifact we host publishes its source commit,
+ * The verifiable-build rule requires that every artifact we host publishes its source commit,
  * build log, SHA-256, the shopware-cli version used and an SBOM — so that a third
  * party can rebuild the ZIP and get the same bytes. This row *is* that publication:
  * if a field here is empty, the corresponding claim cannot be made on the site.
@@ -58,7 +58,7 @@ class Artifact
     #[ORM\Column(length: 512, nullable: true)]
     private ?string $sbomUrl = null;
 
-    /** Pinned per §10 — an unpinned CLI makes the build unreproducible by definition. */
+    /** Pinned per the shopware-cli notes — an unpinned CLI makes the build unreproducible by definition. */
     #[ORM\Column(length: 32, nullable: true)]
     private ?string $shopwareCliVersion = null;
 
@@ -74,7 +74,7 @@ class Artifact
     }
 
     /**
-     * Whether this artifact carries everything §4.4 demands.
+     * Whether this artifact carries everything the verifiable-build rule demands.
      *
      * Used to decide what the verification page may claim. An artifact we host
      * without complete provenance is a promise we cannot keep, so the page says so

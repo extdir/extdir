@@ -17,7 +17,7 @@ use Doctrine\ORM\Mapping as ORM;
  * extension. If a maintainer ever disputes a badge — or worse, if we are asked to
  * justify why we redistributed something — the answer needs to be "this detector,
  * at this version, on this commit, produced this identifier at this confidence",
- * not "the database currently says MIT". docs/brief.md §4.4 asks for that standard of
+ * not "the database currently says MIT". The verifiable-build rule asks for that standard of
  * evidence for builds; licensing deserves the same.
  */
 #[ORM\Entity]

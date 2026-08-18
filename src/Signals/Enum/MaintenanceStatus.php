@@ -8,12 +8,12 @@ namespace App\Signals\Enum;
  * Maintenance state, measured against Shopware's release cadence rather than the
  * calendar.
  *
- * docs/brief.md §8 proposes an "abandoned" badge after 18 months of inactivity. That
+ * The ranking guidance proposes an "abandoned" badge after 18 months of inactivity. That
  * rule misfires in this ecosystem: a small, single-purpose plugin can be finished
  * and sit untouched for two years while working perfectly — right up until a major
  * core release changes something under it. Time-since-commit alone would badge
  * healthy extensions as dead, and every false positive is an angry maintainer email
- * and a moderation ticket (§12 calls moderation "weekly labour"; this is how that
+ * and a moderation ticket (the legal obligations calls moderation "weekly labour"; this is how that
  * bill gets run up).
  *
  * The question a merchant actually asks is not "is this old?" but "has anyone
@@ -50,7 +50,7 @@ enum MaintenanceStatus: string
 
     /**
      * Whether to warn the visitor. An abandoned or dormant extension running in a
-     * production shop is a deferred security hole (§8), so this is surfaced
+     * production shop is a deferred security hole (the ranking guidance), so this is surfaced
      * prominently rather than buried in metadata.
      */
     public function warrantsWarning(): bool

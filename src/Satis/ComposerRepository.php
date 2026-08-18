@@ -13,7 +13,7 @@ use App\Catalog\Repository\ExtensionRepository;
  *
  * Upstream Satis is deliberately not used. Running it would mean executing
  * Composer over untrusted third-party package metadata on the host that holds the
- * database and the credentials, which is the thing docs/brief.md §4.2 exists to
+ * database and the credentials, which is the thing the no-untrusted-builds rule exists to
  * prevent. The output format is a documented JSON contract, and we already store
  * every release's full composer.json — so generating it is a serialisation problem,
  * not a reason to run someone else's resolver.
@@ -33,7 +33,7 @@ final class ComposerRepository
      * The licence gate applies here in its strongest form. Publishing a package in
      * a Composer repository is telling a machine to download and install it — so
      * anything without a detected open-source licence is excluded outright, not
-     * merely badged. §4.1 draws the line at redistribution, and pointing an
+     * merely badged. The licence gate draws the line at redistribution, and pointing an
      * automated installer at code is squarely on the far side of it.
      */
     public function __construct(
@@ -143,7 +143,7 @@ final class ComposerRepository
      */
     private function isPublishable(Extension $extension): bool
     {
-        // §4.1 — no detected licence, no distribution. Strictest application:
+        // The licence gate — no detected licence, no distribution. Strictest application:
         // excluded entirely rather than listed with a warning, because a Composer
         // client does not read warnings.
         if (!$extension->getLicenseStatus()->isRedistributable()) {
