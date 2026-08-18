@@ -40,17 +40,6 @@ jobs:
           APP_ENV: dev
           DATABASE_URL: 'mysql://root:root@127.0.0.1:3306/extdir?serverVersion=10.6.19-MariaDB&charset=utf8mb4'
 
-      - name: Build the production container
-        # CI otherwise only ever exercises dev and test, so configuration that is
-        # only valid in those environments passes here and fails on the server.
-        # A when@prod block that redefined security.access_control got all the way
-        # to a live deploy exactly this way.
-        run: php bin/console cache:clear --env=prod --no-debug
-        env:
-          APP_ENV: prod
-          APP_SECRET: ci-only-not-a-secret
-          DATABASE_URL: 'mysql://root:root@127.0.0.1:3306/extdir?serverVersion=10.6.19-MariaDB&charset=utf8mb4'
-
       - run: vendor/bin/phpstan analyse --no-progress --error-format=github
         env:
           DATABASE_URL: 'mysql://root:root@127.0.0.1:3306/extdir?serverVersion=10.6.19-MariaDB&charset=utf8mb4'
@@ -116,3 +105,38 @@ jobs:
         run: php bin/console doctrine:schema:validate --env=test
 
       - run: vendor/bin/phpunit
+
+  production-build:
+    name: Production build
+    runs-on: ubuntu-latest
+    # Installs and warms the way the server does. Two separate failures reached a
+    # live deploy before this job existed:
+    #
+    #   1. A when@prod block that redefined security.access_control — invalid
+    #      only when the prod container is compiled.
+    #   2. A src/ class extending a require-dev bundle — fatal only once
+    #      --no-dev leaves the parent class uninstalled.
+    #
+    # Neither is visible to a dev/test run with the full dependency set, which is
+    # what the other two jobs are.
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: intl, pdo_mysql, zip
+          coverage: none
+          tools: composer:v2
+
+      - uses: ramsey/composer-install@v3
+        with:
+          composer-options: "--no-dev --optimize-autoloader --classmap-authoritative"
+
+      - name: Warm the production cache
+        run: php bin/console cache:warmup --env=prod --no-debug
+        env:
+          APP_ENV: prod
+          APP_DEBUG: 0
+          APP_SECRET: ci-only-not-a-secret
+          DATABASE_URL: 'mysql://root:root@127.0.0.1:3306/extdir?serverVersion=10.6.19-MariaDB&charset=utf8mb4'
