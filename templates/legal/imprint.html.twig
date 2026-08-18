@@ -20,12 +20,27 @@
            translation offered as a courtesy. #}
 
         <h2>Diensteanbieter</h2>
-        <address>
-            {{ operator.name }}<br>
-            {{ operator.street }}<br>
-            {{ operator.postalCity }}<br>
-            Deutschland
-        </address>
+        <address>{{ operator.name }}</address>
+
+        {# Die Anschrift wird auf Anforderung nachgeladen, nicht im Quelltext
+           ausgeliefert. Sie ist die Wohnanschrift einer Privatperson; die Wartezeit
+           und das Limit richten sich gegen automatisiertes Absammeln, nicht gegen
+           Besucher. Name und E-Mail-Adresse stehen unverändert im Seitenquelltext. #}
+        <div class="reveal"
+             data-controller="reveal"
+             data-reveal-url-value="{{ path('imprint_contact_details') }}"
+             data-reveal-duration-seconds-value="60">
+            <p class="small">Die Postanschrift wird nach einer kurzen Wartezeit angezeigt. Der Zähler läuft nur, solange dieser Tab im Vordergrund ist.</p>
+            <button type="button" class="reveal-btn" data-reveal-target="trigger" data-action="reveal#start">
+                Postanschrift anzeigen
+            </button>
+            <div class="reveal-progress" data-reveal-target="progress" hidden>
+                <div class="reveal-track"><div class="reveal-bar" data-reveal-target="bar"></div></div>
+                <p class="small num" data-reveal-target="label" aria-live="polite"></p>
+            </div>
+            <div data-reveal-target="content" hidden></div>
+            <p class="small reveal-error" data-reveal-target="error" role="alert" hidden></p>
+        </div>
 
         <h2>Kontakt</h2>
         <p>
@@ -118,12 +133,23 @@
         </p>
 
         <h3>Service provider</h3>
-        <address>
-            {{ operator.name }}<br>
-            {{ operator.street }}<br>
-            {{ operator.postalCity }}<br>
-            Germany
-        </address>
+        <address>{{ operator.name }}</address>
+
+        <div class="reveal"
+             data-controller="reveal"
+             data-reveal-url-value="{{ path('imprint_contact_details') }}"
+             data-reveal-duration-seconds-value="60">
+            <p class="small">The postal address is shown after a short wait. The countdown only runs while this tab is in the foreground.</p>
+            <button type="button" class="reveal-btn" data-reveal-target="trigger" data-action="reveal#start">
+                Show postal address
+            </button>
+            <div class="reveal-progress" data-reveal-target="progress" hidden>
+                <div class="reveal-track"><div class="reveal-bar" data-reveal-target="bar"></div></div>
+                <p class="small num" data-reveal-target="label" aria-live="polite"></p>
+            </div>
+            <div data-reveal-target="content" hidden></div>
+            <p class="small reveal-error" data-reveal-target="error" role="alert" hidden></p>
+        </div>
 
         <h3>Contact</h3>
         <p>Email: <a href="mailto:{{ operator.email }}">{{ operator.email }}</a></p>

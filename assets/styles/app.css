@@ -272,3 +272,36 @@ table.data th { color: var(--subtle); font-weight: 500; font-size: .75rem; text-
 .flash--success { color: var(--ok); background: var(--ok-soft); border-color: color-mix(in srgb, var(--ok) 30%, transparent); }
 .flash--error { color: var(--danger); background: var(--danger-soft); border-color: color-mix(in srgb, var(--danger) 30%, transparent); }
 .flash--warning { color: var(--warn); background: var(--accent-soft); border-color: color-mix(in srgb, var(--warn) 30%, transparent); }
+
+/* Imprint address reveal.
+   The address is fetched after a countdown rather than rendered into the page —
+   see LegalController for why. These styles exist so the wait is legible: a
+   visitor who is asked to wait a minute should be able to see that something is
+   happening and how much is left. */
+.reveal { margin: .5rem 0 1rem; }
+
+.reveal-btn {
+    font: inherit; font-size: .875rem; cursor: pointer;
+    background: var(--surface); color: var(--fg);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: .5rem .9rem;
+}
+.reveal-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.reveal-progress { margin-top: .75rem; max-width: 22rem; }
+.reveal-track {
+    height: 6px; border-radius: 999px;
+    background: var(--border); overflow: hidden;
+}
+.reveal-bar {
+    height: 100%; width: 0;
+    background: var(--accent); border-radius: 999px;
+}
+.reveal-error { color: var(--warn); }
+
+/* The countdown is decorative reassurance, not information. Anyone who has asked
+   the browser to reduce motion still gets the address at the same moment; the bar
+   simply stops sliding. */
+@media (prefers-reduced-motion: reduce) {
+    .reveal-bar { transition: none; }
+}

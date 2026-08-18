@@ -6,7 +6,10 @@ namespace App\Ui\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
@@ -27,6 +30,18 @@ use Symfony\Component\Routing\Attribute\Route;
  * string. An Impressum that renders a blank address is a worse defect than one that
  * fails to render at all, because it looks compliant and is not — and § 5 is
  * enforced by competitors sending invoices, not by a validator.
+ *
+ * The address is served from a separate endpoint rather than in the page, behind a
+ * timed reveal. This is a considered trade and it is worth being honest about which
+ * way it cuts. § 5 wants the details "leicht erkennbar, unmittelbar erreichbar und
+ * ständig verfügbar", and a reveal that needs JavaScript, a minute of waiting and an
+ * IP budget is a weaker claim on all three than plain markup would be. Against that:
+ * this is a private individual's home address, GitHub and the open web are harvested
+ * for exactly this, and the operator runs the same mechanism on another site. The
+ * mitigations that follow from that reading are deliberate — the endpoint needs no
+ * JavaScript to answer, the limit is per hour rather than per day, and the operator's
+ * name and a monitored email stay in the markup unconditionally, so the page always
+ * identifies who is behind it and offers a way to reach them.
  */
 final class LegalController extends AbstractController
 {
@@ -104,6 +119,48 @@ final class LegalController extends AbstractController
     public function imprint(): Response
     {
         return $this->render('legal/imprint.html.twig', ['operator' => $this->operator()]);
+    }
+
+    /**
+     * The postal address on its own, as JSON.
+     *
+     * Not a security boundary and not treated as one: it answers any client that
+     * asks, without a token or a referer check. Requiring either would only break
+     * the visitor who has JavaScript disabled while a scraper reproduced it in an
+     * afternoon. The rate limit is the actual control, and it is set per IP per
+     * hour because harvesting is a volume activity and reading an imprint is not.
+     */
+    #[Route('/imprint/contact-details.json', name: 'imprint_contact_details', methods: ['GET'])]
+    public function imprintContactDetails(
+        Request $request,
+        #[Autowire(service: 'limiter.imprint_reveal')]
+        RateLimiterFactoryInterface $limiter,
+    ): JsonResponse {
+        $limit = $limiter->create($request->getClientIp() ?? 'anonymous')->consume(1);
+
+        if (!$limit->isAccepted()) {
+            $retryAfter = max(1, $limit->getRetryAfter()->getTimestamp() - time());
+
+            $response = new JsonResponse([
+                'error' => 'Too many requests. The imprint email address reaches a person immediately.',
+                'retryAfterSeconds' => $retryAfter,
+            ], Response::HTTP_TOO_MANY_REQUESTS);
+            $response->headers->set('Retry-After', (string) $retryAfter);
+
+            return $response;
+        }
+
+        $operator = $this->operator();
+        unset($operator['email']);
+
+        $response = new JsonResponse($operator);
+        // Never cached and never indexed: a cached copy in a shared proxy, or an
+        // indexed one in a search engine, would put back exactly what keeping the
+        // address out of the HTML was meant to prevent.
+        $response->headers->set('Cache-Control', 'no-store, max-age=0');
+        $response->headers->set('X-Robots-Tag', 'noindex, nofollow');
+
+        return $response;
     }
 
     #[Route('/privacy', name: 'privacy', methods: ['GET'])]

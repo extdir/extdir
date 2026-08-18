@@ -37,11 +37,17 @@
         <p>Verantwortlich für die Datenverarbeitung auf dieser Website ist:</p>
         <address>
             {{ operator.name }}<br>
-            {{ operator.street }}<br>
-            {{ operator.postalCity }}<br>
             Deutschland<br>
             E-Mail: <a href="mailto:{{ operator.email }}">{{ operator.email }}</a>
         </address>
+        {# Die vollständige Anschrift steht im Impressum. Sie hier zusätzlich
+           auszuschreiben würde die dortige Zugangsbeschränkung aufheben, ohne dass
+           Art. 13 DSGVO das verlangt: gefordert sind Identität und Kontaktdaten des
+           Verantwortlichen, und der Verweis auf das Impressum ist dafür der übliche
+           und anerkannte Weg. #}
+        <p class="small">
+            Die vollständige Postanschrift finden Sie im <a href="{{ path('imprint') }}">Impressum</a>.
+        </p>
         <p class="small">
             Verantwortliche Stelle ist die natürliche oder juristische Person, die allein oder
             gemeinsam mit anderen über die Zwecke und Mittel der Verarbeitung von personenbezogenen

@@ -53,34 +53,107 @@ final class LegalPagesTest extends WebTestCase
 
         $text = $crawler->filter('body')->text();
 
-        foreach (self::operator() as $field => $value) {
+        // Only what stays in the markup. The street and city are asserted by
+        // testTheAddressIsBehindTheRevealRatherThanInTheMarkup, which checks the
+        // opposite — that they are absent — and by the endpoint test.
+        foreach (['name', 'email'] as $field) {
             self::assertStringContainsString(
-                $value,
+                self::operator()[$field],
                 $text,
-                \sprintf('The imprint must show the operator %s.', $field),
+                \sprintf('The imprint must show the operator %s without a reveal.', $field),
             );
         }
     }
 
     /**
-     * The address must be in the HTML itself, not fetched by JavaScript. § 5
-     * requires it to be "unmittelbar erreichbar und ständig verfügbar", and a
-     * script-gated reveal is neither for a visitor without JavaScript.
+     * The inverse of what this test used to assert.
+     *
+     * It previously required the address to be plain markup, on the § 5 reading
+     * that a script-gated reveal is not "unmittelbar erreichbar und ständig
+     * verfügbar". The operator weighed that against publishing a private home
+     * address into a scraped repository and chose the reveal; LegalController
+     * records the full reasoning. What survives from the original intent is the
+     * part that is not negotiable: the page must still say who operates the site
+     * and offer a way to reach them without clearing any hurdle at all.
      */
-    public function testTheAddressIsInTheMarkupRatherThanLoadedLater(): void
+    public function testTheAddressIsBehindTheRevealRatherThanInTheMarkup(): void
     {
         $client = static::createClient();
         $crawler = $client->request('GET', '/imprint');
 
+        $html = $crawler->html();
+
+        self::assertStringNotContainsString(
+            $_ENV['OPERATOR_STREET'],
+            $html,
+            'The street must not be in the imprint HTML; it is fetched on demand.',
+        );
+        self::assertStringNotContainsString($_ENV['OPERATOR_POSTAL_CITY'], $html);
+
+        // Identity and a contact route are never gated.
+        $text = $crawler->filter('body')->text();
+        self::assertStringContainsString($_ENV['OPERATOR_NAME'], $text);
+        self::assertStringContainsString('legal@extdir.com', $text);
+
         self::assertGreaterThan(
             0,
-            $crawler->filter('address')->count(),
-            'The postal address must be served as plain markup.',
+            $crawler->filter('[data-controller="reveal"]')->count(),
+            'The imprint must offer the reveal widget.',
         );
+    }
+
+    /**
+     * The endpoint answers a plain request — no token, no referer check.
+     *
+     * Deliberate: those would lock out a visitor with JavaScript disabled while a
+     * scraper worked around them in an afternoon. The rate limit is the control.
+     */
+    public function testTheContactEndpointServesTheAddress(): void
+    {
+        $client = static::createClient();
+        $ip = self::withFreshLimiterBudget('198.51.100.4');
+
+        $client->request('GET', '/imprint/contact-details.json', [], [], ['REMOTE_ADDR' => $ip]);
+
+        self::assertResponseIsSuccessful();
+        self::assertResponseHeaderSame('X-Robots-Tag', 'noindex, nofollow');
         self::assertStringContainsString(
-            self::operator()['street'],
-            $crawler->filter('address')->first()->html(),
+            'no-store',
+            (string) $client->getResponse()->headers->get('Cache-Control'),
         );
+
+        $payload = json_decode((string) $client->getResponse()->getContent(), true);
+
+        self::assertSame($_ENV['OPERATOR_STREET'], $payload['street']);
+        self::assertSame($_ENV['OPERATOR_POSTAL_CITY'], $payload['postalCity']);
+        self::assertArrayNotHasKey(
+            'email',
+            $payload,
+            'The email is already in the markup; repeating it here would leak it to the rate-limited path for no gain.',
+        );
+    }
+
+    /**
+     * Exhausting the limit must produce a 429 with Retry-After, not a 500 and not
+     * a silent empty response — the JavaScript branches on exactly this.
+     */
+    public function testTheContactEndpointRateLimits(): void
+    {
+        $client = static::createClient();
+
+        // A client IP of its own. Limiter state outlives the request and even the
+        // test run, so exhausting the default 127.0.0.1 would 429 every later test
+        // that touches this endpoint — which is exactly what it did once.
+        $ip = self::withFreshLimiterBudget('203.0.113.7');
+
+        $limit = static::getContainer()->get('limiter.imprint_reveal')->create($ip);
+        while ($limit->consume(1)->isAccepted()) {
+        }
+
+        $client->request('GET', '/imprint/contact-details.json', [], [], ['REMOTE_ADDR' => $ip]);
+
+        self::assertResponseStatusCodeSame(429);
+        self::assertTrue($client->getResponse()->headers->has('Retry-After'));
     }
 
     /**
@@ -200,6 +273,22 @@ final class LegalPagesTest extends WebTestCase
         $this->expectExceptionMessageMatches('/OPERATOR_STREET/');
 
         $controller->imprint();
+    }
+
+    /**
+     * Clears this IP's limiter budget and returns the IP.
+     *
+     * The limiter stores state in a cache pool that outlives both the request and
+     * the test run, so without this each run spends part of a shared hourly budget
+     * and the suite starts failing after enough runs — a failure that looks like a
+     * broken endpoint and is really just yesterday's tests. Each test also gets a
+     * documentation-range IP of its own so exhausting one cannot affect another.
+     */
+    private static function withFreshLimiterBudget(string $ip): string
+    {
+        static::getContainer()->get('limiter.imprint_reveal')->create($ip)->reset();
+
+        return $ip;
     }
 
     /**
