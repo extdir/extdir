@@ -47,6 +47,20 @@ bin/console doctrine:schema:validate            # entities vs. migrations
 
 `doctrine:schema:validate` is part of CI. If it fails, an entity changed without a migration.
 
+The test database is separate and does **not** migrate itself. After pulling changes that
+add a migration, run it or the functional tests fail with a missing column that has nothing
+to do with the change you are making:
+
+```bash
+bin/console doctrine:migrations:migrate --no-interaction --env=test
+```
+
+### Deploying
+
+Production runs on Uberspace shared hosting. See [deploy/README.md](deploy/README.md) for the
+one-time setup, the five DNS records, and the loopback gotcha that will otherwise cost you an
+hour.
+
 ---
 
 ## Things that will bite you

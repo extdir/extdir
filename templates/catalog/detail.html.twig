@@ -5,6 +5,10 @@
 {% block title %}{{ extension.label }} ({{ extension.packageName }}) — extdir{% endblock %}
 {% block meta_description %}{{ extension.description|default(extension.label)|slice(0, 155) }}{% endblock %}
 
+{% block canonical %}
+    <link rel="canonical" href="{{ url('extension_detail', {slug: extension.slug}) }}">
+{% endblock %}
+
 {% block body %}
 <div class="wrap page">
 

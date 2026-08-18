@@ -140,6 +140,26 @@ final readonly class SearchCriteria
         return $params;
     }
 
+    /**
+     * Query parameters for the canonical URL.
+     *
+     * Sort is dropped: reordering the same result set produces a page that is
+     * word-for-word identical to a search engine, so every ordering would compete
+     * with the others for the same query. Facets and page are kept, because those
+     * genuinely change what is on the page — a paginated result canonicalised back
+     * to page one is a documented way to make everything past the first page
+     * invisible.
+     *
+     * @return array<string, string|int>
+     */
+    public function toCanonicalParameters(): array
+    {
+        $params = $this->toQueryParameters();
+        unset($params['sort']);
+
+        return $params;
+    }
+
     private static function cleanFilter(mixed $value): ?string
     {
         if (!\is_string($value)) {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Catalog\Repository;
 
 use App\Catalog\Entity\Extension;
+use App\Catalog\Enum\IndexStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -51,6 +52,30 @@ class ExtensionRepository extends ServiceEntityRepository
         }
 
         return $names;
+    }
+
+    /**
+     * Everything that may appear publicly, ordered for stable output.
+     *
+     * Shares the visibility rule with search rather than restating it: a delisted
+     * extension that vanished from the listing but lingered in the sitemap would
+     * keep being re-crawled and re-surfaced, which is a takedown that only half
+     * happened.
+     *
+     * @return list<Extension>
+     */
+    public function findPubliclyVisible(): array
+    {
+        /** @var list<Extension> $result */
+        $result = $this->createQueryBuilder('e')
+            ->where('e.indexStatus IN (:visible)')
+            ->setParameter('visible', [IndexStatus::Listed, IndexStatus::IndexOnly])
+            ->orderBy('e.rankScore', 'DESC')
+            ->addOrderBy('e.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $result;
     }
 
     /**

@@ -26,6 +26,10 @@
     declare support for, whether they are still maintained, and how they are licensed.
 {% endblock %}
 
+{% block canonical %}
+    <link rel="canonical" href="{{ url('home', criteria.toCanonicalParameters) }}">
+{% endblock %}
+
 {% block body %}
 <div class="wrap page">
 
