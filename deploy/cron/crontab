@@ -6,14 +6,18 @@
 #
 #   (crontab -l; cat deploy/cron/crontab) | crontab -
 #
-# Paths are absolute and the interpreter is /usr/bin/php83, because cron runs with
-# a minimal PATH where `php` is either missing or an older default.
+# Paths are written out in full and the interpreter is /usr/bin/php83, because cron
+# runs with a minimal PATH where `php` is either missing or an older default.
+#
+# Note the absence of a directory variable. cron does not expand variables inside a
+# variable assignment: `EXTDIR=$HOME/websites/extdir.com` stores the literal text
+# `$HOME/...`, the shell then expands $EXTDIR to that literal, and cd receives a path
+# with a `$HOME` in it that nothing will ever resolve. $HOME used directly in a
+# command is fine — cron sets HOME and the shell expands it at run time.
 #
 # Times are deliberately off-peak and staggered. Packagist and GitHub are being
 # asked for a few hundred requests; doing that politely costs nothing and being
 # rate-limited costs a day of freshness.
-
-EXTDIR=$HOME/websites/extdir.com
 
 # Optional: dead-man's-switch monitoring. /health notices staleness after 48
 # hours, which is the right threshold for "the data is untrustworthy" but a slow
@@ -26,25 +30,25 @@ EXTDIR=$HOME/websites/extdir.com
 # Shopware release timeline. Rarely changes, but everything downstream depends on
 # it: the compatibility matrix columns and every maintenance status are measured
 # against these dates.
-17 3 * * 1   cd $EXTDIR && /usr/bin/php83 bin/console app:shopware:sync-versions >> $HOME/logs/extdir-cron.log 2>&1
+17 3 * * 1   cd $HOME/websites/extdir.com && /usr/bin/php83 bin/console app:shopware:sync-versions >> $HOME/logs/extdir-cron.log 2>&1
 
 # Package metadata from Packagist. Cheap and the primary source of truth.
-23 3 * * *   cd $EXTDIR && /usr/bin/php83 bin/console app:ingest:packagist >> $HOME/logs/extdir-cron.log 2>&1
+23 3 * * *   cd $HOME/websites/extdir.com && /usr/bin/php83 bin/console app:ingest:packagist >> $HOME/logs/extdir-cron.log 2>&1
 
 # Extensions published to GitHub but never to Packagist. Weekly is enough — a
 # repository that was never submitted to Packagist is not moving fast.
-41 4 * * 2   cd $EXTDIR && /usr/bin/php83 bin/console app:ingest:github >> $HOME/logs/extdir-cron.log 2>&1
+41 4 * * 2   cd $HOME/websites/extdir.com && /usr/bin/php83 bin/console app:ingest:github >> $HOME/logs/extdir-cron.log 2>&1
 
 # Repository signals, then maintenance status and ranking. Must follow ingestion,
 # so it runs well after it rather than in parallel.
-11 5 * * *   cd $EXTDIR && /usr/bin/php83 bin/console app:signals:refresh >> $HOME/logs/extdir-cron.log 2>&1
+11 5 * * *   cd $HOME/websites/extdir.com && /usr/bin/php83 bin/console app:signals:refresh >> $HOME/logs/extdir-cron.log 2>&1
 
 # Download locations. Needs the licence status that enrichment has just settled,
 # since an unlicensed extension is never offered a maintainer archive.
-47 5 * * *   cd $EXTDIR && /usr/bin/php83 bin/console app:distribution:resolve >> $HOME/logs/extdir-cron.log 2>&1
+47 5 * * *   cd $HOME/websites/extdir.com && /usr/bin/php83 bin/console app:distribution:resolve >> $HOME/logs/extdir-cron.log 2>&1
 
 # Categories, recomputed from stored data. Seconds, no network.
-13 6 * * *   cd $EXTDIR && /usr/bin/php83 bin/console app:taxonomy:classify >> $HOME/logs/extdir-cron.log 2>&1
+13 6 * * *   cd $HOME/websites/extdir.com && /usr/bin/php83 bin/console app:taxonomy:classify >> $HOME/logs/extdir-cron.log 2>&1
 
 # Database backup, kept for 14 days.
-30 2 * * *   $EXTDIR/deploy/backup.sh >> $HOME/logs/extdir-backup.log 2>&1
+30 2 * * *   $HOME/websites/extdir.com/deploy/backup.sh >> $HOME/logs/extdir-backup.log 2>&1
