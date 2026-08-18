@@ -53,9 +53,9 @@ final class LegalPagesTest extends WebTestCase
 
         $text = $crawler->filter('body')->text();
 
-        foreach (['name', 'street', 'postalCity', 'country', 'email'] as $field) {
+        foreach (self::operator() as $field => $value) {
             self::assertStringContainsString(
-                LegalController::OPERATOR[$field],
+                $value,
                 $text,
                 \sprintf('The imprint must show the operator %s.', $field),
             );
@@ -78,7 +78,7 @@ final class LegalPagesTest extends WebTestCase
             'The postal address must be served as plain markup.',
         );
         self::assertStringContainsString(
-            LegalController::OPERATOR['street'],
+            self::operator()['street'],
             $crawler->filter('address')->first()->html(),
         );
     }
@@ -181,6 +181,43 @@ final class LegalPagesTest extends WebTestCase
         $client = static::createClient();
         $crawler = $client->request('GET', '/takedown');
 
-        self::assertStringContainsString(LegalController::OPERATOR['email'], $crawler->filter('body')->text());
+        self::assertStringContainsString(self::operator()['email'], $crawler->filter('body')->text());
+    }
+
+    /**
+     * A missing environment value must stop the page, not blank a field.
+     *
+     * The failure mode this guards against is silent: OPERATOR_STREET unset on a
+     * new server renders an Impressum that looks complete and is legally
+     * defective, and nothing about the page says so. Better a 500 that names the
+     * variable.
+     */
+    public function testAnEmptyOperatorFieldStopsTheImprintRatherThanBlankingIt(): void
+    {
+        $controller = new LegalController('Test Operator', '', '12345 Teststadt', 'Germany');
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessageMatches('/OPERATOR_STREET/');
+
+        $controller->imprint();
+    }
+
+    /**
+     * The published operator details, read from the environment exactly as the
+     * controller reads them. Asserting against .env.test rather than a literal
+     * means these tests also prove the env wiring works — a typo in the variable
+     * name fails here rather than silently blanking the Impressum in production.
+     *
+     * @return array<string, string>
+     */
+    private static function operator(): array
+    {
+        return [
+            'name' => $_ENV['OPERATOR_NAME'],
+            'street' => $_ENV['OPERATOR_STREET'],
+            'postalCity' => $_ENV['OPERATOR_POSTAL_CITY'],
+            'country' => $_ENV['OPERATOR_COUNTRY'],
+            'email' => 'legal@extdir.com',
+        ];
     }
 }

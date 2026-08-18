@@ -134,11 +134,17 @@ if [ ! -f .env.local ]; then
         echo "TRUSTED_HOSTS='${TRUSTED_HOSTS}'"
         echo "DEFAULT_URI=https://${APP_DOMAIN}"
         echo "R2_PUBLIC_BASE_URL="
+        # Required for /imprint to render at all. Kept out of the repository
+        # because they are a private individual's home address.
+        echo "OPERATOR_NAME="
+        echo "OPERATOR_STREET="
+        echo "OPERATOR_POSTAL_CITY="
+        echo "OPERATOR_COUNTRY=Germany"
         echo "GITHUB_APP_ID="
         echo "GITHUB_APP_CLIENT_ID="
         echo "GITHUB_APP_CLIENT_SECRET="
     } > .env.local
-    echo "  generated .env.local — add the GitHub App credentials, then re-run"
+    echo "  generated .env.local — add the operator address and GitHub App credentials, then re-run"
 fi
 
 composer install --no-dev --optimize-autoloader --classmap-authoritative --no-interaction --no-progress

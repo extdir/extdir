@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Ui\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -15,21 +16,17 @@ use Symfony\Component\Routing\Attribute\Route;
  * names a defective Impressum as a live Abmahnung risk in Germany — not a
  * theoretical one.
  *
- * A note on the contact details, because there is a tempting trick here and this
- * codebase deliberately does not use it. It is possible to keep the postal address
- * out of the HTML and serve it from a rate-limited, JavaScript-triggered endpoint,
- * which does defeat naive scrapers. The problem is DDG § 5's actual requirement:
- * the information must be "leicht erkennbar, unmittelbar erreichbar und ständig
- * verfügbar". An address that needs JavaScript, a deliberate delay and an IP
- * budget is arguably none of those — and a visitor behind carrier-grade NAT can be
- * refused it outright. That trades a small spam nuisance for the exact defect the
- * Abmahnung industry looks for.
+ * The operator's name and postal address are read from the environment rather than
+ * written here. They are one private individual's home details: § 5 DDG requires
+ * them to be published on the site, but nothing requires them to sit in a public
+ * git repository, which is scraped for personal data far more systematically than
+ * a website is. The values live in .env.local on the server and nowhere in version
+ * control.
  *
- * The privacy win is taken instead where it is free: § 5 does not require a
- * telephone number at all. The ECJ (C-298/07) held that an email address plus a
- * second route for fast, direct contact is sufficient. So the phone number is
- * simply not published, and the address — which is required, and is not what spam
- * harvesters are after — is served as plain text.
+ * An unset value is treated as a fatal misconfiguration rather than an empty
+ * string. An Impressum that renders a blank address is a worse defect than one that
+ * fails to render at all, because it looks compliant and is not — and § 5 is
+ * enforced by competitors sending invoices, not by a validator.
  */
 final class LegalController extends AbstractController
 {
@@ -41,14 +38,44 @@ final class LegalController extends AbstractController
      * and Nr. 6 require them only "soweit vorhanden". A regulated-profession block
      * (§ 5 Abs. 1 Nr. 5) does not apply either — software development is not a
      * chambered profession.
+     *
+     * The email address is not among these because it is a role address on this
+     * domain rather than personal data, and § 5 wants a contact route that is
+     * immediately visible; it is written directly in the templates.
      */
-    public const OPERATOR = [
-        'name' => 'Amer Malik Mohammed',
-        'street' => '[redacted]',
-        'postalCity' => '[redacted]',
-        'country' => 'Germany',
-        'email' => 'legal@extdir.com',
-    ];
+    public function __construct(
+        #[Autowire('%env(OPERATOR_NAME)%')]
+        private readonly string $operatorName,
+        #[Autowire('%env(OPERATOR_STREET)%')]
+        private readonly string $operatorStreet,
+        #[Autowire('%env(OPERATOR_POSTAL_CITY)%')]
+        private readonly string $operatorPostalCity,
+        #[Autowire('%env(OPERATOR_COUNTRY)%')]
+        private readonly string $operatorCountry,
+    ) {
+    }
+
+    /**
+     * @return array{name: string, street: string, postalCity: string, country: string, email: string}
+     */
+    private function operator(): array
+    {
+        $operator = [
+            'name' => $this->operatorName,
+            'street' => $this->operatorStreet,
+            'postalCity' => $this->operatorPostalCity,
+            'country' => $this->operatorCountry,
+            'email' => self::EMAIL,
+        ];
+
+        foreach ($operator as $field => $value) {
+            if ('' === trim($value)) {
+                throw new \LogicException(\sprintf('The operator %s is empty. Set OPERATOR_%s in .env.local and re-run "composer dump-env prod"; publishing this page without it would be a defective Impressum under § 5 DDG.', $field, strtoupper(preg_replace('/(?<!^)[A-Z]/', '_$0', $field) ?? $field)));
+            }
+        }
+
+        return $operator;
+    }
 
     /**
      * Whether a data processing agreement under Art. 28 GDPR has actually been
@@ -67,17 +94,23 @@ final class LegalController extends AbstractController
      */
     public const HOSTING_DPA_CONCLUDED = false;
 
+    /**
+     * A role address on a domain we control, so it is not personal data and stays
+     * in the repository.
+     */
+    private const EMAIL = 'legal@extdir.com';
+
     #[Route('/imprint', name: 'imprint', methods: ['GET'])]
     public function imprint(): Response
     {
-        return $this->render('legal/imprint.html.twig', ['operator' => self::OPERATOR]);
+        return $this->render('legal/imprint.html.twig', ['operator' => $this->operator()]);
     }
 
     #[Route('/privacy', name: 'privacy', methods: ['GET'])]
     public function privacy(): Response
     {
         return $this->render('legal/privacy.html.twig', [
-            'operator' => self::OPERATOR,
+            'operator' => $this->operator(),
             'hostingDpaConcluded' => self::HOSTING_DPA_CONCLUDED,
         ]);
     }
@@ -91,6 +124,6 @@ final class LegalController extends AbstractController
     #[Route('/takedown', name: 'takedown', methods: ['GET'])]
     public function takedown(): Response
     {
-        return $this->render('legal/takedown.html.twig', ['operator' => self::OPERATOR]);
+        return $this->render('legal/takedown.html.twig', ['operator' => $this->operator()]);
     }
 }
