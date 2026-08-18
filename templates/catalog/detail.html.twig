@@ -210,14 +210,31 @@ bin/console plugin:install --activate {{ technicalName }}</pre>
 
             <section class="panel">
                 <h2>Do you maintain this?</h2>
-                <p class="small muted">
-                    Verify with GitHub and you can remove this entry yourself, without waiting on
-                    anyone. We check whether your account has write access to the repository — your
-                    access token is used for that one check and never stored.
-                </p>
-                <p class="small">
-                    <a href="{{ path('auth_github', {extension: extension.slug}) }}">Verify ownership →</a>
-                </p>
+                {% if extension.sourceHost.value == 'github' %}
+                    <p class="small muted">
+                        Verify with GitHub and you can remove this entry yourself, without waiting on
+                        anyone. We check whether your account has write access to the repository — your
+                        access token is used for that one check and never stored.
+                    </p>
+                    <p class="small">
+                        <a class="link-arrow" href="{{ path('auth_github', {extension: extension.slug}) }}">Verify ownership</a>
+                    </p>
+                {% else %}
+                    {# Not on GitHub, so there is no API to ask about write access. The
+                       maintainer publishes a file only someone with write access could
+                       publish, and that stands in for the permission check. #}
+                    <p class="small muted">
+                        This repository is not on GitHub, so we cannot check write access through an
+                        API. Instead you publish a small file in the repository — something only
+                        someone with write access can do — and we fetch it once.
+                    </p>
+                    <p class="small">
+                        <a class="link-arrow" href="{{ path('ownership_verify_file', {slug: extension.slug}) }}">Verify with a file</a>
+                    </p>
+                    <p class="small subtle">
+                        You will be asked to sign in first, so the verification belongs to an account.
+                    </p>
+                {% endif %}
                 <p class="small subtle">
                     Anything else — a wrong category, an outdated description, a rights complaint —
                     is covered by the <a href="{{ path('takedown') }}">takedown and correction

@@ -11,6 +11,9 @@ use App\Submission\Entity\OwnershipClaim;
 use App\Submission\Entity\User;
 use App\Submission\Enum\ModerationActionType;
 use App\Submission\Enum\VerificationMethod;
+use App\Submission\ProofFile\ProofToken;
+use App\Submission\ProofFile\RawFileUrls;
+use App\Submission\ProofFile\SafeFetcher;
 use App\Submission\Repository\OwnershipClaimRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpExceptionInterface;
@@ -40,6 +43,9 @@ final class OwnershipVerifier
         private readonly HttpClientInterface $http,
         private readonly OwnershipClaimRepository $claims,
         private readonly EntityManagerInterface $em,
+        private readonly ProofToken $tokens,
+        private readonly RawFileUrls $rawUrls,
+        private readonly SafeFetcher $fetcher,
     ) {
     }
 
@@ -54,8 +60,8 @@ final class OwnershipVerifier
 
         if (null === $repo) {
             return VerificationResult::unavailable(
-                'This extension is not hosted on GitHub, so write access cannot be checked automatically. '
-                .'Use the verification file instead.',
+                'This extension is not hosted on GitHub, so write access cannot be checked '
+                .'automatically. Use the verification file instead.',
             );
         }
 
@@ -107,6 +113,83 @@ final class OwnershipVerifier
         );
 
         return VerificationResult::verified($claim);
+    }
+
+    /**
+     * Verifies by fetching a file the maintainer published in the repository.
+     *
+     * The route for the 42 extensions on Bitbucket, GitLab, Gitea and a couple of
+     * self-hosted forges nobody has an API contract with. Where the GitHub check asks
+     * a third party "does this person have write access", this asks the repository
+     * itself, and only someone with write access can answer.
+     *
+     * The signed-in account still matters: the token is bound to it, so this proves
+     * that *this* person controls the repository rather than that somebody once did.
+     *
+     * Several URLs are tried because forges disagree about raw paths and about the
+     * default branch name. The first one that answers with the token wins; the rest
+     * are not attempted.
+     */
+    public function verifyWithProofFile(User $user, Extension $extension): VerificationResult
+    {
+        $candidates = $this->rawUrls->candidates(
+            $extension->getRepositoryUrl(),
+            $extension->getSourceHost(),
+            ProofToken::FILENAME,
+        );
+
+        if ([] === $candidates) {
+            return VerificationResult::unavailable(
+                'This extension has no usable repository URL on record, so the file cannot be '
+                .'checked. Email us and a human will sort it out.',
+            );
+        }
+
+        $reachedAnything = false;
+
+        foreach ($candidates as $url) {
+            $body = $this->fetcher->fetch($url);
+
+            if (null === $body) {
+                continue;
+            }
+
+            $reachedAnything = true;
+
+            if (!$this->tokens->matches($body, $user, $extension)) {
+                continue;
+            }
+
+            $claim = $this->record(
+                $user,
+                $extension,
+                VerificationMethod::ProofFile,
+                \sprintf(
+                    'Verification file for %s found at %s.',
+                    $user->getLogin(),
+                    $url,
+                ),
+            );
+
+            return VerificationResult::verified($claim);
+        }
+
+        // Told apart on purpose. "We found your file and it holds someone else's
+        // token" and "we could not find the file at all" send a maintainer to
+        // completely different places, and collapsing them into one message is how
+        // support threads start.
+        if ($reachedAnything) {
+            return VerificationResult::denied(
+                'The file was found but did not contain your verification token. Check you copied '
+                .'the whole line, and that you are signed in as the same account that generated it.',
+            );
+        }
+
+        return VerificationResult::denied(\sprintf(
+            'No %s was found in the default branch of that repository. It can take a moment '
+            .'after pushing before the forge serves the raw file.',
+            ProofToken::FILENAME,
+        ));
     }
 
     /**

@@ -11,6 +11,16 @@ framework:
             limit: 5
             interval: '1 hour'
 
+        # Each attempt makes up to six requests to a stranger's server. Ten tries an
+        # hour is patient enough for someone genuinely fumbling a commit and mean
+        # enough that the endpoint is not a convenient way to have extdir probe hosts
+        # on someone's behalf. Keyed by user rather than IP: this route is behind a
+        # login, and an office full of maintainers should not share one budget.
+        ownership_proof:
+            policy: 'fixed_window'
+            limit: 10
+            interval: '1 hour'
+
 # Tests would exhaust the real budget within one test class, turning an unrelated
 # assertion into a 429. The limiter still runs — only the ceiling moves — so the
 # 429 path stays testable by exhausting it deliberately, which the rate-limit test
@@ -19,6 +29,10 @@ when@test:
     framework:
         rate_limiter:
             imprint_reveal:
+                policy: 'fixed_window'
+                limit: 50
+                interval: '1 hour'
+            ownership_proof:
                 policy: 'fixed_window'
                 limit: 50
                 interval: '1 hour'

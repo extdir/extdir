@@ -9,6 +9,7 @@ use App\Submission\Entity\ModerationAction;
 use App\Submission\Entity\User;
 use App\Submission\Enum\ModerationActionType;
 use App\Submission\OwnershipVerifier;
+use App\Submission\ProofFile\ProofToken;
 use App\Submission\Repository\OwnershipClaimRepository;
 use App\Submission\Security\GitHubAuthenticator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,6 +18,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -37,6 +39,7 @@ final class MaintainerController extends AbstractController
         private readonly OwnershipVerifier $verifier,
         private readonly OwnershipClaimRepository $claims,
         private readonly EntityManagerInterface $em,
+        private readonly ProofToken $tokens,
         #[Autowire('%env(GITHUB_APP_CLIENT_ID)%')]
         private readonly string $clientId,
     ) {
@@ -127,6 +130,79 @@ final class MaintainerController extends AbstractController
         $this->addFlash($result->isVerified ? 'success' : ($result->isAvailable ? 'error' : 'warning'), $result->message);
 
         return $this->redirectToRoute('extension_detail', ['slug' => $slug]);
+    }
+
+    /**
+     * Instructions and this maintainer's token for a non-GitHub repository.
+     *
+     * A page of its own rather than a modal, because the work happens elsewhere: the
+     * maintainer has to switch to a terminal, commit a file, push it, and come back.
+     * A URL they can leave and return to fits that better than anything that vanishes
+     * when the tab does.
+     */
+    #[Route('/my/verify-file/{slug}', name: 'ownership_verify_file', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function verifyFile(string $slug): Response
+    {
+        $extension = $this->extensions->findOneBySlug($slug);
+
+        if (null === $extension) {
+            throw $this->createNotFoundException();
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        return $this->render('maintainer/verify_file.html.twig', [
+            'extension' => $extension,
+            'filename' => ProofToken::FILENAME,
+            'contents' => $this->tokens->fileContents($user, $extension),
+            'alreadyVerified' => $this->verifier->mayActOn($user, $extension),
+        ]);
+    }
+
+    /**
+     * Runs the check. POST because it causes outbound requests and can create a
+     * claim, neither of which belongs on a URL a crawler might follow.
+     */
+    #[Route('/my/verify-file/{slug}', name: 'ownership_verify_file_check', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function checkFile(
+        string $slug,
+        Request $request,
+        #[Autowire(service: 'limiter.ownership_proof')]
+        RateLimiterFactoryInterface $limiter,
+    ): Response {
+        $extension = $this->extensions->findOneBySlug($slug);
+
+        if (null === $extension) {
+            throw $this->createNotFoundException();
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!$this->isCsrfTokenValid('verify-file'.$slug, (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Invalid token.');
+        }
+
+        // Rate limited by account. Each attempt fans out to as many as six requests
+        // against a host we do not control, so an unbounded retry button would make
+        // this a serviceable way to point extdir at somebody else's server.
+        if (!$limiter->create((string) $user->getId())->consume(1)->isAccepted()) {
+            $this->addFlash('error', 'Too many verification attempts. Try again in an hour.');
+
+            return $this->redirectToRoute('ownership_verify_file', ['slug' => $slug]);
+        }
+
+        $result = $this->verifier->verifyWithProofFile($user, $extension);
+
+        $this->addFlash($result->isVerified ? 'success' : ($result->isAvailable ? 'error' : 'warning'), $result->message);
+
+        return $this->redirectToRoute(
+            $result->isVerified ? 'extension_detail' : 'ownership_verify_file',
+            ['slug' => $slug],
+        );
     }
 
     /**

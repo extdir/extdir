@@ -8,11 +8,16 @@ use App\Catalog\Entity\Extension;
 use App\Catalog\Entity\Vendor;
 use App\Submission\Entity\User;
 use App\Submission\OwnershipVerifier;
+use App\Submission\ProofFile\DnsHostResolver;
+use App\Submission\ProofFile\ProofToken;
+use App\Submission\ProofFile\RawFileUrls;
+use App\Submission\ProofFile\SafeFetcher;
 use App\Submission\Repository\OwnershipClaimRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -124,6 +129,7 @@ final class OwnershipVerifierTest extends TestCase
             new MockHttpClient(),
             $claims,
             $this->createStub(EntityManagerInterface::class),
+            ...self::proofFileCollaborators(new MockHttpClient()),
         );
 
         $extension = $this->extension('https://github.com/acme/plugin');
@@ -155,7 +161,12 @@ final class OwnershipVerifierTest extends TestCase
         $claims = $this->createStub(OwnershipClaimRepository::class);
         $claims->method('findFor')->willReturn(null);
 
-        return new OwnershipVerifier($client, $claims, $this->createStub(EntityManagerInterface::class));
+        return new OwnershipVerifier(
+            $client,
+            $claims,
+            $this->createStub(EntityManagerInterface::class),
+            ...self::proofFileCollaborators($client),
+        );
     }
 
     private function extension(string $repositoryUrl): Extension
@@ -164,5 +175,22 @@ final class OwnershipVerifierTest extends TestCase
         $extension->setRepositoryUrl($repositoryUrl);
 
         return $extension;
+    }
+
+    /**
+     * The proof-file half of the verifier, which the GitHub tests never reach.
+     *
+     * Real objects rather than stubs: they are pure enough to construct freely, and
+     * a stub here would only assert that the constructor takes six arguments.
+     *
+     * @return array{ProofToken, RawFileUrls, SafeFetcher}
+     */
+    private static function proofFileCollaborators(MockHttpClient $client): array
+    {
+        return [
+            new ProofToken('test-secret'),
+            new RawFileUrls(),
+            new SafeFetcher($client, new DnsHostResolver(), new NullLogger()),
+        ];
     }
 }

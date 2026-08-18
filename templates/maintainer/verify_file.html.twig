@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Verify {{ extension.label }} — extdir{% endblock %}
+
+{# Not indexable. The page is meaningless without a session and carries a token
+   belonging to one account. #}
+{% block canonical %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+
+{% block body %}
+<div class="wrap page page--narrow">
+
+    <div class="page-head">
+        <p class="eyebrow">Ownership verification</p>
+        <h1>{{ extension.label }}</h1>
+        <p class="code-inline">{{ extension.packageName }}</p>
+    </div>
+
+    {% if alreadyVerified %}
+        <div class="notice notice--ok">
+            <p><strong>This is already verified for your account.</strong></p>
+            <p class="small">
+                You can manage it from <a href="{{ path('my_extensions') }}">your extensions</a>.
+                Running the check again does no harm.
+            </p>
+        </div>
+    {% endif %}
+
+    <div class="prose">
+        <p class="lede">
+            This extension is hosted on {{ extension.sourceHost.value == 'other' ? 'a forge' : extension.sourceHost.value|capitalize }}
+            rather than GitHub, so we cannot ask an API whether you have write access. Instead,
+            publish a file only someone with write access could publish.
+        </p>
+
+        <ol class="steps">
+            <li>
+                <h2>Create <code>{{ filename }}</code> in the repository root</h2>
+                <p class="small muted">With exactly this content:</p>
+                <pre class="code" id="proof">{{ contents }}</pre>
+                <p class="small subtle">
+                    The token is tied to your account and this extension. It is not a secret —
+                    publishing it proves nothing on its own, because using it still requires the
+                    write access we are checking for.
+                </p>
+            </li>
+
+            <li>
+                <h2>Commit it to the default branch</h2>
+                <p class="small muted">
+                    We look at <code>main</code> and <code>master</code>. The file must be at the
+                    root, not in a subdirectory.
+                </p>
+            </li>
+
+            <li>
+                <h2>Push, then check</h2>
+                <p class="small muted">
+                    Forges take a moment to serve a newly pushed raw file. If the first attempt
+                    fails, wait half a minute rather than re-committing.
+                </p>
+
+                <form method="post" action="{{ path('ownership_verify_file_check', {slug: extension.slug}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('verify-file' ~ extension.slug) }}">
+                    <button type="submit" class="btn btn--primary">Check now</button>
+                </form>
+            </li>
+        </ol>
+
+        <h2>Afterwards</h2>
+        <p>
+            Once verified you can remove this entry yourself, without waiting on anyone. You are
+            free to delete the file — the claim is recorded, not re-checked on every page load.
+        </p>
+        <p class="small subtle">
+            Anything else — a wrong category, an outdated description, a rights complaint — is
+            covered by the <a href="{{ path('takedown') }}">takedown and correction policy</a>,
+            which does not require any of this.
+        </p>
+    </div>
+</div>
+{% endblock %}
