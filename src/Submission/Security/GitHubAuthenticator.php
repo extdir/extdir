@@ -134,6 +134,19 @@ final class GitHubAuthenticator extends AbstractAuthenticator
 
     private function exchangeCodeForToken(string $code): string
     {
+        // Checked before the request rather than after, because GitHub answers a
+        // missing secret with the same shape of error as a genuinely refused
+        // sign-in. Told apart here, a misconfigured server says so plainly
+        // instead of looking like GitHub rejecting the user.
+        if ('' === $this->clientSecret) {
+            $this->logger->error(
+                'GITHUB_APP_CLIENT_SECRET is not set, so the OAuth code cannot be exchanged. '
+                .'Set it in .env.local and re-run "composer dump-env prod".',
+            );
+
+            throw new CustomUserMessageAuthenticationException('Sign-in is not configured on this server yet. Please try again later.');
+        }
+
         $response = $this->http->request('POST', 'https://github.com/login/oauth/access_token', [
             'headers' => ['Accept' => 'application/json'],
             'body' => [
@@ -149,6 +162,13 @@ final class GitHubAuthenticator extends AbstractAuthenticator
         $token = $data['access_token'] ?? null;
 
         if (!\is_string($token) || '' === $token) {
+            // GitHub explains itself in the body; without this the log records
+            // only that something failed, and every cause looks identical.
+            $this->logger->error('GitHub refused the OAuth code exchange', [
+                'error' => $data['error'] ?? null,
+                'error_description' => $data['error_description'] ?? null,
+            ]);
+
             throw new CustomUserMessageAuthenticationException('GitHub declined the sign-in.');
         }
 
