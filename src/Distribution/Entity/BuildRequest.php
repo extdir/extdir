@@ -13,8 +13,8 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * A request for the isolated CI runner to build one release.
  *
- * Nothing here executes anything. That separation is the whole point of docs/brief.md
- * The no-untrusted-builds rule: `composer install` and `npm install` run arbitrary scripts from untrusted
+ * Nothing here executes anything, and that separation is the whole point:
+ * `composer install` and `npm install` run arbitrary scripts from untrusted
  * repositories, so they must never run on the host holding the database and the
  * credentials. This row is a message to an ephemeral runner and a record of what
  * came back.

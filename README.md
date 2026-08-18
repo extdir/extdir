@@ -87,8 +87,8 @@ test result. Every claim carries a confidence tier and the UI says "declares sup
 
 ## Hard rules
 
-These are legal and safety constraints, not preferences. They are set out in full in
-[docs/brief.md](docs/brief.md) and summarised here because they constrain almost every change:
+These are legal and safety constraints, not preferences. They constrain almost every
+change, so they are stated here rather than left to be discovered:
 
 - **No LICENSE means all rights reserved.** Public readability is not permission to redistribute.
   Unlicensed extensions are indexed and linked, never built or hosted.
