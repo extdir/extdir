@@ -28,3 +28,13 @@ security:
         # can grant you — it is set by hand.
         - { path: ^/moderate, roles: ROLE_MODERATOR }
         - { path: ^/my, roles: ROLE_USER }
+
+when@prod:
+    security:
+        access_control:
+            # HTTPS everywhere in production, not only on the pages that handle a
+            # session. The OAuth callback carries an authorisation code in the query
+            # string, so serving it over plaintext would hand that code to anyone on
+            # the path — and the privacy policy states that this site uses TLS,
+            # which should be true rather than aspirational.
+            - { path: ^/, requires_channel: https }

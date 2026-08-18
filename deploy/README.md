@@ -109,6 +109,27 @@ supervisord service cannot reach MySQL over loopback — but an interactive SSH
 session *can*, so `bin/console` works from the shell while the website returns
 500s. The symptom points at the application; the cause is the DSN.
 
+## GitHub App redirect URI
+
+Must be **`https://`**, exactly:
+
+```
+https://extdir.com/auth/github/callback
+```
+
+GitHub matches redirect URIs exactly, and the application generates an absolute
+`https` URL in production — an `http://` registration fails the handshake with
+`redirect_uri_mismatch`. It is also the wrong scheme on its own terms: the callback
+carries an OAuth authorisation code in the query string, and over plaintext that
+code is readable by anyone on the path.
+
+Add `http://localhost:8001/auth/github/callback` as a second URI for local work.
+Plain HTTP is fine there — loopback is exempt by convention and never leaves the
+machine.
+
+Production is forced to HTTPS by `requires_channel` in `security.yaml`, so an
+`http://` request redirects rather than being served.
+
 ## Health and monitoring
 
 `/health` returns `200` with `{"status":"ok"}` or `503` when degraded. It checks
@@ -125,6 +146,21 @@ Freshness is a **failure**, not a metric. The dangerous outage for a directory i
 not the site going down; it is the site staying up while serving compatibility
 data that stopped being refreshed three weeks ago because a worker died or a
 token expired. Point an uptime monitor at `/health`, not at `/`.
+
+Because a stale index answers **503** rather than 200-with-a-warning, a plain
+status-code check is enough — no paid keyword-matching feature is needed to catch
+the failure that actually matters.
+
+Two free services cover different halves of this, and they are complementary:
+
+| Service | Free tier | What it catches |
+|---|---|---|
+| [UptimeRobot](https://uptimerobot.com) | 50 monitors, 5-minute checks | `/health` returning non-200 — the site being down, *or* the data being stale |
+| [Healthchecks.io](https://healthchecks.io) | 20 checks, 3 months of history | A cron job that did not run at all. `/health` notices after 48 hours; this notices within minutes and names the job |
+
+Point UptimeRobot at `https://extdir.com/health` first — it is the one that
+matters. Add heartbeat pings to the crontab later if a crawl ever fails quietly
+enough to be annoying.
 
 ## Backups
 

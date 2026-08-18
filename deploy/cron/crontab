@@ -7,6 +7,14 @@
 MAILTO=""
 EXTDIR=$HOME/websites/extdir
 
+# Optional: dead-man's-switch monitoring. /health notices staleness after 48
+# hours, which is the right threshold for "the data is untrustworthy" but a slow
+# way to learn that last night's crawl died. Appending a ping to each job tells
+# you which one failed, within minutes.
+#
+#   HC_INGEST=https://hc-ping.com/<uuid>
+#   ... && curl -fsS -m 10 --retry 3 $HC_INGEST > /dev/null
+
 # Shopware release timeline. Rarely changes, but everything downstream depends on
 # it: the compatibility matrix columns and every maintenance status are measured
 # against these dates.
