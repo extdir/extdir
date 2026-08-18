@@ -64,6 +64,13 @@
        Named by role, not by value. A component asks for "the sunken
        surface", so re-tuning the ramp moves everything coherently. */
     --canvas: #fcfcfb;
+    /* Gradient stops, bounded by contrast rather than by taste. Text sits on this
+       field, so the extreme of each wash is the darkest (light) or lightest (dark)
+       background any text will ever meet. Measured: at these values --ink-subtle
+       holds 4.68:1 in light and 4.54:1 in dark. One step further in either direction
+       drops below 4.5:1, which is why they are not more assertive. */
+    --wash-a: #eef2f9;
+    --wash-b: #f8f1ec;
     --surface: #ffffff;
     --surface-sunk: #f4f4f2;
     --surface-raised: #ffffff;
@@ -136,6 +143,8 @@
    subtly wrong in one path is worse than no theme at all. */
 :root {
     --dark-canvas: #0d0d0f;
+    --dark-wash-a: #12151c;
+    --dark-wash-b: #17141c;
     --dark-surface: #151517;
     --dark-surface-sunk: #101012;
     --dark-surface-raised: #1c1c1f;
@@ -161,6 +170,8 @@
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme]) {
         --canvas: var(--dark-canvas);
+        --wash-a: var(--dark-wash-a);
+        --wash-b: var(--dark-wash-b);
         --surface: var(--dark-surface);
         --surface-sunk: var(--dark-surface-sunk);
         --surface-raised: var(--dark-surface-raised);
@@ -188,6 +199,8 @@
    dark machine means it. */
 :root[data-theme="dark"] {
         --canvas: var(--dark-canvas);
+        --wash-a: var(--dark-wash-a);
+        --wash-b: var(--dark-wash-b);
         --surface: var(--dark-surface);
         --surface-sunk: var(--dark-surface-sunk);
         --surface-raised: var(--dark-surface-raised);
@@ -212,6 +225,35 @@
 /* ============================================================ RESET */
 
 *, *::before, *::after { box-sizing: border-box; }
+
+/* The background field.
+ *
+ * Two soft washes anchored to the top corners, fading out well before the fold, over
+ * a flat canvas. Content sits on solid surfaces above it, so the gradient reads as
+ * depth behind the page rather than as colour on the page — which is the whole trick:
+ * a directional field the eye registers without ever looking at.
+ *
+ * A fixed pseudo-element rather than background-attachment: fixed, which forces a
+ * full repaint on every scroll frame on mobile Safari and Chrome. This composites on
+ * its own layer and never repaints.
+ */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(120% 85% at 12% -10%, var(--wash-a) 0%, transparent 58%),
+        radial-gradient(100% 70% at 88% -5%, var(--wash-b) 0%, transparent 52%),
+        var(--canvas);
+}
+
+/* Anyone who has asked their system for more contrast is telling us the field is not
+   worth the loss, however small. */
+@media (prefers-contrast: more) {
+    body::before { background: var(--canvas); }
+}
 
 body {
     margin: 0;
