@@ -29,6 +29,10 @@ security:
             provider: github_users
             custom_authenticators:
                 - App\Submission\Security\GitHubAuthenticator
+            # Without an entry point the firewall answers an anonymous request to a
+            # protected page with a bare 401. The authenticator implements it and
+            # redirects to GitHub, remembering where the visitor was headed.
+            entry_point: App\Submission\Security\GitHubAuthenticator
             logout:
                 path: logout
                 target: home

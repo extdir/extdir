@@ -51,6 +51,26 @@ final class AccessControlTest extends WebTestCase
     }
 
     /**
+     * A signed-out visitor following a "verify" link must be offered a sign-in, not
+     * handed an empty 401.
+     *
+     * The proof-file page tells people they will be asked to sign in first, and
+     * before the firewall had an entry point that promise was simply false — the
+     * link produced a blank 401 body.
+     */
+    public function testAProtectedPageSendsAnonymousVisitorsToSignIn(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/my/verify-file/some-extension');
+
+        self::assertResponseRedirects();
+        self::assertStringContainsString(
+            '/auth/github',
+            (string) $client->getResponse()->headers->get('Location'),
+        );
+    }
+
+    /**
      * Delisting is the destructive action in this application, so it is POST-only
      * and CSRF-protected. A GET that removes an extension would be triggerable by
      * a link in an email.

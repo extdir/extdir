@@ -21,6 +21,8 @@ use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
+use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
+use Symfony\Component\Security\Http\Util\TargetPathTrait;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
@@ -36,8 +38,10 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * repository its owner can push to is not something a directory should be storing,
  * and the only way to be sure it never leaks is to never keep it.
  */
-final class GitHubAuthenticator extends AbstractAuthenticator
+final class GitHubAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
 {
+    use TargetPathTrait;
+
     public const PENDING_EXTENSION_KEY = 'extdir_pending_verification';
     public const STATE_KEY = 'extdir_oauth_state';
     public const ACCESS_TOKEN_KEY = 'extdir_github_access_token';
@@ -107,14 +111,43 @@ final class GitHubAuthenticator extends AbstractAuthenticator
         );
     }
 
+    /**
+     * What happens when an anonymous visitor reaches a page that needs an identity.
+     *
+     * Without this the firewall answers 401 with an empty body, which is what the
+     * proof-file page did to anyone who followed "Verify with a file" while signed
+     * out — a dead end on the exact link that promises to ask them to sign in.
+     *
+     * The path they wanted is remembered, so they land back on it rather than on a
+     * generic dashboard.
+     */
+    public function start(Request $request, ?AuthenticationException $authException = null): Response
+    {
+        $session = $request->getSession();
+        $this->saveTargetPath($session, 'main', $request->getUri());
+
+        return new RedirectResponse($this->urls->generate('auth_github'));
+    }
+
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): Response
     {
+        $session = $request->getSession();
+
         // Straight back to whatever the user was trying to do, which is almost
         // always verifying one specific extension.
-        $pending = $request->getSession()->get(self::PENDING_EXTENSION_KEY);
+        $pending = $session->get(self::PENDING_EXTENSION_KEY);
 
         if (\is_string($pending)) {
             return new RedirectResponse($this->urls->generate('ownership_verify', ['slug' => $pending]));
+        }
+
+        // Set by start() when the visit began at a page requiring a login.
+        $target = $this->getTargetPath($session, $firewallName);
+
+        if (\is_string($target) && '' !== $target) {
+            $this->removeTargetPath($session, $firewallName);
+
+            return new RedirectResponse($target);
         }
 
         return new RedirectResponse($this->urls->generate('my_extensions'));
