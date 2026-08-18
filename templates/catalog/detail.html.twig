@@ -209,11 +209,19 @@ bin/console plugin:install --activate {{ technicalName }}</pre>
             {% endif %}
 
             <section class="panel">
-                <h2>Something wrong?</h2>
+                <h2>Do you maintain this?</h2>
                 <p class="small muted">
-                    This entry is generated from public package metadata. If you maintain this
-                    extension and something here is wrong — or you want it removed — see the
-                    <a href="{{ path('takedown') }}">takedown policy</a>.
+                    Verify with GitHub and you can remove this entry yourself, without waiting on
+                    anyone. We check whether your account has write access to the repository — your
+                    access token is used for that one check and never stored.
+                </p>
+                <p class="small">
+                    <a href="{{ path('auth_github', {extension: extension.slug}) }}">Verify ownership →</a>
+                </p>
+                <p class="small subtle">
+                    Anything else — a wrong category, an outdated description, a rights complaint —
+                    is covered by the <a href="{{ path('takedown') }}">takedown and correction
+                    policy</a>.
                 </p>
             </section>
         </aside>

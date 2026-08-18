@@ -261,3 +261,14 @@ table.data th { color: var(--subtle); font-weight: 500; font-size: .75rem; text-
 .site-footer ul { list-style: none; margin: 0 0 .75rem; padding: 0; font-size: .875rem; }
 .site-footer li { margin-bottom: .25rem; }
 .site-footer a { color: var(--muted); }
+
+/* ---------- flash messages ---------- */
+
+.flash {
+    margin: 1rem 0 0; padding: .7rem 1rem;
+    border-radius: var(--radius); border: 1px solid var(--border);
+    font-size: .9375rem;
+}
+.flash--success { color: var(--ok); background: var(--ok-soft); border-color: color-mix(in srgb, var(--ok) 30%, transparent); }
+.flash--error { color: var(--danger); background: var(--danger-soft); border-color: color-mix(in srgb, var(--danger) 30%, transparent); }
+.flash--warning { color: var(--warn); background: var(--accent-soft); border-color: color-mix(in srgb, var(--warn) 30%, transparent); }

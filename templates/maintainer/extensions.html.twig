@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Your extensions — extdir{% endblock %}
+
+{% block body %}
+<div class="wrap page">
+    <div class="page-head">
+        <h1>Your extensions</h1>
+        <p>
+            Extensions whose repository you have write access to. Verification is checked against
+            GitHub each time you sign in — we never store your access token.
+        </p>
+    </div>
+
+    <div class="prose">
+        {% if claims is empty %}
+            <p>
+                Nothing verified yet. Open an extension you maintain and choose
+                <strong>Verify ownership</strong> — you will be asked to sign in with GitHub, and we
+                check whether that account has write access to the repository.
+            </p>
+        {% else %}
+            <div class="table-scroll">
+                <table class="data">
+                    <thead>
+                    <tr><th>Extension</th><th>Verified</th><th>How</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                    {% for claim in claims %}
+                        <tr>
+                            <td>
+                                <a href="{{ path('extension_detail', {slug: claim.extension.slug}) }}">
+                                    {{ claim.extension.label }}
+                                </a>
+                                <br><span class="card-package">{{ claim.extension.packageName }}</span>
+                            </td>
+                            <td class="small muted num">{{ claim.verifiedAt|date('Y-m-d') }}</td>
+                            <td class="small muted">{{ claim.method.label }}</td>
+                            <td>
+                                {% if claim.extension.indexStatus.value == 'delisted' %}
+                                    <span class="badge badge--danger">Removed</span>
+                                {% else %}
+                                    {# No reason field: the takedown policy says a maintainer does
+                                       not have to justify removal, so asking would turn a right
+                                       into a negotiation. #}
+                                    <form method="post" action="{{ path('ownership_delist', {slug: claim.extension.slug}) }}"
+                                          onsubmit="return confirm('Remove {{ claim.extension.packageName }} from extdir? It will not reappear in a later crawl.')">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delist' ~ claim.extension.slug) }}">
+                                        <button type="submit" class="badge badge--danger" style="cursor:pointer;border:0">
+                                            Remove from extdir
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+
+        <h2>Something else wrong?</h2>
+        <p>
+            Categories, descriptions and compatibility are read from your
+            <code>composer.json</code>, so correcting them there fixes them here on the next crawl.
+            For anything else, see the <a href="{{ path('takedown') }}">takedown and correction
+            policy</a>.
+        </p>
+    </div>
+</div>
+{% endblock %}

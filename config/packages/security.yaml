@@ -1,0 +1,30 @@
+security:
+    # No password hashers are configured. There are no passwords: the only way in
+    # is GitHub, which already knows who controls which repository. A directory
+    # that stored credentials would be holding a liability for no gain.
+    providers:
+        github_users:
+            entity:
+                class: App\Submission\Entity\User
+                property: githubId
+
+    firewalls:
+        dev:
+            pattern: ^/(_profiler|_wdt|assets|build)/
+            security: false
+
+        main:
+            lazy: true
+            provider: github_users
+            custom_authenticators:
+                - App\Submission\Security\GitHubAuthenticator
+            logout:
+                path: logout
+                target: home
+
+    access_control:
+        # Everything a visitor sees stays public. Only the maintainer area needs an
+        # identity, and moderation needs a role that no amount of GitHub standing
+        # can grant you — it is set by hand.
+        - { path: ^/moderate, roles: ROLE_MODERATOR }
+        - { path: ^/my, roles: ROLE_USER }

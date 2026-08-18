@@ -31,6 +31,10 @@
             <a href="{{ path('home') }}">Extensions</a>
             <a href="{{ path('ranking') }}">Ranking</a>
             <a href="{{ path('about') }}">About</a>
+            {% if app.user %}
+                <a href="{{ path('my_extensions') }}">Your extensions</a>
+                <a href="{{ path('logout') }}">Sign out</a>
+            {% endif %}
         </nav>
     </div>
 </header>
@@ -44,6 +48,12 @@
 </div>
 
 <main id="main">
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="wrap"><p class="flash flash--{{ type }}">{{ message }}</p></div>
+        {% endfor %}
+    {% endfor %}
+
     {% block body %}{% endblock %}
 </main>
 
