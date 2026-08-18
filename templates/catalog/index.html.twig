@@ -130,12 +130,12 @@
                         {% endif %}
                     {% endfor %}
                     <label for="sort">Sort by</label>
-                    <select id="sort" name="sort" onchange="this.form.submit()">
+                    <select class="select" id="sort" name="sort" onchange="this.form.submit()">
                         {% for value, label in sortLabels %}
                             <option value="{{ value }}" {{ criteria.sort == value ? 'selected' : '' }}>{{ label }}</option>
                         {% endfor %}
                     </select>
-                    <noscript><button type="submit">Apply</button></noscript>
+                    <noscript><button class="btn" type="submit">Apply</button></noscript>
                 </form>
             </div>
 
@@ -149,6 +149,22 @@
                     <p><a href="{{ path('home') }}">Clear filters</a></p>
                 </div>
             {% else %}
+                {# One custom property drives both the header and every card's grid, so
+                   the columns cannot drift apart as the version list grows. #}
+                <div style="--matrix-cols: {{ shopwareVersions|length }}">
+                    <div class="matrix-header" aria-hidden="true">
+                        <span class="matrix-header-label">Declares support for</span>
+                        {% for version in shopwareVersions %}
+                            <span class="v {{ version.current ? 'is-current' : '' }}">{{ version.majorMinor }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <p class="matrix-legend">
+                        <span><span class="matrix-cell is-yes" aria-hidden="true">●</span> declared</span>
+                        <span><span class="matrix-cell is-unverified" aria-hidden="true">◐</span> open-ended constraint</span>
+                        <span><span class="matrix-cell" aria-hidden="true">·</span> not declared</span>
+                    </p>
+
                 <div class="card-list">
                     {% for extension in result.extensions %}
                         {{ include('catalog/_card.html.twig', {
@@ -157,6 +173,7 @@
                             shopwareVersions: shopwareVersions
                         }) }}
                     {% endfor %}
+                </div>
                 </div>
 
                 {% if result.pageCount > 1 %}

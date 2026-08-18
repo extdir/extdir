@@ -24,7 +24,12 @@
                 {% for label, row in weights %}
                     <tr>
                         <td><strong>{{ label }}</strong></td>
-                        <td class="num">{{ (row[0] * 100)|round }}%</td>
+                        <td class="num">
+                            {{ (row[0] * 100)|round }}%
+                            {# The bar makes the shape of the formula visible; the
+                               number stays because a weight is a fact, not a vibe. #}
+                            <span class="weight-bar" style="width: {{ (row[0] * 100)|round }}%" aria-hidden="true"></span>
+                        </td>
                         <td class="muted">{{ row[1] }}</td>
                     </tr>
                 {% endfor %}

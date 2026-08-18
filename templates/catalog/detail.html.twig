@@ -13,12 +13,13 @@
 <div class="wrap page">
 
     <div class="page-head">
+        <p class="eyebrow">Shopware 6 extension</p>
         <h1>{{ extension.label }}</h1>
-        <p class="card-package">{{ extension.packageName }}</p>
+        <p class="code-inline">{{ extension.packageName }}</p>
         {% if extension.description %}
-            <p style="margin-top:.6rem">{{ extension.description }}</p>
+            <p class="lede detail-lede">{{ extension.description }}</p>
         {% endif %}
-        <div class="badges" style="margin-top:.9rem">
+        <div class="badges detail-badges">
             {{ include('catalog/_badges.html.twig') }}
         </div>
     </div>
@@ -27,12 +28,22 @@
         <div>
             <section class="panel">
                 <h2>Declared Shopware compatibility</h2>
-                <div class="matrix" style="margin-bottom:.75rem">
+                {# Labelled columns here rather than the list view's bare glyphs: this
+                   is the page someone lands on from a search engine, with no header
+                   above to say which column is which. #}
+                <div class="matrix-detail">
                     {% for version in shopwareVersions %}
                         {% set tier = matrix[version.majorMinor] ?? null %}
-                        <span class="matrix-cell {{ tier == 'explicit' ? 'is-yes' : (tier ? 'is-unverified' : '') }}">
-                            {{ version.majorMinor }}
-                        </span>
+                        <div class="matrix-detail-col">
+                            <span class="matrix-detail-version num">{{ version.majorMinor }}</span>
+                            <span class="matrix-cell {{ tier == 'explicit' ? 'is-yes' : (tier ? 'is-unverified' : '') }}"
+                                  title="{{ tier == 'explicit'
+                                      ? 'Declared'
+                                      : (tier ? 'Declared with an open-ended constraint' : 'Not declared') }}">
+                                <span aria-hidden="true">{{ tier == 'explicit' ? '●' : (tier ? '◐' : '·') }}</span>
+                                <span class="visually-hidden">{{ tier == 'explicit' ? 'declared' : (tier ? 'open-ended' : 'not declared') }}</span>
+                            </span>
+                        </div>
                     {% endfor %}
                 </div>
                 <p class="small muted">
@@ -92,7 +103,7 @@
                         </tbody>
                     </table>
                 </div>
-                <p class="small muted" style="margin-top:.75rem">
+                <p class="small muted stack-sm">
                     The constraint column shows the maintainer's own text, verbatim. If our reading of
                     it looks wrong, this is the value to check it against.
                 </p>
@@ -127,7 +138,7 @@ composer require {{ extension.packageName }}</pre>
                     {# the licence gate: an extension with no usable licence is linked, never
                        redistributed — so no install snippet is offered that would
                        route a merchant through infrastructure we host. #}
-                    <p class="small" style="color:var(--danger)">
+                    <p class="small text-danger">
                         No open-source licence was detected for this repository, so extdir does not
                         publish install instructions or host anything for it. Public code is not the
                         same as code you are licensed to redistribute. Contact the maintainer if you
@@ -136,7 +147,7 @@ composer require {{ extension.packageName }}</pre>
                 {% endif %}
 
                 {% if technicalName and extension.licenseStatus.isRedistributable %}
-                    <p class="small muted" style="margin-top:1rem">Then activate it:</p>
+                    <p class="small muted stack">Then activate it:</p>
                     <pre class="code">bin/console plugin:refresh
 bin/console plugin:install --activate {{ technicalName }}</pre>
                     <p class="small subtle">
@@ -176,14 +187,14 @@ bin/console plugin:install --activate {{ technicalName }}</pre>
                     <dt>Ranking score</dt>
                     <dd class="num">{{ extension.rankScore|number_format(1) }} / 100</dd>
                 </dl>
-                <p class="small subtle" style="margin-top:.75rem">
+                <p class="small subtle stack-sm">
                     <a href="{{ path('ranking') }}">How this score is calculated</a>
                 </p>
             </section>
 
             <section class="panel">
                 <h2>Links</h2>
-                <ul style="list-style:none;padding:0;margin:0;font-size:.875rem">
+                <ul class="list-plain small">
                     {% if extension.repositoryUrl %}
                         <li><a href="{{ extension.repositoryUrl }}" rel="noopener nofollow">Source repository →</a></li>
                     {% endif %}

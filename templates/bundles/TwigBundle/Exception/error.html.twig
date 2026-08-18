@@ -1,0 +1,68 @@
+{#
+    The catch-all error page, and deliberately the only template in this project that
+    extends nothing and depends on nothing.
+
+    A 500 is very often *caused* by the thing an error page would normally rely on.
+    The database is unreachable, the container failed to compile, an environment
+    variable is missing. If this template extended base.html.twig it would pull in the
+    asset manifest, the route generator and app.user — and any one of those failing
+    while rendering the error produces a blank white page instead of a message. The
+    user then sees nothing at all, which is the one outcome worse than a 500.
+
+    So: no extends, no path(), no asset(), no app.user, and the styling is inlined.
+    A literal "/" is the only link, because it is the one URL that cannot be wrong.
+
+    Symfony serves this only when APP_DEBUG is off. In dev it is previewable at
+    /_error/500.
+#}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Something went wrong — extdir</title>
+    <meta name="robots" content="noindex">
+    <style>
+        :root {
+            color-scheme: light dark;
+            --bg: #fbfaf9; --fg: #1b1917; --muted: #605a52; --accent: #9a3f12; --border: #e3ded8;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root { --bg: #161513; --fg: #f2efea; --muted: #ada69b; --accent: #e8895a; --border: #322f2b; }
+        }
+        body {
+            margin: 0; min-height: 100vh;
+            display: grid; place-items: center;
+            background: var(--bg); color: var(--fg);
+            font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+            line-height: 1.6; padding: 1.5rem;
+        }
+        main { max-width: 34rem; text-align: center; }
+        .code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 2.5rem; color: var(--accent); margin: 0 0 .5rem; letter-spacing: -.04em;
+        }
+        h1 { font-size: 1.375rem; margin: 0 0 .75rem; letter-spacing: -.015em; }
+        p { color: var(--muted); margin: 0 0 1rem; }
+        a {
+            display: inline-block; margin-top: .5rem;
+            color: var(--fg); text-decoration: none;
+            border: 1px solid var(--border); border-radius: 8px;
+            padding: .6875rem 1rem; font-weight: 600;
+        }
+        a:hover { border-color: var(--accent); color: var(--accent); }
+    </style>
+</head>
+<body>
+<main>
+    <p class="code">{{ status_code }}</p>
+    <h1>Something went wrong at our end</h1>
+    <p>
+        This is a fault on the server, not anything you did. It has been logged and someone will
+        look at it.
+    </p>
+    <p>Nothing you submitted was lost, and no data was affected.</p>
+    <a href="/">Back to the directory</a>
+</main>
+</body>
+</html>

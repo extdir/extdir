@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  extdir mark. Brackets around a stack of entries: an index of packages, which is
+  what the site is. Replaces an emoji data-URI, which reads as a placeholder nobody
+  got round to changing.
+
+  prefers-color-scheme is honoured because a mark that vanishes into a dark browser
+  chrome is not much of a mark.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>
+    .ink { fill: #9a3f12; }
+    .row { fill: #1b1917; }
+    @media (prefers-color-scheme: dark) {
+      .ink { fill: #e8895a; }
+      .row { fill: #f2efea; }
+    }
+  </style>
+  <path class="ink" d="M11 4H5a1 1 0 0 0-1 1v22a1 1 0 0 0 1 1h6v-3H7V7h4V4Z"/>
+  <path class="ink" d="M21 4h6a1 1 0 0 1 1 1v22a1 1 0 0 1-1 1h-6v-3h4V7h-4V4Z"/>
+  <rect class="row" x="12" y="10" width="8" height="3" rx="1.5"/>
+  <rect class="row" x="12" y="15" width="8" height="3" rx="1.5"/>
+  <rect class="row" x="12" y="20" width="5" height="3" rx="1.5"/>
+</svg>

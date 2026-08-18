@@ -14,11 +14,30 @@
 
     <div class="prose">
         {% if claims is empty %}
-            <p>
-                Nothing verified yet. Open an extension you maintain and choose
-                <strong>Verify ownership</strong> — you will be asked to sign in with GitHub, and we
-                check whether that account has write access to the repository.
-            </p>
+            {# A real first-run state rather than a sentence. There are two routes now,
+               and which one applies depends on where the code is hosted — something
+               the reader knows and we cannot guess from this page. #}
+            <div class="empty">
+                <p><strong>Nothing verified yet.</strong></p>
+                <p class="small">
+                    Open an extension you maintain and choose <strong>Verify ownership</strong>.
+                </p>
+            </div>
+
+            <h2>The two routes</h2>
+            <dl class="kv">
+                <dt>On GitHub</dt>
+                <dd>
+                    We ask GitHub whether your account has write access to the repository. Your
+                    access token is used for that one check and never stored.
+                </dd>
+                <dt>Anywhere else</dt>
+                <dd>
+                    GitLab, Gitea, Bitbucket and self-hosted forges have no API we can ask, so you
+                    publish a small file in the repository instead — something only someone with
+                    write access can do — and we fetch it once.
+                </dd>
+            </dl>
         {% else %}
             <div class="table-scroll">
                 <table class="data">
@@ -32,7 +51,7 @@
                                 <a href="{{ path('extension_detail', {slug: claim.extension.slug}) }}">
                                     {{ claim.extension.label }}
                                 </a>
-                                <br><span class="card-package">{{ claim.extension.packageName }}</span>
+                                <br><span class="code-inline">{{ claim.extension.packageName }}</span>
                             </td>
                             <td class="small muted num">{{ claim.verifiedAt|date('Y-m-d') }}</td>
                             <td class="small muted">{{ claim.method.label }}</td>
@@ -46,7 +65,7 @@
                                     <form method="post" action="{{ path('ownership_delist', {slug: claim.extension.slug}) }}"
                                           onsubmit="return confirm('Remove {{ claim.extension.packageName }} from extdir? It will not reappear in a later crawl.')">
                                         <input type="hidden" name="_token" value="{{ csrf_token('delist' ~ claim.extension.slug) }}">
-                                        <button type="submit" class="badge badge--danger" style="cursor:pointer;border:0">
+                                        <button type="submit" class="btn btn--danger btn--sm">
                                             Remove from extdir
                                         </button>
                                     </form>

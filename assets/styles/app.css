@@ -1,45 +1,126 @@
 /*
  * extdir styles.
  *
- * Colour note, on trademarks: Shopware's brand blue is deliberately avoided
- * as the primary accent. The palette is built on a warm slate and amber instead,
- * so the directory never reads as an official Shopware property.
+ * The shape of this file mirrors how the site is built: tokens, then the handful of
+ * primitives every page is assembled from, then the few places that need something
+ * of their own. Thirteen templates share eight primitives, so almost all visual work
+ * happens above the "pages" heading.
+ *
+ * Two constraints are not preferences:
+ *
+ * Colour. Shopware's brand blue is deliberately avoided as the primary accent, so
+ * the directory never reads as an official Shopware property. The palette is a warm
+ * slate with a burnt-sienna accent.
+ *
+ * Fonts. IBM Plex is served from this repository, never from a CDN. Embedding Google
+ * Fonts from Google's servers was held to breach the GDPR in LG München I, 20 January
+ * 2022, 3 O 17493/20, and that ruling started a wave of German warning letters. A
+ * site whose own Impressum argues about § 5 DDG cannot be loading typefaces from a US
+ * CDN on every page view. Plex is SIL OFL; assets/fonts/LICENSE.txt travels with it,
+ * for the same reason the licence gate demands it of everyone else.
  */
+
+/* ---------- fonts ---------- */
+
+@font-face {
+    font-family: 'IBM Plex Sans';
+    src: url('../fonts/ibm-plex-sans-latin-400-normal.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'IBM Plex Sans';
+    src: url('../fonts/ibm-plex-sans-latin-600-normal.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'IBM Plex Mono';
+    src: url('../fonts/ibm-plex-mono-latin-400-normal.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ---------- tokens ---------- */
 
 :root {
     --bg: #fbfaf9;
     --surface: #ffffff;
-    --border: #e6e2dd;
-    --fg: #1c1a17;
-    --muted: #6b655d;
-    --subtle: #918a80;
-    --accent: #b45309;
-    --accent-soft: #fef3e2;
-    --ok: #15803d;
-    --ok-soft: #eaf6ee;
-    --warn: #b45309;
-    --danger: #b42318;
-    --danger-soft: #fdf0ef;
-    --radius: 10px;
+    --surface-sunk: #f5f2ef;
+    --border: #e3ded8;
+    --border-strong: #c9c1b7;
+    --fg: #1b1917;
+    --muted: #605a52;
+    --subtle: #8a8279;
+
+    /* Accent and warn were the same hex until this rewrite, which meant a selected
+       filter and an unverifiable-constraint warning were indistinguishable. Accent
+       now says "you chose this"; warn says "be careful". They must never converge
+       again. */
+    --accent: #9a3f12;
+    --accent-soft: #fbeee5;
+    --accent-strong: #7d3210;
+
+    --ok: #166534;
+    --ok-soft: #e8f3ea;
+    --warn: #96590a;
+    --warn-soft: #fdf4e3;
+    --danger: #a51d16;
+    --danger-soft: #fdeeed;
+
+    --radius: 8px;
+    --radius-sm: 5px;
     --wrap: 1180px;
+
+    /* One scale, so vertical rhythm is a decision rather than an accident. */
+    --space-1: .25rem;
+    --space-2: .5rem;
+    --space-3: .75rem;
+    --space-4: 1rem;
+    --space-5: 1.5rem;
+    --space-6: 2rem;
+    --space-7: 3rem;
+    --space-8: 4.5rem;
+
+    --step--1: .8125rem;
+    --step-0: .9375rem;
+    --step-1: 1.0625rem;
+    --step-2: 1.375rem;
+    --step-3: 1.875rem;
+    --step-4: 2.5rem;
+
+    --sans: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
     font-size: 16px;
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --bg: #171614;
-        --surface: #201e1b;
-        --border: #32302c;
-        --fg: #f0ede8;
-        --muted: #a49d93;
-        --subtle: #837c72;
-        --accent: #f0a355;
-        --accent-soft: #33261a;
-        --ok: #6ee7a0;
-        --ok-soft: #16281d;
-        --warn: #f0a355;
-        --danger: #f7a19a;
-        --danger-soft: #2e1a19;
+        --bg: #161513;
+        --surface: #1e1c1a;
+        --surface-sunk: #14130f;
+        --border: #322f2b;
+        --border-strong: #4c4740;
+        --fg: #f2efea;
+        --muted: #ada69b;
+        --subtle: #877f75;
+
+        --accent: #e8895a;
+        --accent-soft: #33211a;
+        --accent-strong: #f2a077;
+
+        --ok: #5fc98a;
+        --ok-soft: #142519;
+        --warn: #e0b04a;
+        --warn-soft: #2b2213;
+        --danger: #f08b83;
+        --danger-soft: #2c1817;
     }
 }
 
@@ -49,259 +130,528 @@ body {
     margin: 0;
     background: var(--bg);
     color: var(--fg);
-    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family: var(--sans);
+    font-size: var(--step-0);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
 
 a { color: inherit; text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-.wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 1.25rem; }
+h1, h2, h3, h4 {
+    line-height: 1.25;
+    letter-spacing: -.015em;
+    font-weight: 600;
+}
+
+:where(a, button, input, select, summary):focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
+/* ---------- utilities ---------- */
+
+.wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--space-5); }
 .muted { color: var(--muted); }
 .subtle { color: var(--subtle); }
-.small { font-size: .8125rem; }
+.small { font-size: var(--step--1); }
 .num { font-variant-numeric: tabular-nums; }
+.mono, .code-inline { font-family: var(--mono); }
+
+.code-inline {
+    font-size: var(--step--1);
+    color: var(--subtle);
+    word-break: break-all;
+}
+
+.eyebrow {
+    font-size: var(--step--1);
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    color: var(--subtle);
+    margin: 0 0 var(--space-2);
+    font-weight: 600;
+}
+
+.lede { font-size: var(--step-1); color: var(--muted); }
 
 .visually-hidden {
     position: absolute; width: 1px; height: 1px;
     padding: 0; margin: -1px; overflow: hidden;
-    clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+    clip-path: inset(50%); white-space: nowrap; border: 0;
 }
 
 .skip-link {
     position: absolute; left: -9999px; top: 0; z-index: 100;
-    background: var(--accent); color: #fff; padding: .6rem 1rem;
+    background: var(--accent); color: #fff; padding: var(--space-3) var(--space-4);
 }
 .skip-link:focus { left: 0; }
+
+.link-arrow { color: var(--accent); font-weight: 600; }
+.link-arrow::after { content: ' →'; }
+
+/* ---------- controls ---------- */
+
+/* One visual language for anything clickable. The search box, the sort select and
+   the buttons were three different heights and three different borders before. */
+.btn, .input, .select {
+    font: inherit;
+    font-size: var(--step-0);
+    line-height: 1.2;
+    /* 44px including borders — the minimum comfortable touch target. */
+    padding: .6875rem var(--space-4);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--fg);
+}
+
+.btn { cursor: pointer; font-weight: 600; }
+.btn:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+
+.btn--primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn--primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
+
+.btn--quiet { border-color: var(--border); color: var(--muted); font-weight: 400; }
+
+.btn--danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 35%, transparent); }
+.btn--danger:hover { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
+
+.input::placeholder { color: var(--subtle); }
+.select { padding-right: var(--space-6); }
 
 /* ---------- header ---------- */
 
 .site-header {
     border-bottom: 1px solid var(--border);
-    background: var(--surface);
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter: blur(8px);
     position: sticky; top: 0; z-index: 20;
 }
 
 .header-inner {
-    display: flex; align-items: center; gap: 1.5rem;
-    padding-top: .85rem; padding-bottom: .85rem;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-5);
+    padding-top: var(--space-3);
+    padding-bottom: var(--space-3);
 }
 
+.brand { display: inline-flex; align-items: center; gap: var(--space-2); }
+.brand:hover { text-decoration: none; }
 .brand-mark {
-    font-weight: 700; font-size: 1.15rem; letter-spacing: -.02em;
+    font-weight: 600; font-size: var(--step-1);
+    letter-spacing: -.03em;
 }
 .brand-mark span { color: var(--accent); }
 
-.header-search { display: flex; flex: 1 1 320px; min-width: 0; gap: .5rem; }
-.header-search input {
-    flex: 1; min-width: 0;
-    padding: .5rem .75rem;
-    border: 1px solid var(--border); border-radius: var(--radius);
-    background: var(--bg); color: var(--fg); font-size: .9375rem;
-}
-.header-search input:focus-visible,
-select:focus-visible, button:focus-visible, a:focus-visible {
-    outline: 2px solid var(--accent); outline-offset: 2px;
-}
-.header-search button {
-    padding: .5rem 1rem; border: 1px solid var(--accent);
-    background: var(--accent); color: #fff;
-    border-radius: var(--radius); cursor: pointer; font-size: .9375rem;
-}
+/* Search is the primary action on a directory, so it gets the middle column and the
+   nav recedes rather than competing at the same weight. */
+.header-search { display: flex; gap: var(--space-2); min-width: 0; }
+.header-search .input { flex: 1; min-width: 0; }
 
-.header-nav { display: flex; gap: 1.25rem; font-size: .9375rem; }
+.header-nav {
+    display: flex; gap: var(--space-4);
+    font-size: var(--step--1); color: var(--muted);
+    white-space: nowrap;
+}
+.header-nav a:hover { color: var(--accent); }
+
+@media (max-width: 900px) {
+    .header-inner { grid-template-columns: 1fr auto; row-gap: var(--space-3); }
+    .header-search { grid-column: 1 / -1; order: 3; }
+}
 
 .disclaimer-strip {
-    background: var(--accent-soft);
+    background: var(--surface-sunk);
     border-bottom: 1px solid var(--border);
-    font-size: .8125rem; color: var(--muted);
-    padding: .45rem 0;
+    font-size: var(--step--1); color: var(--muted);
+    padding: var(--space-2) 0;
 }
 
-/* ---------- layout ---------- */
+/* ---------- page scaffolding ---------- */
 
-.page { padding: 2rem 0 4rem; }
-.page-head { margin-bottom: 1.75rem; }
-.page-head h1 { font-size: 1.75rem; margin: 0 0 .4rem; letter-spacing: -.02em; }
-.page-head p { margin: 0; color: var(--muted); max-width: 62ch; }
+.page { padding: var(--space-7) 0 var(--space-8); }
+.page--narrow { max-width: 46rem; }
 
-.catalog { display: grid; grid-template-columns: 250px 1fr; gap: 2.5rem; align-items: start; }
-@media (max-width: 860px) { .catalog { grid-template-columns: 1fr; } }
+.page-head { margin-bottom: var(--space-6); }
+.page-head h1 { font-size: var(--step-3); margin: 0 0 var(--space-2); }
+.page-head > p { margin: 0; color: var(--muted); max-width: 62ch; }
+
+.catalog { display: grid; grid-template-columns: 232px minmax(0, 1fr); gap: var(--space-7); align-items: start; }
+@media (max-width: 860px) { .catalog { grid-template-columns: 1fr; gap: var(--space-5); } }
 
 /* ---------- facets ---------- */
 
-.facets { position: sticky; top: 5.5rem; }
-.facet { margin-bottom: 1.75rem; }
+.facets { position: sticky; top: 5rem; }
+@media (max-width: 860px) { .facets { position: static; } }
+
+.facet { margin-bottom: var(--space-5); }
 .facet h2 {
-    font-size: .75rem; text-transform: uppercase; letter-spacing: .07em;
-    color: var(--subtle); margin: 0 0 .6rem;
+    font-size: var(--step--1); text-transform: uppercase; letter-spacing: .09em;
+    color: var(--subtle); margin: 0 0 var(--space-2);
 }
 .facet ul { list-style: none; margin: 0; padding: 0; }
-.facet li { margin-bottom: .2rem; }
 .facet a {
-    display: flex; justify-content: space-between; gap: .5rem;
-    padding: .3rem .5rem; border-radius: 7px;
-    font-size: .875rem; color: var(--muted);
+    display: flex; justify-content: space-between; gap: var(--space-2);
+    padding: var(--space-2) var(--space-2);
+    border-radius: var(--radius-sm);
+    font-size: var(--step--1); color: var(--muted);
+    border-left: 2px solid transparent;
 }
-.facet a:hover { background: var(--surface); text-decoration: none; color: var(--fg); }
-.facet a.is-active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.facet a:hover { background: var(--surface); color: var(--fg); text-decoration: none; }
+.facet a.is-active {
+    background: var(--accent-soft); color: var(--accent);
+    font-weight: 600; border-left-color: var(--accent);
+}
 .facet .count { color: var(--subtle); font-variant-numeric: tabular-nums; }
+.facet a.is-active .count { color: var(--accent); }
 
-.facet-clear { font-size: .8125rem; color: var(--accent); }
+.facet-clear { font-size: var(--step--1); color: var(--accent); font-weight: 600; }
 
 /* ---------- results ---------- */
 
 .results-head {
-    display: flex; justify-content: space-between; align-items: baseline;
-    gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: var(--space-4); margin-bottom: var(--space-4); flex-wrap: wrap;
 }
-.results-count { color: var(--muted); font-size: .9375rem; }
+.results-count { color: var(--muted); font-size: var(--step-0); margin: 0; }
 
-.sort-form { display: flex; align-items: center; gap: .5rem; font-size: .875rem; }
-.sort-form select {
-    padding: .35rem .5rem; border: 1px solid var(--border);
-    border-radius: 7px; background: var(--surface); color: var(--fg);
+.sort-form { display: flex; align-items: center; gap: var(--space-2); font-size: var(--step--1); }
+.sort-form label { color: var(--subtle); }
+.sort-form .select { padding: var(--space-2) var(--space-5) var(--space-2) var(--space-3); }
+
+/* ---------- the compatibility matrix ----------
+ *
+ * The reason the site exists. Every card renders the same fixed columns, driven by
+ * --matrix-cols set once on the list, so a reader can run their eye straight down a
+ * single Shopware version across every result. Free-flowing pills cannot do that,
+ * and answering "which of these work with 6.7" is the entire job.
+ *
+ * Cells carry a glyph as well as a colour. Colour alone fails WCAG 1.4.1, and the
+ * distinction being encoded — declared versus open-ended — is exactly the one a
+ * reader must not miss.
+ */
+
+.matrix-header {
+    position: sticky; top: 4.25rem; z-index: 10;
+    display: grid;
+    grid-template-columns: 1fr repeat(var(--matrix-cols, 5), 2.25rem);
+    gap: var(--space-2);
+    align-items: end;
+    padding: var(--space-2) var(--space-4);
+    margin-bottom: var(--space-2);
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--border);
+}
+.matrix-header-label {
+    font-size: var(--step--1); text-transform: uppercase;
+    letter-spacing: .09em; color: var(--subtle);
+}
+.matrix-header span.v {
+    text-align: center; font-size: var(--step--1);
+    color: var(--muted); font-variant-numeric: tabular-nums;
+}
+.matrix-header span.v.is-current { color: var(--accent); font-weight: 600; }
+
+.matrix-legend {
+    display: flex; flex-wrap: wrap; gap: var(--space-4);
+    font-size: var(--step--1); color: var(--subtle);
+    margin: 0 0 var(--space-4); padding: 0 var(--space-4);
+}
+.matrix-legend span { display: inline-flex; align-items: center; gap: var(--space-1); }
+
+.matrix {
+    display: grid;
+    grid-template-columns: repeat(var(--matrix-cols, 5), 2.25rem);
+    gap: var(--space-2);
+}
+.matrix-cell {
+    display: grid; place-items: center;
+    height: 1.75rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface-sunk);
+    color: var(--subtle);
+    font-size: var(--step--1);
+    line-height: 1;
+}
+.matrix-cell.is-yes {
+    color: var(--ok); background: var(--ok-soft);
+    border-color: color-mix(in srgb, var(--ok) 35%, transparent);
+}
+.matrix-cell.is-unverified {
+    color: var(--warn); background: var(--warn-soft);
+    border-color: color-mix(in srgb, var(--warn) 35%, transparent);
 }
 
-.card-list { display: grid; gap: .875rem; }
+@media (max-width: 860px) {
+    .matrix-header { display: none; }
+    .matrix { grid-template-columns: repeat(auto-fill, 2.25rem); }
+}
+
+/* ---------- cards ---------- */
+
+.card-list { display: grid; gap: var(--space-2); }
 
 .card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 1.1rem 1.25rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-2) var(--space-4);
+    align-items: start;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-4);
+    transition: border-color .12s ease;
 }
-.card:hover { border-color: var(--accent); }
+.card:hover { border-color: var(--border-strong); }
+.card:focus-within { border-color: var(--accent); }
 
-.card-head { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
-.card-title { font-size: 1.0625rem; font-weight: 650; margin: 0; letter-spacing: -.01em; }
-.card-package { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .8125rem; color: var(--subtle); }
-.card-desc { margin: .5rem 0 .75rem; color: var(--muted); font-size: .9375rem; }
+.card-title { font-size: var(--step-1); margin: 0; }
+.card-title a:hover { color: var(--accent); }
+.card-package { font-family: var(--mono); font-size: var(--step--1); color: var(--subtle); }
+.card-desc {
+    grid-column: 1 / -1;
+    margin: 0; color: var(--muted); font-size: var(--step-0);
+    max-width: 76ch;
+}
+.card-matrix { grid-column: 2; grid-row: 1 / span 2; }
+.card-badges { grid-column: 1 / -1; margin-top: var(--space-1); }
+.card-stars { color: var(--subtle); font-size: var(--step--1); }
 
-.badges { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+@media (max-width: 860px) {
+    .card { grid-template-columns: minmax(0, 1fr); }
+    .card-matrix { grid-column: 1; grid-row: auto; }
+}
+
+/* ---------- badges ---------- */
+
+/* A hierarchy rather than pill soup. The licence badge renders the licence gate and
+   the disclosure badge renders the conflict-of-interest rule; both are load-bearing
+   and must not look like the decorative ones. */
+.badges { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
 
 .badge {
-    display: inline-flex; align-items: center; gap: .3rem;
-    font-size: .75rem; padding: .15rem .5rem;
-    border-radius: 999px; border: 1px solid var(--border);
-    color: var(--muted); background: var(--bg);
+    display: inline-flex; align-items: center; gap: var(--space-1);
+    font-size: var(--step--1); padding: .125rem var(--space-2);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    color: var(--muted); background: var(--surface-sunk);
     white-space: nowrap;
 }
+a.badge:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+
 .badge--ok { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 30%, transparent); background: var(--ok-soft); }
-.badge--warn { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 30%, transparent); background: var(--accent-soft); }
-.badge--danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 30%, transparent); background: var(--danger-soft); }
-.badge--disclosure { color: var(--accent); border-color: var(--accent); background: transparent; }
+.badge--warn { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 30%, transparent); background: var(--warn-soft); }
+.badge--danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 35%, transparent); background: var(--danger-soft); font-weight: 600; }
+.badge--disclosure { color: var(--accent); border-color: var(--accent); background: transparent; font-weight: 600; }
 
-/* ---------- compatibility matrix ---------- */
-
-.matrix { display: flex; gap: .3rem; flex-wrap: wrap; }
-.matrix-cell {
-    font-size: .75rem; font-variant-numeric: tabular-nums;
-    padding: .15rem .45rem; border-radius: 6px;
-    border: 1px solid var(--border); color: var(--subtle); background: var(--bg);
-}
-.matrix-cell.is-yes { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 35%, transparent); background: var(--ok-soft); font-weight: 600; }
-.matrix-cell.is-unverified { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 30%, transparent); background: var(--accent-soft); }
-
-/* ---------- detail ---------- */
-
-.detail-grid { display: grid; grid-template-columns: 1fr 300px; gap: 2.5rem; align-items: start; }
-@media (max-width: 900px) { .detail-grid { grid-template-columns: 1fr; } }
+/* ---------- panels, tables, prose ---------- */
 
 .panel {
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.25rem;
+    border-radius: var(--radius); padding: var(--space-5);
+    margin-bottom: var(--space-4);
 }
-.panel h2 { font-size: .9375rem; margin: 0 0 .75rem; }
+.panel h2 { font-size: var(--step-0); margin: 0 0 var(--space-3); }
+.panel > :last-child { margin-bottom: 0; }
 
-.kv { display: grid; grid-template-columns: auto 1fr; gap: .4rem 1rem; font-size: .875rem; }
+.notice {
+    border: 1px solid var(--border); border-left-width: 3px;
+    border-radius: var(--radius); padding: var(--space-4);
+    margin-bottom: var(--space-5); background: var(--surface);
+}
+.notice p { margin: 0 0 var(--space-2); }
+.notice > :last-child { margin-bottom: 0; }
+.notice--ok { border-left-color: var(--ok); background: var(--ok-soft); }
+.notice--warn { border-left-color: var(--warn); background: var(--warn-soft); }
+
+.kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-2) var(--space-4); font-size: var(--step--1); }
 .kv dt { color: var(--subtle); }
 .kv dd { margin: 0; }
 
 pre.code {
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: 8px; padding: .8rem 1rem;
-    overflow-x: auto; font-size: .8125rem; line-height: 1.7;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: var(--surface-sunk); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: var(--space-3) var(--space-4);
+    overflow-x: auto; font-size: var(--step--1); line-height: 1.7;
+    font-family: var(--mono);
 }
 
-table.data { width: 100%; border-collapse: collapse; font-size: .875rem; }
-table.data th, table.data td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--border); }
-table.data th { color: var(--subtle); font-weight: 500; font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; }
+table.data { width: 100%; border-collapse: collapse; font-size: var(--step--1); }
+table.data th, table.data td { text-align: left; padding: var(--space-3); border-bottom: 1px solid var(--border); }
+table.data th {
+    color: var(--subtle); font-weight: 600; font-size: var(--step--1);
+    text-transform: uppercase; letter-spacing: .07em;
+}
+table.data tbody tr:last-child td { border-bottom: 0; }
+table.data td.num, table.data th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .table-scroll { overflow-x: auto; }
 
-/* ---------- prose ---------- */
+/* The ranking page is a table of weights, and a column of percentages does not show
+   the shape of a formula. The bar is drawn behind the number so the row still reads
+   as data rather than as a chart. */
+.weight-bar {
+    display: block; height: 4px; border-radius: 999px;
+    background: var(--accent); opacity: .55; margin-top: var(--space-1);
+}
 
 .prose { max-width: 68ch; }
-.prose h2 { font-size: 1.125rem; margin: 2rem 0 .6rem; }
-.prose h3 { font-size: .9375rem; margin: 1.5rem 0 .4rem; }
+.prose h2 { font-size: var(--step-1); margin: var(--space-6) 0 var(--space-2); }
+.prose h3 { font-size: var(--step-0); margin: var(--space-5) 0 var(--space-1); }
 .prose p, .prose li { color: var(--muted); }
-.prose a { color: var(--accent); text-decoration: underline; }
-.prose ul { padding-left: 1.2rem; }
+.prose a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.prose ul, .prose ol { padding-left: var(--space-5); }
+.prose li { margin-bottom: var(--space-1); }
 .prose address { font-style: normal; color: var(--fg); }
+.prose code { font-family: var(--mono); font-size: .9em; background: var(--surface-sunk); padding: .1em .35em; border-radius: var(--radius-sm); }
 
-/* ---------- pagination ---------- */
-
-.pagination { display: flex; gap: .5rem; align-items: center; justify-content: center; margin-top: 2rem; }
-.pagination a, .pagination span {
-    padding: .4rem .8rem; border: 1px solid var(--border);
-    border-radius: 7px; font-size: .875rem; background: var(--surface);
+/* A numbered procedure, for the verification instructions. The number is the visual
+   anchor, because the reader is switching between this page and a terminal. */
+.steps { list-style: none; margin: 0; padding: 0; counter-reset: step; }
+.steps > li {
+    counter-increment: step;
+    position: relative;
+    padding-left: var(--space-7);
+    padding-bottom: var(--space-5);
+    border-left: 1px solid var(--border);
+    margin-left: var(--space-3);
 }
+.steps > li:last-child { border-left-color: transparent; padding-bottom: 0; }
+.steps > li::before {
+    content: counter(step);
+    position: absolute; left: calc(-1 * var(--space-4)); top: 0;
+    width: var(--space-6); height: var(--space-6);
+    display: grid; place-items: center;
+    border-radius: 999px;
+    background: var(--accent-soft); color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    font-size: var(--step--1); font-weight: 600;
+}
+.steps h2 { font-size: var(--step-0); margin: 0 0 var(--space-2); }
+
+/* ---------- pagination and empty states ---------- */
+
+.pagination { display: flex; gap: var(--space-2); align-items: center; justify-content: center; margin-top: var(--space-6); }
+.pagination a, .pagination span {
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius); font-size: var(--step--1); background: var(--surface);
+}
+.pagination a:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
 .pagination span { color: var(--subtle); }
 
-.empty { text-align: center; padding: 3rem 1rem; color: var(--muted); }
-
-/* ---------- footer ---------- */
-
-.site-footer { border-top: 1px solid var(--border); background: var(--surface); padding: 2.5rem 0; margin-top: 3rem; }
-.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 2rem; }
-@media (max-width: 800px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
-.footer-brand { font-weight: 700; margin: 0 0 .5rem; }
-.footer-heading { font-size: .75rem; text-transform: uppercase; letter-spacing: .07em; color: var(--subtle); margin: 0 0 .5rem; }
-.site-footer ul { list-style: none; margin: 0 0 .75rem; padding: 0; font-size: .875rem; }
-.site-footer li { margin-bottom: .25rem; }
-.site-footer a { color: var(--muted); }
+.empty {
+    text-align: center; padding: var(--space-8) var(--space-4);
+    color: var(--muted);
+    border: 1px dashed var(--border); border-radius: var(--radius);
+}
+.empty p { margin: 0 0 var(--space-2); }
 
 /* ---------- flash messages ---------- */
 
 .flash {
-    margin: 1rem 0 0; padding: .7rem 1rem;
+    margin: var(--space-4) 0 0; padding: var(--space-3) var(--space-4);
     border-radius: var(--radius); border: 1px solid var(--border);
-    font-size: .9375rem;
+    border-left-width: 3px;
+    font-size: var(--step-0);
 }
-.flash--success { color: var(--ok); background: var(--ok-soft); border-color: color-mix(in srgb, var(--ok) 30%, transparent); }
-.flash--error { color: var(--danger); background: var(--danger-soft); border-color: color-mix(in srgb, var(--danger) 30%, transparent); }
-.flash--warning { color: var(--warn); background: var(--accent-soft); border-color: color-mix(in srgb, var(--warn) 30%, transparent); }
+.flash--success { color: var(--ok); background: var(--ok-soft); border-color: color-mix(in srgb, var(--ok) 30%, transparent); border-left-color: var(--ok); }
+.flash--error { color: var(--danger); background: var(--danger-soft); border-color: color-mix(in srgb, var(--danger) 30%, transparent); border-left-color: var(--danger); }
+.flash--warning { color: var(--warn); background: var(--warn-soft); border-color: color-mix(in srgb, var(--warn) 30%, transparent); border-left-color: var(--warn); }
 
-/* Imprint address reveal.
-   The address is fetched after a countdown rather than rendered into the page —
-   see LegalController for why. These styles exist so the wait is legible: a
-   visitor who is asked to wait a minute should be able to see that something is
-   happening and how much is left. */
-.reveal { margin: .5rem 0 1rem; }
+/* ---------- footer ---------- */
 
-.reveal-btn {
-    font: inherit; font-size: .875rem; cursor: pointer;
-    background: var(--surface); color: var(--fg);
-    border: 1px solid var(--border); border-radius: var(--radius);
-    padding: .5rem .9rem;
+.site-footer {
+    border-top: 1px solid var(--border); background: var(--surface);
+    padding: var(--space-7) 0; margin-top: var(--space-8);
 }
-.reveal-btn:hover { border-color: var(--accent); color: var(--accent); }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: var(--space-6); }
+@media (max-width: 800px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+.footer-brand { font-weight: 600; margin: 0 0 var(--space-2); letter-spacing: -.03em; }
+.footer-heading {
+    font-size: var(--step--1); text-transform: uppercase; letter-spacing: .09em;
+    color: var(--subtle); margin: 0 0 var(--space-2);
+}
+.site-footer ul { list-style: none; margin: 0 0 var(--space-3); padding: 0; font-size: var(--step--1); }
+.site-footer li { margin-bottom: var(--space-1); }
+.site-footer a { color: var(--muted); }
+.site-footer a:hover { color: var(--accent); }
 
-.reveal-progress { margin-top: .75rem; max-width: 22rem; }
-.reveal-track {
-    height: 6px; border-radius: 999px;
-    background: var(--border); overflow: hidden;
+/* ---------- error pages ---------- */
+
+.error-page { text-align: center; padding: var(--space-8) 0; }
+.error-code {
+    font-family: var(--mono); font-size: var(--step-4);
+    color: var(--accent); margin: 0 0 var(--space-2);
+    letter-spacing: -.04em;
 }
-.reveal-bar {
-    height: 100%; width: 0;
-    background: var(--accent); border-radius: 999px;
-}
+.error-search { display: flex; gap: var(--space-2); max-width: 26rem; margin: var(--space-6) auto 0; }
+.error-links { display: flex; flex-wrap: wrap; gap: var(--space-4); justify-content: center; margin-top: var(--space-5); font-size: var(--step--1); }
+
+/* ---------- imprint address reveal ---------- */
+
+/* The address is fetched after a countdown rather than rendered into the page — see
+   LegalController for why. These styles exist so the wait is legible: someone asked
+   to wait a minute should be able to see that something is happening. */
+.reveal { margin: var(--space-2) 0 var(--space-4); }
+.reveal-progress { margin-top: var(--space-3); max-width: 22rem; }
+.reveal-track { height: 6px; border-radius: 999px; background: var(--border); overflow: hidden; }
+.reveal-bar { height: 100%; width: 0; background: var(--accent); border-radius: 999px; }
 .reveal-error { color: var(--warn); }
 
-/* The countdown is decorative reassurance, not information. Anyone who has asked
-   the browser to reduce motion still gets the address at the same moment; the bar
-   simply stops sliding. */
 @media (prefers-reduced-motion: reduce) {
     .reveal-bar { transition: none; }
+    .card { transition: none; }
+}
+
+/* ---------- detail page ---------- */
+
+.detail-lede { margin: var(--space-3) 0 0; max-width: 68ch; }
+.detail-badges { margin-top: var(--space-4); }
+
+/* Columns are labelled here, unlike the list view. This is the page people arrive at
+   from a search engine, with no sticky header above to say what each column means. */
+.matrix-detail {
+    display: flex; flex-wrap: wrap; gap: var(--space-2);
+    margin-bottom: var(--space-3);
+}
+.matrix-detail-col {
+    display: grid; gap: var(--space-1); justify-items: center;
+    min-width: 2.75rem;
+}
+.matrix-detail-version {
+    font-size: var(--step--1); color: var(--subtle);
+}
+.matrix-detail .matrix-cell { width: 100%; }
+
+/* A smaller button for table rows, where a full-height control would dominate the
+   row it sits in. */
+.btn--sm { padding: var(--space-2) var(--space-3); font-size: var(--step--1); }
+.error-note { margin-top: var(--space-6); }
+
+/* ---------- small layout helpers ---------- */
+
+/* Named for what they do to the flow, not for their value, so a change to the scale
+   moves everything that uses them. These replace the inline margins that had
+   accumulated across the legal and detail templates. */
+.stack-sm { margin-top: var(--space-3); }
+.stack { margin-top: var(--space-4); }
+.page-note { margin-top: var(--space-6); }
+.text-danger { color: var(--danger); }
+
+.list-plain { list-style: none; padding: 0; margin: 0; }
+
+/* Separates the German legal text from its English translation. A visible boundary
+   matters on these pages: the two halves say the same thing, and a reader who
+   scrolls past the seam without noticing reads the wrong one as authoritative. */
+.rule {
+    margin: var(--space-7) 0;
+    border: 0;
+    border-top: 1px solid var(--border);
 }
