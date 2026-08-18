@@ -132,6 +132,17 @@ jobs:
       - uses: ramsey/composer-install@v3
         with:
           composer-options: "--no-dev --optimize-autoloader --classmap-authoritative"
+        # APP_ENV must be set for the install itself, not just the warmup below.
+        # composer install fires the post-install cache:clear, and that reads the
+        # environment from .env — which says dev. In dev, bundles.php registers
+        # bundles that live in require-dev, so --no-dev makes the kernel boot
+        # against classes that were never installed. The server never sees this
+        # because its .env.local pins APP_ENV=prod before composer ever runs.
+        env:
+          APP_ENV: prod
+          APP_DEBUG: 0
+          APP_SECRET: ci-only-not-a-secret
+          DATABASE_URL: 'mysql://root:root@127.0.0.1:3306/extdir?serverVersion=10.6.19-MariaDB&charset=utf8mb4'
 
       - name: Warm the production cache
         run: php bin/console cache:warmup --env=prod --no-debug
