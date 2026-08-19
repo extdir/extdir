@@ -1029,3 +1029,23 @@ table.data a:hover { text-decoration-thickness: 2px; }
     /* No room to sit outside the track, and a thumb does the job anyway. */
     .rail-nav { display: none; }
 }
+
+/* ============================================================ VENDORS */
+
+.vendor-list {
+    list-style: none; margin: 0; padding: 0;
+    columns: 2; column-gap: var(--s-7);
+    border-top: 1px solid var(--border);
+}
+@media (min-width: 900px) { .vendor-list { columns: 3; } }
+
+.vendor-row {
+    display: flex; align-items: baseline; gap: var(--s-2);
+    padding: var(--s-2) 0;
+    border-bottom: 1px solid var(--border);
+    /* Without this a row can be split across the column boundary mid-line. */
+    break-inside: avoid;
+}
+.vendor-name { flex: 1; min-width: 0; }
+.vendor-name:hover { color: var(--signal-info); }
+.vendor-count { color: var(--ink-subtle); font-family: var(--font-mono); font-size: var(--t-small); }

@@ -297,7 +297,7 @@ bin/console plugin:install --activate {{ technicalName }}</pre>
                 <h2>Details</h2>
                 <dl class="kv">
                     <dt>Vendor</dt>
-                    <dd>{{ extension.vendor.name }}</dd>
+                    <dd><a href="{{ path('vendor', {slug: extension.vendor.slug}) }}">{{ extension.vendor.name }}</a></dd>
 
                     <dt>Licence</dt>
                     <dd>{{ extension.licenseSpdx ?? extension.licenseStatus.badgeLabel }}</dd>

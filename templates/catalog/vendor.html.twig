@@ -1,0 +1,83 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ vendor.name }} — Shopware 6 extensions — extdir{% endblock %}
+{% block meta_description %}Every open-source Shopware 6 extension published by {{ vendor.name }}, with the Shopware versions each declares and how recently the code was touched.{% endblock %}
+
+{% block canonical %}<link rel="canonical" href="{{ url('vendor', {slug: vendor.slug}) }}">{% endblock %}
+
+{% block og_title %}Shopware 6 extensions by {{ vendor.name }}{% endblock %}
+{% block og_description %}{{ extensions|length }} open-source extensions, with declared compatibility and maintenance for each.{% endblock %}
+
+{% block structured_data %}
+    {{ parent() }}
+    <script type="application/ld+json">{{ {
+        '@context': 'https://schema.org',
+        '@graph': [
+            {
+                '@type': 'Organization',
+                'name': vendor.name,
+                'url': url('vendor', {slug: vendor.slug}),
+                'sameAs': vendor.homepage
+            },
+            {
+                '@type': 'BreadcrumbList',
+                'itemListElement': [
+                    { '@type': 'ListItem', 'position': 1, 'name': 'Extensions', 'item': url('home') },
+                    { '@type': 'ListItem', 'position': 2, 'name': 'Vendors', 'item': url('vendors') },
+                    { '@type': 'ListItem', 'position': 3, 'name': vendor.name, 'item': url('vendor', {slug: vendor.slug}) }
+                ]
+            }
+        ]
+    }|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE'))|raw }}</script>
+{% endblock %}
+
+{% block body %}
+<div class="wrap page">
+    <div class="page-head">
+        <p class="eyebrow">Vendor</p>
+        <h1>{{ vendor.name }}</h1>
+        <p>
+            {{ extensions|length }} open-source {{ extensions|length == 1 ? 'extension' : 'extensions' }} indexed.
+            {# The question this page exists to answer. One stale extension means
+               something different when everything else by the same author is current. #}
+            {% set current = extensions|filter(e => e.maintenanceStatus.value == 'current')|length %}
+            {% if extensions|length > 1 %}
+                {{ current }} of them {{ current == 1 ? 'has' : 'have' }} been committed to since the
+                current Shopware release shipped.
+            {% endif %}
+        </p>
+        {% if vendor.maintainerOperated %}
+            <p class="badges detail-badges">
+                <span class="badge badge--disclosure">Published by the extdir maintainer</span>
+            </p>
+        {% endif %}
+    </div>
+
+    <div class="rows" style="--matrix-cols: {{ shopwareVersions|length }}"
+         role="listbox" aria-label="Extensions by {{ vendor.name }}" tabindex="-1">
+        <div class="rows-head" aria-hidden="true">
+            <span>Extension</span>
+            <span>Declares Shopware</span>
+            <span>Licence</span>
+            <span class="ta-r">Last commit</span>
+            <span></span>
+        </div>
+
+        {% for extension in extensions %}
+            {{ include('catalog/_row.html.twig', {
+                extension: extension,
+                supported: matrices[extension.id] ?? {},
+                shopwareVersions: shopwareVersions,
+                compact: false
+            }) }}
+        {% endfor %}
+    </div>
+
+    <p class="stack">
+        {% if vendor.homepage %}
+            <a class="link-arrow" href="{{ vendor.homepage }}" rel="noopener nofollow">{{ vendor.name }} website</a> ·
+        {% endif %}
+        <a class="link-arrow" href="{{ path('vendors') }}">All vendors</a>
+    </p>
+</div>
+{% endblock %}

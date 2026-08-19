@@ -6,6 +6,7 @@ namespace App\Ui\Controller;
 
 use App\Catalog\Repository\CategoryRepository;
 use App\Catalog\Repository\ExtensionRepository;
+use App\Catalog\Repository\VendorRepository;
 use App\Compatibility\Repository\ShopwareVersionRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,6 +28,7 @@ final class SitemapController extends AbstractController
         private readonly ExtensionRepository $extensions,
         private readonly ShopwareVersionRepository $shopwareVersions,
         private readonly CategoryRepository $categories,
+        private readonly VendorRepository $vendors,
     ) {
     }
 
@@ -61,7 +63,7 @@ final class SitemapController extends AbstractController
     {
         $urls = [];
 
-        foreach (['home', 'about', 'ranking', 'imprint', 'privacy', 'terms', 'takedown'] as $route) {
+        foreach (['home', 'about', 'ranking', 'vendors', 'imprint', 'privacy', 'terms', 'takedown'] as $route) {
             $urls[] = ['loc' => $this->generateUrl($route, [], UrlGeneratorInterface::ABSOLUTE_URL)];
         }
 
@@ -80,6 +82,14 @@ final class SitemapController extends AbstractController
             $urls[] = ['loc' => $this->generateUrl(
                 'home',
                 ['category' => $key],
+                UrlGeneratorInterface::ABSOLUTE_URL,
+            )];
+        }
+
+        foreach ($this->vendors->findWithVisibleExtensions() as $row) {
+            $urls[] = ['loc' => $this->generateUrl(
+                'vendor',
+                ['slug' => $row['vendor']->getSlug()],
                 UrlGeneratorInterface::ABSOLUTE_URL,
             )];
         }

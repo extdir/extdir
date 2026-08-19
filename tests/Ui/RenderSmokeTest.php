@@ -28,6 +28,7 @@ final class RenderSmokeTest extends WebTestCase
         yield 'catalogue compact' => ['/?view=compact'];
         yield 'catalogue compact filtered' => ['/?view=compact&shopware=6.7&maintenance=current'];
         yield 'ranking' => ['/ranking'];
+        yield 'vendors' => ['/vendors'];
         yield 'about' => ['/about'];
         yield 'imprint' => ['/imprint'];
         yield 'privacy' => ['/privacy'];
@@ -199,6 +200,19 @@ final class RenderSmokeTest extends WebTestCase
         self::assertGreaterThan(0, $detail->filter('.alt-card')->count());
         self::assertSame(2, $detail->filter('.rail-nav[hidden]')->count());
         self::assertNotNull($rail->attr('tabindex'), 'The scroll container must be focusable.');
+    }
+
+    /**
+     * A vendor whose every extension has been delisted still has a database row.
+     * Serving a page that lists nothing would be a dead end for a reader and a
+     * crawlable void for a search engine, so it 404s instead.
+     */
+    public function testAVendorWithNothingVisibleIsNotAPage(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/vendor/no-such-vendor');
+
+        self::assertResponseStatusCodeSame(404);
     }
 
     public function testAnUnknownPathRendersTheNotFoundPage(): void

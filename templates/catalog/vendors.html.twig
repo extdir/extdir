@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vendors — extdir{% endblock %}
+{% block meta_description %}Every vendor publishing open-source Shopware 6 extensions in the extdir index, with how many each maintains.{% endblock %}
+{% block canonical %}<link rel="canonical" href="{{ url('vendors') }}">{% endblock %}
+{% block og_title %}Vendors publishing open-source Shopware 6 extensions{% endblock %}
+
+{% block body %}
+<div class="wrap page">
+    <div class="page-head">
+        <h1>Vendors</h1>
+        <p>
+            {{ vendors|length }} vendors publish the indexed extensions. Most publish one;
+            a handful maintain more than twenty.
+        </p>
+    </div>
+
+    <ul class="vendor-list">
+        {% for row in vendors %}
+            <li class="vendor-row">
+                <a class="vendor-name" href="{{ path('vendor', {slug: row.vendor.slug}) }}">{{ row.vendor.name }}</a>
+                {% if row.vendor.maintainerOperated %}
+                    <span class="chip chip--disclosure">extdir maintainer</span>
+                {% endif %}
+                <span class="vendor-count num">{{ row.extensions }}</span>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

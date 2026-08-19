@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Catalog\Repository;
 
 use App\Catalog\Entity\Extension;
+use App\Catalog\Entity\Vendor;
 use App\Catalog\Enum\IndexStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -72,6 +73,27 @@ class ExtensionRepository extends ServiceEntityRepository
             ->setParameter('visible', [IndexStatus::Listed, IndexStatus::IndexOnly])
             ->orderBy('e.rankScore', 'DESC')
             ->addOrderBy('e.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $result;
+    }
+
+    /**
+     * Everything visible from one vendor, best first.
+     *
+     * @return list<Extension>
+     */
+    public function findVisibleForVendor(Vendor $vendor): array
+    {
+        /** @var list<Extension> $result */
+        $result = $this->createQueryBuilder('e')
+            ->where('e.vendor = :vendor')
+            ->andWhere('e.indexStatus IN (:visible)')
+            ->setParameter('vendor', $vendor)
+            ->setParameter('visible', [IndexStatus::Listed, IndexStatus::IndexOnly])
+            ->orderBy('e.rankScore', 'DESC')
+            ->addOrderBy('e.label', 'ASC')
             ->getQuery()
             ->getResult();
 
