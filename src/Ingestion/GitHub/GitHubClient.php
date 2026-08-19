@@ -139,14 +139,39 @@ final class GitHubClient
         // so a naive status check would treat a failed query as a successful one
         // and silently write empty signals over good data.
         if (isset($payload['errors']) && \is_array($payload['errors'])) {
-            $this->logger->error('GitHub GraphQL returned errors', [
-                'errors' => array_map(
-                    static fn (mixed $e): string => \is_array($e) && \is_string($e['message'] ?? null)
-                        ? $e['message']
-                        : 'unknown',
-                    $payload['errors'],
-                ),
-            ]);
+            $messages = array_map(
+                static fn (mixed $e): string => \is_array($e) && \is_string($e['message'] ?? null)
+                    ? $e['message']
+                    : 'unknown',
+                $payload['errors'],
+            );
+
+            // A repository that no longer resolves is routine, not a fault. This
+            // corpus spans a decade: vendors rename, projects go private, accounts
+            // close, and Packagist keeps serving the old path either way. Seven of
+            // the 423 indexed extensions are in that state right now.
+            //
+            // Logging that at error level every night is worse than not logging it.
+            // It buries genuine failures — an expired token, a rate limit, a broken
+            // query — under noise, and once an alert fires on every run people stop
+            // reading it. Separated so the two can be told apart at a glance and
+            // alerted on differently.
+            $gone = array_values(array_filter(
+                $messages,
+                static fn (string $m): bool => str_contains($m, 'Could not resolve to a Repository'),
+            ));
+            $realFailures = array_values(array_diff($messages, $gone));
+
+            if ([] !== $gone) {
+                $this->logger->warning('GitHub no longer resolves some repositories', [
+                    'count' => \count($gone),
+                    'repositories' => $gone,
+                ]);
+            }
+
+            if ([] !== $realFailures) {
+                $this->logger->error('GitHub GraphQL returned errors', ['errors' => $realFailures]);
+            }
         }
 
         $data = $payload['data'] ?? null;

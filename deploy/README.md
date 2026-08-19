@@ -122,6 +122,32 @@ crontab -l > /tmp/crontab.bak
 crontab -l | tail -20
 ```
 
+## Verifying the backup
+
+A backup nobody has restored is a hypothesis. `deploy/backup.sh` runs nightly at
+02:30 and keeps 14 days; prove one works occasionally:
+
+```bash
+NEWEST=$(ls -t ~/backups/extdir/*.sql.gz | head -1)
+mysql -e "CREATE DATABASE amer_extdir_restore"
+zcat "$NEWEST" | mysql amer_extdir_restore
+mysql amer_extdir_restore -e "SELECT COUNT(*) FROM extension"
+mysql -e "DROP DATABASE amer_extdir_restore"
+```
+
+Expect the restored copy to hold slightly *fewer* rows than production in the tables
+the nightly crawl writes to — the dump is taken at 02:30 and ingest runs at 03:23.
+Equal counts everywhere would mean the crawl has stopped, not that the backup is
+better.
+
+Worth also running one FULLTEXT query against the restored copy. The index is
+rebuilt on import and is the part most likely to come back subtly wrong:
+
+```bash
+mysql amer_extdir_restore -e "SELECT COUNT(*) FROM extension
+  WHERE MATCH(search_text) AGAINST('versand' IN BOOLEAN MODE)"
+```
+
 ## Deploying
 
 ```bash
