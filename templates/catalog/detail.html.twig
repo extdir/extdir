@@ -337,9 +337,11 @@ bin/console plugin:install --activate {{ technicalName }}</pre>
                     </p>
                 {% endif %}
                 <p class="small subtle">
-                    Anything else — a wrong category, an outdated description, a rights complaint —
-                    is covered by the <a href="{{ path('takedown') }}">takedown and correction
-                    policy</a>.
+                    Not the maintainer? A wrong category, an outdated description or a rights
+                    complaint can be
+                    <a href="{{ path('complaint_new', {slug: extension.slug}) }}">reported here</a> —
+                    no account needed. The <a href="{{ path('takedown') }}">takedown and correction
+                    policy</a> explains what happens next.
                 </p>
             </section>
         </aside>

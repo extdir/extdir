@@ -91,6 +91,9 @@
                 <a href="{{ path('about') }}" class="{{ route == 'about' ? 'is-current' : '' }}">About</a>
                 {% if app.user %}
                     <a href="{{ path('my_extensions') }}" class="{{ route == 'my_extensions' ? 'is-current' : '' }}">Your extensions</a>
+                    {% if is_granted('ROLE_MODERATOR') %}
+                        <a href="{{ path('moderate') }}" class="{{ route starts with 'moderate' ? 'is-current' : '' }}">Moderate</a>
+                    {% endif %}
                     <a href="{{ path('logout') }}">Sign out</a>
                 {% endif %}
             </nav>

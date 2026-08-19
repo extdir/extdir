@@ -862,3 +862,37 @@ table.data td.num, table.data th.num { text-align: right; font-variant-numeric: 
 @media (max-width: 760px) {
     .header-nav-end { width: 100%; justify-content: space-between; }
 }
+
+/* ============================================================ MODERATION */
+
+.report-form label { display: block; margin-bottom: var(--s-1); }
+.report-form .input, .report-form .select { width: 100%; }
+.report-form textarea.input { resize: vertical; font-family: inherit; }
+.report-form p { margin-bottom: var(--s-5); }
+
+.section-head { margin: var(--s-8) 0 var(--s-4); font-size: var(--t-h3); }
+
+.queue { display: grid; gap: var(--s-3); }
+
+.queue-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border-strong);
+    border-radius: var(--radius);
+    padding: var(--s-4);
+}
+/* Past the seven days the takedown policy commits to. Marked with a border and a
+   word, never colour alone — the one state a moderator must not scroll past. */
+.queue-item.is-overdue { border-left-color: var(--signal-risk); }
+
+.queue-head { display: flex; justify-content: space-between; gap: var(--s-4); flex-wrap: wrap; align-items: baseline; }
+.queue-title { font-weight: 500; margin: 0 var(--s-2); }
+.queue-age { font-size: var(--t-small); color: var(--ink-muted); font-family: var(--font-mono); white-space: nowrap; }
+.is-overdue .queue-age { color: var(--signal-risk); font-weight: 500; }
+
+.queue-reporter { margin: var(--s-2) 0 0; }
+.queue-body { margin: var(--s-2) 0 var(--s-4); color: var(--ink-muted); font-size: var(--t-small); max-width: 80ch; }
+
+.queue-actions { display: flex; gap: var(--s-4); flex-wrap: wrap; }
+.act-form { display: flex; gap: var(--s-2); align-items: center; flex: 1 1 22rem; }
+.act-form .input { flex: 1; min-width: 0; font-size: var(--t-small); padding: var(--s-2) var(--s-3); }

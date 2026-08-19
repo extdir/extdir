@@ -1,0 +1,120 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Moderation — extdir{% endblock %}
+{% block canonical %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+
+{% macro act_form(complaint, extension, action, label, variant) %}
+    <form method="post" action="{{ path('moderate_act', {slug: extension.slug, action: action}) }}" class="act-form">
+        <input type="hidden" name="_token" value="{{ csrf_token('moderate' ~ extension.slug) }}">
+        {% if complaint %}<input type="hidden" name="complaint" value="{{ complaint.id }}">{% endif %}
+        <input class="input" name="reason" required placeholder="Reason (recorded, required)">
+        <button class="btn btn--sm {{ variant }}" type="submit">{{ label }}</button>
+    </form>
+{% endmacro %}
+
+{% block body %}
+<div class="wrap page">
+    <div class="page-head">
+        <p class="eyebrow">Moderation</p>
+        <h1>{{ open|length }} open {{ open|length == 1 ? 'complaint' : 'complaints' }}</h1>
+        <p>
+            Oldest first, because what is being managed is a seven-day commitment — a
+            newest-first queue buries whatever is closest to breaching it.
+        </p>
+    </div>
+
+    {% if open is empty %}
+        <div class="empty">
+            <p><strong>Nothing waiting.</strong></p>
+            <p class="small">Reports arrive from the form on each extension page and from legal@extdir.com.</p>
+        </div>
+    {% else %}
+        <div class="queue">
+            {% for complaint in open %}
+                <article class="queue-item {{ complaint.isOverdue ? 'is-overdue' : '' }}">
+                    <div class="queue-head">
+                        <div>
+                            <span class="chip {{ complaint.kind.isUrgent ? 'chip--risk' : '' }}">{{ complaint.kind.label }}</span>
+                            <a class="queue-title" href="{{ path('extension_detail', {slug: complaint.extension.slug}) }}">
+                                {{ complaint.extension.label }}
+                            </a>
+                            <span class="code-inline">{{ complaint.extension.packageName }}</span>
+                        </div>
+                        <div class="queue-age num">
+                            {# The clock, made visible. A promise nobody can see the
+                               countdown on is a promise that gets missed. #}
+                            {{ complaint.createdAt|ago }} old
+                            {%- if complaint.kind.isUrgent %} · {{ complaint.isOverdue ? 'OVERDUE' : (7 - complaint.ageInDays) ~ 'd left' }}{% endif %}
+                        </div>
+                    </div>
+
+                    <p class="queue-reporter small subtle">from {{ complaint.reporter }}</p>
+                    <p class="queue-body">{{ complaint.body|nl2br }}</p>
+
+                    <div class="queue-actions">
+                        {% if complaint.extension.indexStatus.value == 'delisted' %}
+                            {{ _self.act_form(complaint, complaint.extension, 'relist', 'Relist', '') }}
+                        {% else %}
+                            {{ _self.act_form(complaint, complaint.extension, 'delist', 'Delist', 'btn--risk') }}
+                        {% endif %}
+
+                        <form method="post" action="{{ path('moderate_reject', {id: complaint.id}) }}" class="act-form">
+                            <input type="hidden" name="_token" value="{{ csrf_token('reject' ~ complaint.id) }}">
+                            <input class="input" name="reason" required placeholder="Why it is refused (recorded)">
+                            <button class="btn btn--sm" type="submit">Reject</button>
+                        </form>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <h2 class="section-head">Recent decisions</h2>
+    {% if resolved is empty %}
+        <p class="muted small">Nothing resolved yet.</p>
+    {% else %}
+        <div class="table-scroll">
+            <table class="data">
+                <thead><tr><th>Extension</th><th>Kind</th><th>Outcome</th><th>Reason</th><th>When</th></tr></thead>
+                <tbody>
+                {% for complaint in resolved %}
+                    <tr>
+                        <td><a href="{{ path('extension_detail', {slug: complaint.extension.slug}) }}">{{ complaint.extension.packageName }}</a></td>
+                        <td class="small">{{ complaint.kind.label }}</td>
+                        <td class="small">{{ complaint.status.label }}</td>
+                        <td class="small muted">{{ complaint.resolution }}</td>
+                        <td class="small muted num">{{ complaint.resolvedAt ? complaint.resolvedAt|date('Y-m-d') : '—' }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+    <h2 class="section-head">Moderation log</h2>
+    <p class="muted small">
+        Every action taken on the catalogue, including those a maintainer took on their own
+        extension. The ranking rules require this to be auditable rather than trusted.
+    </p>
+    {% if recentActions is empty %}
+        <p class="muted small">No actions recorded.</p>
+    {% else %}
+        <div class="table-scroll">
+            <table class="data">
+                <thead><tr><th>When</th><th>Extension</th><th>Action</th><th>By</th><th>Reason</th></tr></thead>
+                <tbody>
+                {% for entry in recentActions %}
+                    <tr>
+                        <td class="small muted num">{{ entry.createdAt|date('Y-m-d H:i') }}</td>
+                        <td class="small">{{ entry.extension.packageName }}</td>
+                        <td class="small">{{ entry.action.value|replace({'_': ' '}) }}</td>
+                        <td class="small muted">{{ entry.actorLabel }}</td>
+                        <td class="small muted">{{ entry.reason }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -569,6 +569,27 @@ class Extension
         $this->delistReason = $reason;
     }
 
+    /**
+     * Undoes a delisting.
+     *
+     * Delisting existed without this for longer than it should have, which meant a
+     * removal made in error — a complaint that turned out to be unfounded, a
+     * maintainer who changed their mind, a wrong slug clicked in a hurry — had no
+     * remedy short of editing the database by hand. An irreversible destructive
+     * action is a worse problem than the mistake it was meant to prevent.
+     *
+     * The delist reason is cleared rather than kept: it described a state the
+     * extension is no longer in, and leaving it behind would show a stale
+     * explanation on a listed entry. The history is not lost, because every
+     * delisting and every relisting is written to the moderation log with its own
+     * reason and actor.
+     */
+    public function relist(): void
+    {
+        $this->indexStatus = IndexStatus::Listed;
+        $this->delistReason = null;
+    }
+
     public function getFirstSeenAt(): \DateTimeImmutable
     {
         return $this->firstSeenAt;

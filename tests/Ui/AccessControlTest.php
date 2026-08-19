@@ -71,6 +71,46 @@ final class AccessControlTest extends WebTestCase
     }
 
     /**
+     * Moderation is set by hand in the database and no amount of GitHub standing
+     * grants it. Ownership verification must not become a route into it: a verified
+     * maintainer can act on their own extension and nothing else.
+     */
+    public function testTheModerationQueueIsNotReachableWithoutTheRole(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/moderate');
+
+        self::assertContains(
+            $client->getResponse()->getStatusCode(),
+            [302, 401, 403],
+            'the moderation queue must not be readable anonymously',
+        );
+    }
+
+    /**
+     * Reporting is deliberately open. A rights holder is a lawyer or a brand owner,
+     * not a GitHub user, and a login wall in front of a complaint form looks like
+     * evasion of the takedown policy.
+     */
+    public function testReportingNeedsNoAccount(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/report/does-not-exist');
+
+        // 404 because the extension does not exist, not 401/403 — the route itself
+        // is public.
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testModerationActionsCannotHappenOverGet(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/moderate/some-extension/delist');
+
+        self::assertContains($client->getResponse()->getStatusCode(), [302, 401, 403, 405]);
+    }
+
+    /**
      * Delisting is the destructive action in this application, so it is POST-only
      * and CSRF-protected. A GET that removes an extension would be triggerable by
      * a link in an email.

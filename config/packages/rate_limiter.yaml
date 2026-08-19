@@ -21,6 +21,15 @@ framework:
             limit: 10
             interval: '1 hour'
 
+        # The report form writes to the database without an account, so it needs a
+        # ceiling or the moderation queue becomes the attack surface. Ten an hour is
+        # far above a genuine rights holder reporting several extensions in one
+        # sitting, and far below anything that could bury the queue.
+        complaint:
+            policy: 'fixed_window'
+            limit: 10
+            interval: '1 hour'
+
 # Tests would exhaust the real budget within one test class, turning an unrelated
 # assertion into a 429. The limiter still runs — only the ceiling moves — so the
 # 429 path stays testable by exhausting it deliberately, which the rate-limit test
@@ -33,6 +42,10 @@ when@test:
                 limit: 50
                 interval: '1 hour'
             ownership_proof:
+                policy: 'fixed_window'
+                limit: 50
+                interval: '1 hour'
+            complaint:
                 policy: 'fixed_window'
                 limit: 50
                 interval: '1 hour'

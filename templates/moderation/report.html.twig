@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Report {{ extension.label }} — extdir{% endblock %}
+{% block canonical %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+
+{% block body %}
+<div class="wrap page page--narrow">
+    <div class="page-head">
+        <p class="eyebrow">Report a problem</p>
+        <h1>{{ extension.label }}</h1>
+        <p class="code-inline">{{ extension.packageName }}</p>
+    </div>
+
+    <div class="prose">
+        {# No account required, deliberately. A rights holder is a lawyer or a brand
+           owner, not a GitHub user, and asking them to sign in before they can object
+           would be a barrier exactly where a barrier looks like evasion. #}
+        <p class="lead">
+            No account needed. Rights and security reports are answered within seven days;
+            corrections are usually applied at the next crawl.
+        </p>
+
+        <form method="post" action="{{ path('complaint_submit', {slug: extension.slug}) }}" class="report-form">
+            <input type="hidden" name="_token" value="{{ csrf_token('report' ~ extension.slug) }}">
+
+            <p>
+                <label class="label" for="kind">What is wrong</label>
+                <select class="select" id="kind" name="kind" required>
+                    {% for kind in kinds %}
+                        <option value="{{ kind.value }}">{{ kind.label }}{{ kind.isUrgent ? ' — answered within 7 days' : '' }}</option>
+                    {% endfor %}
+                </select>
+            </p>
+
+            <p>
+                <label class="label" for="reporter">How to reach you</label>
+                <input class="input" id="reporter" name="reporter" required maxlength="255"
+                       placeholder="Email, or a firm and case reference">
+                <span class="small subtle">Stored only to answer this report. Never published, never used for anything else.</span>
+            </p>
+
+            <p>
+                <label class="label" for="body">What is the problem</label>
+                <textarea class="input" id="body" name="body" rows="8" required
+                          placeholder="For a rights complaint, please identify the material and the right you hold."></textarea>
+            </p>
+
+            <p><button class="btn btn--primary" type="submit">Send report</button></p>
+        </form>
+
+        <h2>What happens next</h2>
+        <p class="small">
+            Reports are read by a person, and every removal or refusal is recorded with a
+            reason. If you would rather write directly, <a href="mailto:legal@extdir.com">legal@extdir.com</a>
+            reaches the same place. The full procedure is in the
+            <a href="{{ path('takedown') }}">takedown policy</a>.
+        </p>
+        <p class="small subtle">
+            Maintainers: if this is your extension, you can
+            <a href="{{ path('extension_detail', {slug: extension.slug}) }}">verify ownership</a>
+            and remove it yourself, without waiting on anyone.
+        </p>
+    </div>
+</div>
+{% endblock %}
