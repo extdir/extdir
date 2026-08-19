@@ -189,6 +189,11 @@
                 </p>
             </section>
 
+            {# After compatibility, before releases. What a plugin looks like is a
+               real question, but it is not the question this directory exists to
+               answer — the version matrix stays first. #}
+            {{ include('catalog/_gallery.html.twig') }}
+
             {% if releases|length %}
             <section class="panel">
                 <h2>Releases</h2>

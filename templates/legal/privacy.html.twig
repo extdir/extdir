@@ -33,14 +33,20 @@
             werden müsste, um diese Seite zu nutzen.
         </p>
 
-        <h3>Erweiterungs-Symbole (opt-in)</h3>
+        <h3>Bilder von Erweiterungen (opt-in)</h3>
         <p>
             Jede Erweiterung wird standardmäßig mit einem <strong>lokal erzeugten Kürzel</strong>
             dargestellt; dabei wird nichts nachgeladen. Sie können im Fußbereich
-            <em>„Show icons“</em> wählen, um stattdessen die echten Symbole aus dem jeweiligen
-            Quell-Repository anzuzeigen — je nach Erweiterung etwa von
-            <code>raw.githubusercontent.com</code>, <code>gitlab.com</code>,
+            <em>„Show images“</em> wählen, um stattdessen die echten Symbole sowie — sofern
+            vorhanden — die Screenshots aus dem jeweiligen Quell-Repository anzuzeigen. Je nach
+            Erweiterung etwa von <code>raw.githubusercontent.com</code>, <code>gitlab.com</code>,
             <code>bitbucket.org</code> oder einer selbst betriebenen Instanz.
+        </p>
+        <p>
+            Ausschließlich von dort: Bilder, die eine Erweiterung in ihrer README von anderen
+            Diensten einbindet — etwa imgur, giphy, Cloudinary oder dem eigenen Webserver des
+            Herstellers — werden bewusst <strong>nicht</strong> geladen. Ihre Einwilligung gilt
+            dem Quell-Repository, nicht beliebigen Dritten.
         </p>
         <p>
             Erst ab diesem Zeitpunkt erhält der jeweilige Anbieter beim Laden eines Symbols
@@ -53,7 +59,7 @@
             Ihres Browsers gespeichert, damit Sie nicht auf jeder Seite erneut gefragt werden.
             Rechtsgrundlage für das Nachladen ist Ihre Einwilligung nach Art. 6 Abs. 1 lit. a
             DSGVO und § 25 Abs. 1 TTDSG. Sie können sie jederzeit mit einem Klick widerrufen:
-            im Fußbereich steht dann <em>„Stop loading icons“</em>, und danach wird wieder nichts
+            im Fußbereich steht dann <em>„Stop loading images“</em>, und danach wird wieder nichts
             nachgeladen. Ohne Einwilligung ist die Seite vollständig nutzbar — es fehlen lediglich
             die Herstellersymbole.
         </p>
@@ -257,14 +263,20 @@
             passed over. Choosing <em>Auto</em> deletes it again.
         </p>
         <p>
-            Extension icons are the one place this site can make a third-party request, and it does
-            not do so unless you ask. By default each extension shows a mark generated here from its
-            package name. Choosing <em>Show icons</em> in the footer loads the real icons from
-            wherever the extension is hosted — raw.githubusercontent.com, gitlab.com, bitbucket.org
-            or somebody's own server — and from that point those hosts can see your IP address,
-            browser and the page you are on. Your choice is remembered under
-            <code>extdir-remote-media</code>, and the same footer control takes it back again.
-            Everything on the site works without it.
+            Extension icons and screenshots are the one place this site can make a third-party
+            request, and it does not do so unless you ask. By default each extension shows a mark
+            generated here from its package name, and no screenshots at all. Choosing
+            <em>Show images</em> in the footer loads the real ones from wherever the extension is
+            hosted — raw.githubusercontent.com, gitlab.com, bitbucket.org or somebody's own
+            instance — and from that point those hosts can see your IP address, browser and the
+            page you are on. Your choice is remembered under <code>extdir-remote-media</code>, and
+            the same footer control takes it back again. Everything on the site works without it.
+        </p>
+        <p>
+            That permission covers the extension's own forge and nothing else. Where a README
+            embeds pictures from imgur, giphy, Cloudinary or a vendor's own web server, those are
+            dropped when the catalogue is built rather than loaded — saying yes to the forge is not
+            saying yes to whoever else a maintainer happened to link.
         </p>
         <p>
             The hosting provider records standard server logs (IP address, timestamp, requested URL,

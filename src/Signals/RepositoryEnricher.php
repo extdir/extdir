@@ -8,6 +8,8 @@ use App\Catalog\Entity\Extension;
 use App\Ingestion\GitHub\GitHubClient;
 use App\License\LicenseResolver;
 use App\Signals\Entity\RepositorySnapshot;
+use App\Signals\Gallery\ForgeHosts;
+use App\Signals\Gallery\GalleryExtractor;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -31,6 +33,7 @@ final class RepositoryEnricher
 
     public function __construct(
         private readonly GitHubClient $github,
+        private readonly GalleryExtractor $gallery,
         private readonly LicenseResolver $licenses,
         private readonly EntityManagerInterface $em,
     ) {
@@ -150,6 +153,17 @@ final class RepositoryEnricher
             }
             openIssues: issues(states: OPEN) { totalCount }
             closedIssues: issues(states: CLOSED) { totalCount }
+
+            # Screenshots. Both sources ride along on the query that was already
+            # being made, so the gallery costs no extra requests and no extra
+            # rate-limit budget — which is the only reason it is worth collecting
+            # for a feature that ends up populated for a minority of extensions.
+            storeImages: object(expression: "HEAD:src/Resources/store/images") {
+                ... on Tree { entries { name type } }
+            }
+            readme: object(expression: "HEAD:README.md") {
+                ... on Blob { text }
+            }
         }
         GRAPHQL;
 
@@ -186,6 +200,8 @@ final class RepositoryEnricher
         $extension->setPopularity($snapshot->getStars(), $snapshot->getForks());
         $extension->setDefaultBranch($snapshot->getDefaultBranch());
 
+        $this->applyGallery($extension, $repo);
+
         // GitHub runs licensee over the repository's licence file — the detector
         // The licence gate asks for, already paid for by this query. It was being
         // fetched and thrown away, which left 13 openly licensed extensions
@@ -196,6 +212,49 @@ final class RepositoryEnricher
             \is_string($licenseInfo['spdxId'] ?? null) ? $licenseInfo['spdxId'] : null,
             'licensee (via GitHub API)',
         );
+    }
+
+    /**
+     * Screenshots, from the store directory first and the README second.
+     *
+     * Deliberately after setDefaultBranch: a repository-relative path in a README
+     * only resolves once the branch is known, and the branch arrives in this same
+     * response.
+     *
+     * @param array<string, mixed> $repo
+     */
+    private function applyGallery(Extension $extension, array $repo): void
+    {
+        $rawBase = ForgeHosts::rawBase($extension);
+
+        if (null === $rawBase) {
+            return;
+        }
+
+        $storePaths = [];
+        $entries = $repo['storeImages']['entries'] ?? null;
+
+        if (\is_array($entries)) {
+            foreach ($entries as $entry) {
+                if (\is_array($entry) && 'blob' === ($entry['type'] ?? null) && \is_string($entry['name'] ?? null)) {
+                    $storePaths[] = 'src/Resources/store/images/'.$entry['name'];
+                }
+            }
+
+            // GitHub returns tree entries in repository order, which for `1.png`,
+            // `2.png` … `10.png` is not the order a person numbered them in.
+            natsort($storePaths);
+            $storePaths = array_values($storePaths);
+        }
+
+        $readme = \is_string($repo['readme']['text'] ?? null) ? $repo['readme']['text'] : null;
+
+        $extension->setGalleryImages($this->gallery->extract(
+            $readme,
+            $storePaths,
+            $rawBase,
+            ForgeHosts::for($extension),
+        ));
     }
 
     private static function intOf(mixed $value): int

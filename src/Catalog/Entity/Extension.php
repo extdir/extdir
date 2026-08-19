@@ -210,6 +210,22 @@ class Extension
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $iconVerifiedAt = null;
 
+    /**
+     * Screenshots, as URLs on the extension's own forge.
+     *
+     * Never fetched, resized or stored here — §4.3 prefers linking, and an extension's
+     * screenshots are the vendor's material rather than ours. The list is handed to
+     * the browser only after the reader allows remote media, exactly like the icon.
+     *
+     * Restricted at collection time to hosts the forge itself serves. Sampled READMEs
+     * link to imgur, giphy, cloudinary and vendors' own marketing servers; loading
+     * those would quietly widen consent given for "icons from their forges".
+     *
+     * @var list<string>
+     */
+    #[ORM\Column(type: Types::JSON)]
+    private array $galleryImages = [];
+
     /** Reason recorded when index status becomes Delisted. Required by the takedown policy. */
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $delistReason = null;
@@ -420,6 +436,25 @@ class Extension
     public function hasVerifiedIcon(): bool
     {
         return null !== $this->iconVerifiedAt;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getGalleryImages(): array
+    {
+        return $this->galleryImages;
+    }
+
+    /**
+     * array_values, not a plain assignment: a JSON column encodes a gapped array as
+     * an object rather than a list, and the template iterates it expecting a list.
+     *
+     * @param array<string> $galleryImages
+     */
+    public function setGalleryImages(array $galleryImages): void
+    {
+        $this->galleryImages = array_values($galleryImages);
     }
 
     public function getManufacturerLink(): ?string

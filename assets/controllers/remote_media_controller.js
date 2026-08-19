@@ -2,7 +2,8 @@
 import { Controller } from '@hotwired/stimulus';
 
 /*
- * Loads extension icons from their own forge, and only if the reader has said yes.
+ * Loads extension icons and screenshots from their own forge, and only if the reader
+ * has said yes.
  *
  * The site otherwise makes no third-party requests at all, and its privacy policy
  * says so. An icon hot-linked from GitHub would send every visitor's IP to GitHub on
@@ -19,7 +20,7 @@ import { Controller } from '@hotwired/stimulus';
  * would be, so anyone who does not care never sees it.
  */
 export default class extends Controller {
-    static targets = ['slot', 'status', 'enable', 'disable'];
+    static targets = ['slot', 'status', 'enable', 'disable', 'gallery'];
 
     static values = {
         key: { type: String, default: 'extdir-remote-media' },
@@ -46,7 +47,7 @@ export default class extends Controller {
         if (!this.allowed()) return;
 
         if (this.hasStatusTarget) {
-            this.statusTarget.textContent = 'Extension icons are loading from their forges.';
+            this.statusTarget.textContent = 'Extension icons and screenshots are loading from their forges.';
         }
         if (this.hasEnableTarget) this.enableTarget.hidden = true;
         if (this.hasDisableTarget) this.disableTarget.hidden = false;
@@ -69,6 +70,8 @@ export default class extends Controller {
     }
 
     reveal() {
+        this.galleryTargets.forEach((section) => { section.hidden = false; });
+
         this.slotTargets.forEach((slot) => {
             const url = slot.dataset.remoteMediaUrl;
             if (!url || slot.querySelector('img')) return;
@@ -78,14 +81,31 @@ export default class extends Controller {
             image.alt = '';
             image.loading = 'lazy';
             image.decoding = 'async';
-            image.className = 'ext-icon';
+            image.className = slot.dataset.remoteMediaClass ?? 'ext-icon';
 
-            // A missing or renamed file is ordinary in a decade-old corpus. Falling
-            // back to the generated monogram underneath beats a broken-image glyph.
-            image.addEventListener('error', () => image.remove());
+            // A missing or renamed file is ordinary in a decade-old corpus. An icon
+            // falls back to the monogram underneath; a screenshot has nothing behind
+            // it, so the whole thumbnail goes rather than leaving an empty frame.
+            image.addEventListener('error', () => {
+                image.remove();
+                slot.remove();
+                this.hideEmptyGalleries();
+            });
             image.addEventListener('load', () => slot.classList.add('has-image'));
 
             slot.appendChild(image);
+        });
+    }
+
+    /**
+     * A gallery whose every image 404ed is a heading over an empty strip. README
+     * links rot, so this is not hypothetical.
+     */
+    hideEmptyGalleries() {
+        this.galleryTargets.forEach((section) => {
+            if (0 === section.querySelectorAll('[data-remote-media-url]').length) {
+                section.hidden = true;
+            }
         });
     }
 

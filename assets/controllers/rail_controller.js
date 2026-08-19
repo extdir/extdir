@@ -53,7 +53,14 @@ export default class extends Controller {
         const track = this.trackTarget;
         // A pixel of tolerance: sub-pixel layout means scrollLeft rarely reaches the
         // exact maximum, which would leave the next arrow enabled at the end forever.
-        const atStart = track.scrollLeft <= 1;
+        //
+        // The start needs more than a pixel. The track carries left padding so focus
+        // rings are not clipped, and the first item's snap point sits after it — a
+        // rail scrolled fully left reports that padding, measured here as 4, never 0.
+        // Reading the computed value beats hardcoding it, since the padding comes
+        // from the spacing scale and moves with it.
+        const startInset = parseFloat(getComputedStyle(track).paddingLeft) || 0;
+        const atStart = track.scrollLeft <= startInset + 1;
         const atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 1;
         const overflows = track.scrollWidth > track.clientWidth + 1;
 

@@ -1,0 +1,52 @@
+{#
+    Screenshots of the extension, linked from the maintainer's own repository.
+
+    Never hosted here. §4.3 prefers linking to hosting, and screenshots are the
+    vendor's material rather than ours — a code licence covers the software, not the
+    marketing images, so copying them would be the one part of this needing
+    permission we do not have.
+
+    Every URL was restricted at collection time to a host the extension's own forge
+    serves. Sampled READMEs also link to imgur, giphy, cloudinary and vendors' own
+    marketing servers; those are dropped rather than quietly widening consent that
+    was given for "icons from their forges".
+
+    The section stays hidden until the reader allows remote media. Unlike an icon
+    there is nothing to fall back on — a gallery with nothing in it is not a gallery
+    — so it removes itself rather than showing grey rectangles to somebody who
+    declined.
+#}
+{% set images = extension_gallery(extension) %}
+{% if images|length %}
+    <section class="panel" data-remote-media-target="gallery" hidden aria-label="Screenshots">
+        <h2>Screenshots</h2>
+        <p class="subtle gallery-note">
+            Published by the maintainer in their own repository, and loaded directly from
+            {{ extension_icon_host(extension) ?? 'the source repository' }} — extdir neither
+            stores nor serves them.
+        </p>
+
+        <div class="rail" data-controller="rail">
+            <div class="rail-track gallery-track" data-rail-target="track" tabindex="0"
+                 role="group" aria-label="Screenshots of {{ extension.label }}">
+                {% for image in images %}
+                    {# Opens the full-size original on the forge rather than in a
+                       lightbox: the file is theirs and stays theirs, and a new tab
+                       puts where it came from in the address bar. #}
+                    <a class="shot" href="{{ image }}" target="_blank" rel="noopener noreferrer nofollow"
+                       data-remote-media-target="slot"
+                       data-remote-media-url="{{ image }}"
+                       data-remote-media-class="shot-img"
+                       aria-label="Screenshot {{ loop.index }} of {{ images|length }}, opens on {{ extension_icon_host(extension) ?? 'the source repository' }}">
+                        <span class="shot-index" aria-hidden="true">{{ loop.index }}</span>
+                    </a>
+                {% endfor %}
+            </div>
+
+            <button class="rail-nav rail-nav--prev" type="button" hidden
+                    data-rail-target="prev" data-action="rail#prev" aria-label="Scroll to previous screenshots">‹</button>
+            <button class="rail-nav rail-nav--next" type="button" hidden
+                    data-rail-target="next" data-action="rail#next" aria-label="Scroll to more screenshots">›</button>
+        </div>
+    </section>
+{% endif %}

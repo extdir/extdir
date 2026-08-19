@@ -1107,3 +1107,45 @@ table.data a:hover { text-decoration-thickness: 2px; }
 .alt-card .ext-icon-slot { width: 1.5rem; height: 1.5rem; }
 
 .remote-media-control { display: inline-flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; }
+
+/* ================================================================ SCREENSHOTS
+ *
+ * Thumbnails only, linked to the original on the forge. Fixed-height boxes with
+ * `contain` rather than `cover`: these are screenshots of an interface, and cropping
+ * one to fill a tile removes the part that shows what it does. */
+
+.gallery-note { margin-top: calc(var(--s-2) * -1); }
+
+.gallery-track { gap: var(--s-3); }
+
+.shot {
+    position: relative;
+    display: grid; place-items: center;
+    /* Width comes from the track's grid-auto-columns, like every other rail item;
+       only the height is set here, to hold a roughly 16:9 screenshot. */
+    height: 9.5rem;
+    scroll-snap-align: start;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    /* Same pale tile as the icons, for the same reason: a screenshot of a light
+       admin interface on a dark card reads as a hole in the page. */
+    background: #f4f5f7;
+    text-decoration: none;
+}
+.shot:hover { border-color: var(--accent); }
+.shot:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Visible only in the moment between the reader allowing images and the file
+   arriving, and again if one never does. */
+.shot-index {
+    font-size: 1.25rem; font-weight: 600;
+    color: var(--ink-subtle);
+}
+
+.shot-img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    background: #f4f5f7;
+}

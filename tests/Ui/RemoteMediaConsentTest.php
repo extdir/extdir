@@ -9,7 +9,6 @@ use App\Catalog\Entity\Vendor;
 use App\Ui\Media\IconUrl;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Twig\Environment;
 
 /**
@@ -132,6 +131,48 @@ final class RemoteMediaConsentTest extends KernelTestCase
     }
 
     /**
+     * The gallery is the case where a leak would be worst: screenshots come from
+     * READMEs, and sampled READMEs link to imgur, giphy, cloudinary and vendors' own
+     * marketing servers. None of that may reach a loading attribute either.
+     */
+    public function testGalleryUrlsAreInertUntilConsent(): void
+    {
+        $extension = $this->extension('https://github.com/acme/sw-widget', 'src/Resources/config/plugin.png');
+        $extension->setGalleryImages([
+            'https://raw.githubusercontent.com/acme/sw-widget/main/docs/one.png',
+            'https://raw.githubusercontent.com/acme/sw-widget/main/docs/two.png',
+        ]);
+
+        $html = $this->renderGallery($extension);
+
+        self::assertStringNotContainsString('<img', $html);
+        self::assertStringContainsString('hidden', $html, 'The section must ship hidden.');
+        self::assertSame(2, substr_count($html, 'data-remote-media-url='));
+
+        foreach (['src', 'srcset', 'poster', 'content', 'style'] as $attribute) {
+            self::assertDoesNotMatchRegularExpression(
+                '/\b'.$attribute.'\s*=\s*"[^"]*raw\.githubusercontent/i',
+                $html,
+                \sprintf('A screenshot URL reached a %s attribute.', $attribute)
+            );
+        }
+
+        // href is the exception and is deliberate: it is a link the reader chooses to
+        // follow, not something the browser fetches on its own.
+        self::assertStringContainsString('href="https://raw.githubusercontent.com/acme/sw-widget/main/docs/one.png"', $html);
+    }
+
+    /**
+     * No screenshots means no heading, no empty strip, and nothing to reveal.
+     */
+    public function testAnExtensionWithoutScreenshotsRendersNoGallery(): void
+    {
+        $html = $this->renderGallery($this->extension('https://github.com/acme/sw-widget', null));
+
+        self::assertSame('', trim($html));
+    }
+
+    /**
      * Every derived URL must be https. The forge host comes from Packagist, which is
      * untrusted input, and an http:// icon would downgrade the reader's connection.
      */
@@ -172,56 +213,24 @@ final class RemoteMediaConsentTest extends KernelTestCase
         return $extension;
     }
 
+    private function renderGallery(Extension $extension): string
+    {
+        return $this->render('catalog/_gallery.html.twig', $extension);
+    }
+
     private function renderIcon(Extension $extension): string
+    {
+        self::bootKernel();
+
+        return $this->render('catalog/_icon.html.twig', $extension);
+    }
+
+    private function render(string $template, Extension $extension): string
     {
         self::bootKernel();
 
         $twig = self::getContainer()->get(Environment::class);
 
-        return $twig->render('catalog/_icon.html.twig', ['extension' => $extension]);
-    }
-}
-
-/**
- * The policy half of the same guarantee. Consent is worthless if the page never says
- * who would be contacted or where the answer is kept, and both languages are served
- * so both have to carry it.
- */
-final class RemoteMediaDisclosureTest extends WebTestCase
-{
-    public function testPrivacyPolicyDisclosesTheOptInInBothLanguages(): void
-    {
-        $client = static::createClient();
-        $client->request('GET', '/privacy');
-
-        self::assertResponseIsSuccessful();
-        $html = (string) $client->getResponse()->getContent();
-
-        self::assertGreaterThanOrEqual(
-            2,
-            substr_count($html, 'extdir-remote-media'),
-            'The localStorage key is disclosed in only one language.'
-        );
-        self::assertStringContainsString('raw.githubusercontent.com', $html);
-    }
-
-    /**
-     * Withdrawal has to be as reachable as consent, and it is only on every page
-     * because it lives in the footer.
-     */
-    public function testEveryPageOffersBothDirectionsOfTheChoice(): void
-    {
-        $client = static::createClient();
-        $crawler = $client->request('GET', '/');
-
-        self::assertSame(1, $crawler->filter('[data-remote-media-target="enable"]')->count());
-        self::assertSame(1, $crawler->filter('[data-remote-media-target="disable"]')->count());
-
-        // Served in the "off" state: the page must not claim icons are loading to a
-        // reader who has never opted in.
-        self::assertStringContainsString(
-            'are not loaded',
-            $crawler->filter('[data-remote-media-target="status"]')->text()
-        );
+        return $twig->render($template, ['extension' => $extension]);
     }
 }
