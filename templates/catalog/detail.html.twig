@@ -342,16 +342,6 @@ bin/console plugin:install --activate {{ technicalName }}</pre>
                 </ul>
             </section>
 
-            {% if alternatives is not empty %}
-                <section class="panel">
-                    <h2>Instead of this</h2>
-                    {{ include('catalog/_alternatives.html.twig') }}
-                    <p class="small stack-sm">
-                        <a class="link-arrow" href="{{ path('alternatives', {slug: extension.slug}) }}">Compare all alternatives</a>
-                    </p>
-                </section>
-            {% endif %}
-
             {% if extension.categories|length %}
                 <section class="panel">
                     <h2>Categories</h2>
@@ -363,66 +353,82 @@ bin/console plugin:install --activate {{ technicalName }}</pre>
                 </section>
             {% endif %}
 
-            <section class="panel">
-                <h2>Do you maintain this?</h2>
-                {% if extension.sourceHost.value == 'github' %}
-                    <p class="small muted">
-                        Verify with GitHub and you can remove this entry yourself, without waiting on
-                        anyone. We check whether your account has write access to the repository — your
-                        access token is used for that one check and never stored.
-                    </p>
-                    <p class="small">
-                        <a class="link-arrow" href="{{ path('auth_github', {extension: extension.slug}) }}">Verify ownership</a>
-                    </p>
-                {% else %}
-                    {# Not on GitHub, so there is no API to ask about write access. The
-                       maintainer publishes a file only someone with write access could
-                       publish, and that stands in for the permission check. #}
-                    <p class="small muted">
-                        This repository is not on GitHub, so we cannot check write access through an
-                        API. Instead you publish a small file in the repository — something only
-                        someone with write access can do — and we fetch it once.
-                    </p>
-                    <p class="small">
-                        <a class="link-arrow" href="{{ path('ownership_verify_file', {slug: extension.slug}) }}">Verify with a file</a>
-                    </p>
-                    <p class="small subtle">
-                        You will be asked to sign in first, so the verification belongs to an account.
-                    </p>
-                {% endif %}
-                <p class="small subtle">
-                    Not the maintainer? A wrong category, an outdated description or a rights
-                    complaint can be
-                    <a href="{{ path('complaint_new', {slug: extension.slug}) }}">reported here</a> —
-                    no account needed. The <a href="{{ path('takedown') }}">takedown and correction
-                    policy</a> explains what happens next.
-                </p>
-            </section>
-
-            {# Offered to everyone rather than only to verified maintainers: the badge
-               states public facts, and gating it behind verification would mean
-               almost nobody ever uses it. #}
-            <section class="panel">
-                <h2>Badge for your README</h2>
-                <p>
-                    <img src="{{ path('badge', {slug: extension.slug}) }}" alt="Shopware compatibility for {{ extension.label }}" width="130" height="20">
-                </p>
-                <p class="small muted">Markdown:</p>
-                <div class="install-row">
-                    <pre class="code">[![Shopware]({{ url('badge', {slug: extension.slug}) }})]({{ url('extension_detail', {slug: extension.slug}) }})</pre>
-                    <button type="button" class="btn btn--sm copy-btn"
-                            data-controller="clipboard"
-                            data-action="clipboard#copy"
-                            data-clipboard-text="[![Shopware]({{ url('badge', {slug: extension.slug}) }})]({{ url('extension_detail', {slug: extension.slug}) }})"
-                            aria-label="Copy the badge markdown">
-                        <span data-copy-label>Copy</span>
-                    </button>
-                </div>
-                <p class="small subtle">
-                    Updates itself when the declared compatibility changes. Cached for an hour.
-                </p>
-            </section>
         </aside>
+    </div>
+
+    {# Moved out of the sidebar. Six panels beside three made that column run some
+       300px past the content next to it, and the alternatives in particular were
+       squeezed into a width that wrapped every reason onto two lines. Full width
+       they read as a list rather than as debris. #}
+    {% if alternatives is not empty %}
+        <section class="panel">
+            <h2>Instead of this</h2>
+            {{ include('catalog/_alternatives.html.twig') }}
+            <p class="small stack-sm">
+        <a class="link-arrow" href="{{ path('alternatives', {slug: extension.slug}) }}">Compare all alternatives</a>
+            </p>
+        </section>
+    {% endif %}
+
+    <div class="detail-actions">
+        <section class="panel">
+            <h2>Do you maintain this?</h2>
+            {% if extension.sourceHost.value == 'github' %}
+                <p class="small muted">
+                Verify with GitHub and you can remove this entry yourself, without waiting on
+                anyone. We check whether your account has write access to the repository — your
+                access token is used for that one check and never stored.
+                </p>
+                <p class="small">
+                <a class="link-arrow" href="{{ path('auth_github', {extension: extension.slug}) }}">Verify ownership</a>
+                </p>
+            {% else %}
+                {# Not on GitHub, so there is no API to ask about write access. The
+                   maintainer publishes a file only someone with write access could
+                   publish, and that stands in for the permission check. #}
+                <p class="small muted">
+                This repository is not on GitHub, so we cannot check write access through an
+                API. Instead you publish a small file in the repository — something only
+                someone with write access can do — and we fetch it once.
+                </p>
+                <p class="small">
+                <a class="link-arrow" href="{{ path('ownership_verify_file', {slug: extension.slug}) }}">Verify with a file</a>
+                </p>
+                <p class="small subtle">
+                You will be asked to sign in first, so the verification belongs to an account.
+                </p>
+            {% endif %}
+            <p class="small subtle">
+                Not the maintainer? A wrong category, an outdated description or a rights
+                complaint can be
+                <a href="{{ path('complaint_new', {slug: extension.slug}) }}">reported here</a> —
+                no account needed. The <a href="{{ path('takedown') }}">takedown and correction
+                policy</a> explains what happens next.
+            </p>
+        </section>
+        {# Offered to everyone rather than only to verified maintainers: the badge
+           states public facts, and gating it behind verification would mean
+           almost nobody ever uses it. #}
+        <section class="panel">
+            <h2>Badge for your README</h2>
+            <p>
+                <img src="{{ path('badge', {slug: extension.slug}) }}" alt="Shopware compatibility for {{ extension.label }}" width="130" height="20">
+            </p>
+            <p class="small muted">Markdown:</p>
+            <div class="install-row">
+                <pre class="code">[![Shopware]({{ url('badge', {slug: extension.slug}) }})]({{ url('extension_detail', {slug: extension.slug}) }})</pre>
+                <button type="button" class="btn btn--sm copy-btn"
+                    data-controller="clipboard"
+                    data-action="clipboard#copy"
+                    data-clipboard-text="[![Shopware]({{ url('badge', {slug: extension.slug}) }})]({{ url('extension_detail', {slug: extension.slug}) }})"
+                    aria-label="Copy the badge markdown">
+                <span data-copy-label>Copy</span>
+                </button>
+            </div>
+            <p class="small subtle">
+                Updates itself when the declared compatibility changes. Cached for an hour.
+            </p>
+        </section>
     </div>
 </div>
 {% endblock %}

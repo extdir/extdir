@@ -916,3 +916,43 @@ table.data td.num, table.data th.num { text-align: right; font-variant-numeric: 
    given is one nobody can check, which is the opposite of what this site argues. */
 .alt-why { margin: var(--s-1) 0 0; }
 .alt-meta { display: flex; align-items: center; gap: var(--s-2); white-space: nowrap; }
+
+/* ============================================================ DETAIL FOOTER
+
+   The maintainer and badge panels sit side by side under the grid rather than
+   stacked in the sidebar, where six panels against three ran the column far past
+   the content beside it. */
+.detail-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    gap: var(--s-4);
+    margin-top: var(--s-4);
+}
+
+/* Links inside panels, notices and tables.
+ *
+ * The reset sets `a { color: inherit }` and only .prose restyled it, so every link
+ * in a panel rendered as plain body text — "reported here" in the maintainer panel
+ * was indistinguishable from the sentence around it, and "How this score is
+ * calculated" looked like a caption. A link nobody can see is a link nobody clicks.
+ *
+ * Underlined as well as coloured, because colour alone is not a distinguishing mark
+ * for a reader who cannot see the difference. */
+.panel :where(p, li, dd) a:not(.btn):not(.chip):not(.link-arrow),
+.notice a:not(.btn),
+table.data a {
+    color: var(--signal-info);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.panel :where(p, li, dd) a:not(.btn):not(.chip):not(.link-arrow):hover,
+.notice a:not(.btn):hover,
+table.data a:hover { text-decoration-thickness: 2px; }
+
+/* Compact the alternatives now that they have room: the reason belongs on one line
+   beside the name rather than wrapped beneath it. */
+@media (min-width: 900px) {
+    .detail-alternatives .alt { align-items: baseline; }
+    .detail-alternatives .alt-main { display: flex; align-items: baseline; gap: var(--s-3); flex-wrap: wrap; flex: 1 1 auto; }
+    .detail-alternatives .alt-why { margin: 0; }
+}
