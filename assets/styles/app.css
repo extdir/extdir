@@ -956,3 +956,76 @@ table.data a:hover { text-decoration-thickness: 2px; }
     .detail-alternatives .alt-main { display: flex; align-items: baseline; gap: var(--s-3); flex-wrap: wrap; flex: 1 1 auto; }
     .detail-alternatives .alt-why { margin: 0; }
 }
+
+/* ============================================================ CARD RAIL
+ *
+ * A native scroll container with snap points, not a carousel. Everything is in the
+ * DOM and reachable by trackpad, shift+wheel, touch or tab; the arrows are an
+ * enhancement that hides itself when the rail already fits.
+ */
+
+.rail { position: relative; }
+
+.rail-track {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(15rem, 1fr);
+    gap: var(--s-3);
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    /* Room for the focus ring, which a plain overflow container clips. */
+    padding: var(--s-1) var(--s-1) var(--s-4);
+    margin: calc(-1 * var(--s-1));
+    scrollbar-width: thin;
+}
+@media (min-width: 900px) {
+    .rail-track { grid-auto-columns: minmax(17rem, 1fr); }
+}
+
+.alt-card {
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-2);
+    min-width: 0;
+    padding: var(--s-4);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+.alt-card:hover { border-color: var(--border-strong); }
+
+.alt-card-title { font-weight: 500; line-height: 1.3; }
+.alt-card-title:hover { color: var(--signal-info); }
+.alt-card-package {
+    font-family: var(--font-mono); font-size: var(--t-micro);
+    color: var(--ink-subtle); word-break: break-all;
+}
+.alt-card-versions { display: flex; flex-wrap: wrap; gap: var(--s-1); }
+.alt-card-why {
+    margin: 0; font-size: var(--t-micro); color: var(--ink-subtle);
+    /* The reason is context, not the headline — capped so one verbose entry cannot
+       make every card in the rail taller. */
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.alt-card-foot {
+    margin-top: auto; padding-top: var(--s-2);
+    display: flex; align-items: center; justify-content: space-between; gap: var(--s-2);
+}
+
+.rail-nav {
+    position: absolute; top: 38%;
+    width: 2rem; height: 2rem;
+    display: grid; place-items: center;
+    font: inherit; font-size: 1.25rem; line-height: 1; cursor: pointer;
+    background: var(--surface); color: var(--ink);
+    border: 1px solid var(--border-strong); border-radius: 999px;
+}
+.rail-nav:hover { background: var(--surface-sunk); }
+.rail-nav--prev { left: calc(-1 * var(--s-4)); }
+.rail-nav--next { right: calc(-1 * var(--s-4)); }
+@media (max-width: 700px) {
+    /* No room to sit outside the track, and a thumb does the job anyway. */
+    .rail-nav { display: none; }
+}

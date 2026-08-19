@@ -18,11 +18,14 @@ final readonly class Alternative
 {
     /**
      * @param list<string> $reasons
+     * @param list<string> $declaredVersions Shopware minors this alternative declares,
+     *                                       already computed during scoring
      */
     public function __construct(
         public Extension $extension,
         public float $score,
         public array $reasons,
+        public array $declaredVersions = [],
     ) {
     }
 }

@@ -91,7 +91,7 @@ final readonly class AlternativeFinder
                 continue;
             }
 
-            $scored[] = new Alternative($candidate, $score, $reasons);
+            $scored[] = new Alternative($candidate, $score, $reasons, $candidateVersions);
         }
 
         usort($scored, static fn (Alternative $a, Alternative $b): int => $b->score <=> $a->score);

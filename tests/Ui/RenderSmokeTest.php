@@ -164,6 +164,43 @@ final class RenderSmokeTest extends WebTestCase
         self::assertStringNotContainsString('fault on the server', $body);
     }
 
+    /**
+     * The rail must not be a carousel.
+     *
+     * Everything in it has to be in the DOM and reachable without JavaScript — a
+     * scroll container with snap points, not a widget that reveals cards on click.
+     * A carousel hiding two thirds of its contents is an annoyance on a shop and a
+     * real obstacle when somebody is choosing which payment plugin goes into
+     * production.
+     */
+    public function testTheAlternativesRailKeepsEveryCardInTheDocument(): void
+    {
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/');
+
+        $link = $crawler->filter('.row-title a')->first();
+
+        if (0 === $link->count()) {
+            self::markTestSkipped('No extensions in the test database.');
+        }
+
+        $detail = $client->click($link->link());
+        $rail = $detail->filter('.rail-track');
+
+        if (0 === $rail->count()) {
+            // Extensions with no categories or keywords have no alternatives, which
+            // is a legitimate state for 147 of them.
+            self::assertSame(0, $detail->filter('.alt-card')->count());
+
+            return;
+        }
+
+        // The arrows are an enhancement and start hidden; the cards are not.
+        self::assertGreaterThan(0, $detail->filter('.alt-card')->count());
+        self::assertSame(2, $detail->filter('.rail-nav[hidden]')->count());
+        self::assertNotNull($rail->attr('tabindex'), 'The scroll container must be focusable.');
+    }
+
     public function testAnUnknownPathRendersTheNotFoundPage(): void
     {
         $client = static::createClient(['debug' => false]);

@@ -363,7 +363,7 @@ bin/console plugin:install --activate {{ technicalName }}</pre>
     {% if alternatives is not empty %}
         <section class="panel">
             <h2>Instead of this</h2>
-            {{ include('catalog/_alternatives.html.twig') }}
+            {{ include('catalog/_alternatives_rail.html.twig') }}
             <p class="small stack-sm">
         <a class="link-arrow" href="{{ path('alternatives', {slug: extension.slug}) }}">Compare all alternatives</a>
             </p>

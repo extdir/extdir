@@ -67,7 +67,9 @@ final class CatalogController extends AbstractController
             'matrix' => $this->claims->findMatrixForExtension($extension),
             'releases' => $this->recentStableReleases($extension),
             'catalogueStatus' => $this->status->toArray(),
-            'alternatives' => $this->alternatives->forExtension($extension, 5),
+            // A rail costs no vertical space per card, so it can carry more than the
+            // five a stacked list could justify.
+            'alternatives' => $this->alternatives->forExtension($extension, 10),
         ]);
     }
 

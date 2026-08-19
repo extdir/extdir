@@ -1,0 +1,52 @@
+{#
+    Alternatives as a horizontal card rail — the cross-selling pattern Shopware's own
+    storefront uses, which this audience reads without being taught.
+
+    Deliberately a scroll-snap rail rather than a JavaScript carousel. Every card is
+    in the DOM and reachable: it scrolls with the trackpad, with shift+wheel, by
+    tabbing through the links, and by dragging on touch. Nothing is hidden behind a
+    control, nothing auto-advances, and it works with JavaScript disabled. The arrow
+    buttons are an enhancement on top, not the mechanism.
+
+    That matters more here than on a shop. A carousel that hides two thirds of its
+    contents is an annoyance when it is selling socks and a real obstacle when
+    somebody is deciding which payment plugin to put in production.
+#}
+<div class="rail" data-controller="rail">
+    <div class="rail-track" data-rail-target="track" tabindex="0" role="group" aria-label="Alternative extensions">
+        {% for alternative in alternatives %}
+            <article class="alt-card">
+                <a class="alt-card-title" href="{{ path('extension_detail', {slug: alternative.extension.slug}) }}">
+                    {{ alternative.extension.label }}
+                </a>
+                <span class="alt-card-package">{{ alternative.extension.packageName }}</span>
+
+                {% if alternative.declaredVersions %}
+                    <div class="alt-card-versions">
+                        {% for version in alternative.declaredVersions %}
+                            <span class="chip chip--version is-explicit">{{ version }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <p class="alt-card-why">{{ alternative.reasons|join(' · ') }}</p>
+
+                <div class="alt-card-foot">
+                    <span class="chip {{ alternative.extension.licenseStatus.value in ['unknown', 'rejected'] ? 'chip--risk' : '' }}">
+                        {{ alternative.extension.licenseSpdx ?? alternative.extension.licenseStatus.badgeLabel }}
+                    </span>
+                    {% if alternative.extension.lastCommitAt %}
+                        <span class="small muted num">{{ alternative.extension.lastCommitAt|ago }}</span>
+                    {% endif %}
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+
+    {# Hidden until the controller confirms the track actually overflows — arrows on a
+       rail that already fits are furniture that does nothing. #}
+    <button class="rail-nav rail-nav--prev" type="button" hidden
+            data-rail-target="prev" data-action="rail#prev" aria-label="Scroll to previous alternatives">‹</button>
+    <button class="rail-nav rail-nav--next" type="button" hidden
+            data-rail-target="next" data-action="rail#next" aria-label="Scroll to more alternatives">›</button>
+</div>
