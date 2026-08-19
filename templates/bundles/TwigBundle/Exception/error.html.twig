@@ -56,12 +56,24 @@
 <body>
 <main>
     <p class="code">{{ status_code }}</p>
-    <h1>Something went wrong at our end</h1>
-    <p>
-        This is a fault on the server, not anything you did. It has been logged and someone will
-        look at it.
-    </p>
-    <p>Nothing you submitted was lost, and no data was affected.</p>
+    {# Anything below 500 is a refusal or a bad request, not a fault. Claiming "this
+       has been logged and someone will look at it" for a 403 or a 429 invites a bug
+       report for an incident that never happened, and tells the visitor the one
+       thing that is certainly untrue: that it was not about them. #}
+    {% if status_code >= 500 %}
+        <h1>Something went wrong at our end</h1>
+        <p>
+            This is a fault on the server, not anything you did. It has been logged and someone
+            will look at it.
+        </p>
+        <p>Nothing you submitted was lost, and no data was affected.</p>
+    {% else %}
+        <h1>That request was refused</h1>
+        <p>
+            The address may need a permission you do not have, or the request was not one this
+            page accepts.
+        </p>
+    {% endif %}
     <a href="/">Back to the directory</a>
 </main>
 </body>

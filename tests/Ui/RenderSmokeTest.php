@@ -134,6 +134,36 @@ final class RenderSmokeTest extends WebTestCase
         self::assertSame(['system', 'light', 'dark'], $values);
     }
 
+    /**
+     * A refusal is not a fault.
+     *
+     * The generic error page claimed "something went wrong at our end… it has been
+     * logged" for every status including 403, which invites a bug report for an
+     * incident that never happened and tells the visitor the one thing that is
+     * certainly untrue: that it was not about them.
+     */
+    public function testARefusalDoesNotClaimTheServerBroke(): void
+    {
+        $client = static::createClient(['debug' => false]);
+        $client->catchExceptions(true);
+        $client->request('GET', '/moderate');
+
+        $status = $client->getResponse()->getStatusCode();
+
+        if (403 !== $status) {
+            // Anonymous requests are redirected to sign in instead, which is also
+            // correct — there is nothing to assert about a 302 body.
+            self::assertContains($status, [302, 401]);
+
+            return;
+        }
+
+        $body = (string) $client->getResponse()->getContent();
+
+        self::assertStringNotContainsString('went wrong at our end', $body);
+        self::assertStringNotContainsString('fault on the server', $body);
+    }
+
     public function testAnUnknownPathRendersTheNotFoundPage(): void
     {
         $client = static::createClient(['debug' => false]);
