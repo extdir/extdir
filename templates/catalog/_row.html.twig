@@ -60,9 +60,11 @@
         {% set licence = extension.licenseStatus %}
         <span class="chip {{ licence.value == 'unknown' or licence.value == 'rejected' ? 'chip--risk' : '' }}"
               title="{{ licence.value == 'unknown'
-                  ? 'No licence detected. Public code is not the same as open source, so this is indexed and linked only.'
+                  ? 'No licence file or declaration found. Public code is not the same as open source, so this is indexed and linked only.'
                   : (licence.value == 'rejected'
-                      ? 'The declared licence is not an accepted open-source licence.'
+                      ? (extension.declaredLicenseRaw
+                          ? 'Declares "' ~ extension.declaredLicenseRaw ~ '" in composer.json, which is not an accepted open-source licence. Indexed and linked only.'
+                          : 'The declared licence is not an accepted open-source licence. Indexed and linked only.')
                       : 'Detected from composer.json, verified against the repository.') }}">
             {{ extension.licenseSpdx ?? licence.badgeLabel }}
         </span>

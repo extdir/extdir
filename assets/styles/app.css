@@ -66,11 +66,19 @@
     --canvas: #fcfcfb;
     /* Gradient stops, bounded by contrast rather than by taste. Text sits on this
        field, so the extreme of each wash is the darkest (light) or lightest (dark)
-       background any text will ever meet. Measured: at these values --ink-subtle
-       holds 4.68:1 in light and 4.54:1 in dark. One step further in either direction
-       drops below 4.5:1, which is why they are not more assertive. */
-    --wash-a: #eef2f9;
-    --wash-b: #f8f1ec;
+       background any text will ever meet.
+
+       The first version of these was bounded so tightly by that rule that the dark
+       wash was a luminance delta of 0.0034 against the canvas -- present in the
+       stylesheet, invisible on a screen. The constraint had optimised the feature
+       away. The fix was to buy headroom in --ink-subtle rather than to keep
+       shrinking the gradient: darker in light, brighter in dark, which leaves room
+       for a wash roughly five times stronger and still clears 4.5:1 everywhere.
+
+       Measured at these values: --ink-subtle holds 5.16:1 on the light cool wash
+       and 5.38:1 on the dark blue wash, its two worst cases. */
+    --wash-a: #e4ecf8;
+    --wash-b: #fbeadb;
     --surface: #ffffff;
     --surface-sunk: #f4f4f2;
     --surface-raised: #ffffff;
@@ -79,7 +87,7 @@
 
     --ink: #16161a;
     --ink-muted: #56565e;
-    --ink-subtle: #6e6e75;
+    --ink-subtle: #616168;
 
     /* --- signals -------------------------------------------------------
        The only colours in the system. Each one answers a question the
@@ -143,8 +151,8 @@
    subtly wrong in one path is worse than no theme at all. */
 :root {
     --dark-canvas: #0d0d0f;
-    --dark-wash-a: #12151c;
-    --dark-wash-b: #17141c;
+    --dark-wash-a: #20263a;
+    --dark-wash-b: #261d38;
     --dark-surface: #151517;
     --dark-surface-sunk: #101012;
     --dark-surface-raised: #1c1c1f;
@@ -152,7 +160,7 @@
     --dark-border-strong: #3d3d43;
     --dark-ink: #f2f2f3;
     --dark-ink-muted: #a2a2ab;
-    --dark-ink-subtle: #7e7e88;
+    --dark-ink-subtle: #9a9aa4;
     --dark-signal-ok: #4ade80;
     --dark-signal-ok-bg: #0e2318;
     --dark-signal-caution: #e3b341;
@@ -244,8 +252,8 @@ body::before {
     z-index: -1;
     pointer-events: none;
     background:
-        radial-gradient(120% 85% at 12% -10%, var(--wash-a) 0%, transparent 58%),
-        radial-gradient(100% 70% at 88% -5%, var(--wash-b) 0%, transparent 52%),
+        radial-gradient(130% 95% at 8% -15%, var(--wash-a) 0%, transparent 62%),
+        radial-gradient(115% 80% at 92% -8%, var(--wash-b) 0%, transparent 58%),
         var(--canvas);
 }
 
@@ -530,13 +538,17 @@ p:last-child { margin-bottom: 0; }
 
 .rows {
     --cols: minmax(0, 1fr) 13rem 7rem 4.5rem 2.25rem;
-    border-top: 1px solid var(--border);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
 }
 
 .rows-head {
     display: grid; grid-template-columns: var(--cols); gap: var(--s-4);
     padding: var(--s-2) var(--s-3);
     border-bottom: 1px solid var(--border-strong);
+    background: var(--surface-sunk);
     font-size: var(--t-micro); text-transform: uppercase; letter-spacing: 0.09em;
     color: var(--ink-subtle); font-weight: 500;
 }
@@ -548,7 +560,7 @@ p:last-child { margin-bottom: 0; }
     padding: var(--s-3);
     border-bottom: 1px solid var(--border);
 }
-.row:hover { background: var(--surface); }
+.row:hover { background: var(--surface-sunk); }
 /* Keyboard navigation needs a visible cursor that is not the focus ring, because the
    row itself is not focused — the reader is moving a selection through a list. */
 .row.is-selected { background: var(--signal-info-bg); box-shadow: inset 2px 0 0 var(--signal-info); }

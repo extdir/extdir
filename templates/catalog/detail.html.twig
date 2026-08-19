@@ -58,9 +58,17 @@
                         {{ extension.licenseSpdx ?? licence.badgeLabel }}
                     </span>
                 </div>
+                {# Naming the declared value where the verdict is negative. A reader
+                   who sees a repository advertising a "Free license" and a badge
+                   saying "not open source" cannot otherwise tell whether the index
+                   is wrong or the word "free" means price rather than freedom. The
+                   raw string settles it, and puts the disagreement where the
+                   maintainer can see it. #}
                 <span class="spec-note">
                     {%- if licence.value == 'unknown' -%}
-                        not redistributable — indexed and linked only
+                        no licence file or declaration found — not redistributable
+                    {%- elseif licence.value == 'rejected' and extension.declaredLicenseRaw -%}
+                        declared <code>{{ extension.declaredLicenseRaw }}</code> in composer.json
                     {%- elseif extension.licenseEvidence.value == 'detector' -%}
                         detected from the LICENSE file
                     {%- else -%}

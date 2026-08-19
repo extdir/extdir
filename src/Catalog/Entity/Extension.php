@@ -438,6 +438,32 @@ class Extension
         return $this->licenseEvidence;
     }
 
+    /**
+     * The licence string the maintainer actually wrote, before any interpretation.
+     *
+     * Shown wherever the conclusion is "not open source", because that verdict is
+     * otherwise unfalsifiable from the page. A reader who sees a repository
+     * advertising a "Free license" and a badge saying the opposite has no way to
+     * tell whether the index is wrong or the word "free" means price rather than
+     * freedom — and the answer is sitting in a column nobody displays.
+     *
+     * Naming the raw value turns an accusation into a citation. It also puts the
+     * disagreement where the maintainer can see it, which is the only way a wrong
+     * classification ever gets reported.
+     */
+    public function getDeclaredLicenseRaw(): ?string
+    {
+        foreach ($this->licenseFindings as $finding) {
+            $raw = $finding->getRawValue();
+
+            if (FindingSource::ComposerJson === $finding->getSource() && \is_string($raw) && '' !== trim($raw)) {
+                return trim($raw);
+            }
+        }
+
+        return null;
+    }
+
     public function getDiscoverySource(): DiscoverySource
     {
         return $this->discoverySource;
