@@ -30,6 +30,34 @@
     <link rel="canonical" href="{{ url('home', criteria.toCanonicalParameters) }}">
 {% endblock %}
 
+{% block og_title %}
+    {%- if criteria.shopwareVersion -%}
+        Shopware {{ criteria.shopwareVersion }} extensions
+    {%- else -%}
+        Open-source Shopware 6 extensions
+    {%- endif -%}
+{% endblock %}
+{% block og_description %}{{ result.total }} open-source Shopware 6 extensions, with the versions each declares support for and when the code was last touched.{% endblock %}
+
+{% block structured_data %}
+    {{ parent() }}
+    {# The results as an ItemList. Only what is on this page — describing 423 items
+       on a page showing 24 would be a misrepresentation, and the position numbers
+       account for pagination so page two does not claim to start at one. #}
+    <script type="application/ld+json">{{ {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        'name': 'Open-source Shopware 6 extensions',
+        'numberOfItems': result.total,
+        'itemListElement': result.extensions|map((extension, i) => {
+            '@type': 'ListItem',
+            'position': ((criteria.page - 1) * 24) + i + 1,
+            'name': extension.label,
+            'url': url('extension_detail', {slug: extension.slug})
+        })
+    }|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE'))|raw }}</script>
+{% endblock %}
+
 {% block body %}
 <div class="wrap page">
 

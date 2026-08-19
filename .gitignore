@@ -1,35 +1,32 @@
 
-###> symfony/framework-bundle ###
+/assets/vendor/
+/config/secrets/dev/dev.decrypt.private.php
+/config/secrets/prod/prod.decrypt.private.php
+/.env.*.local
 /.env.local
 /.env.local.php
-/.env.*.local
-/config/secrets/prod/prod.decrypt.private.php
-# Symfony's recipe commits the dev decrypt key, on the assumption that dev
-# secrets are throwaway values. That assumption does not hold here: this
-# repository is public (the open-source commitment) and the dev vault can end up holding a
-# real GitHub App private key. Committing the key next to the ciphertext it
+###< friendsofphp/php-cs-fixer ###
+###> friendsofphp/php-cs-fixer ###
 # opens would publish the secret itself.
-/config/secrets/dev/dev.decrypt.private.php
-/public/bundles/
-/var/
-/vendor/
-###< symfony/framework-bundle ###
-
-###> phpstan/phpstan ###
+/.php-cs-fixer.cache
+/.php-cs-fixer.php
 phpstan.neon
 ###< phpstan/phpstan ###
-
-###> friendsofphp/php-cs-fixer ###
-/.php-cs-fixer.php
-/.php-cs-fixer.cache
-###< friendsofphp/php-cs-fixer ###
-
-###> phpunit/phpunit ###
-/phpunit.xml
+###> phpstan/phpstan ###
 /.phpunit.cache/
 ###< phpunit/phpunit ###
-
-###> symfony/asset-mapper ###
+###> phpunit/phpunit ###
+/phpunit.xml
 /public/assets/
-/assets/vendor/
+/public/bundles/
+# real GitHub App private key. Committing the key next to the ciphertext it
+# repository is public (the open-source commitment) and the dev vault can end up holding a
+# secrets are throwaway values. That assumption does not hold here: this
 ###< symfony/asset-mapper ###
+###> symfony/asset-mapper ###
+###< symfony/framework-bundle ###
+###> symfony/framework-bundle ###
+# Symfony's recipe commits the dev decrypt key, on the assumption that dev
+/var/
+var/og/
+/vendor/
