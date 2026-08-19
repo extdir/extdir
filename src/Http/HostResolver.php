@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Submission\ProofFile;
+namespace App\Http;
 
 /**
  * Turns a hostname into the addresses it currently answers with.

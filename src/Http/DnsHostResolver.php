@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Submission\ProofFile;
+namespace App\Http;
 
 /**
  * The real resolver, asking the system for A and AAAA records.

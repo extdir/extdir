@@ -7,6 +7,7 @@ namespace App\Signals\Command;
 use App\Catalog\Enum\SourceHost;
 use App\Catalog\Repository\ExtensionRepository;
 use App\Ingestion\GitHub\GitHubClient;
+use App\Signals\ForgeEnricher;
 use App\Signals\RepositoryEnricher;
 use App\Signals\SignalsRecomputer;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -32,6 +33,7 @@ final class EnrichCommand extends Command
     public function __construct(
         private readonly ExtensionRepository $extensions,
         private readonly RepositoryEnricher $enricher,
+        private readonly ForgeEnricher $forges,
         private readonly SignalsRecomputer $recomputer,
         private readonly GitHubClient $github,
     ) {
@@ -74,6 +76,30 @@ final class EnrichCommand extends Command
                 ' %d enriched, %d skipped (no parsable GitHub URL).',
                 $result['enriched'],
                 $result['skipped'],
+            ));
+
+            // The other 42. Bitbucket, GitLab, Gitea and a couple of self-hosted
+            // instances have no shared API and no token, but each publishes enough
+            // over a public endpoint to answer "has anyone touched this recently",
+            // which is the question the maintenance status asks.
+            $io->section('Fetching repository signals from other forges');
+
+            $others = array_values(array_filter(
+                $this->extensions->findBy([]),
+                static fn ($e): bool => SourceHost::GitHub !== $e->getSourceHost(),
+            ));
+
+            if (\is_string($limit) && ctype_digit($limit)) {
+                $others = \array_slice($others, 0, (int) $limit);
+            }
+
+            $forgeResult = $this->forges->enrich($others);
+
+            $io->writeln(\sprintf(
+                ' %d enriched, %d unreachable (private, deleted or the instance is down), %d on a forge with no client.',
+                $forgeResult['enriched'],
+                $forgeResult['unreachable'],
+                $forgeResult['unsupported'],
             ));
         }
 

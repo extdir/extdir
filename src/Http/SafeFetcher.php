@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Submission\ProofFile;
+namespace App\Http;
 
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpExceptionInterface;

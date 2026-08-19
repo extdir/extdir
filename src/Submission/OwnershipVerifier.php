@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Submission;
 
 use App\Catalog\Entity\Extension;
+use App\Http\SafeFetcher;
 use App\Signals\RepositoryEnricher;
 use App\Submission\Entity\ModerationAction;
 use App\Submission\Entity\OwnershipClaim;
@@ -13,7 +14,6 @@ use App\Submission\Enum\ModerationActionType;
 use App\Submission\Enum\VerificationMethod;
 use App\Submission\ProofFile\ProofToken;
 use App\Submission\ProofFile\RawFileUrls;
-use App\Submission\ProofFile\SafeFetcher;
 use App\Submission\Repository\OwnershipClaimRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpExceptionInterface;

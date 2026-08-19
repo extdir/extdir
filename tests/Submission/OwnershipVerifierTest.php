@@ -6,12 +6,12 @@ namespace App\Tests\Submission;
 
 use App\Catalog\Entity\Extension;
 use App\Catalog\Entity\Vendor;
+use App\Http\DnsHostResolver;
+use App\Http\SafeFetcher;
 use App\Submission\Entity\User;
 use App\Submission\OwnershipVerifier;
-use App\Submission\ProofFile\DnsHostResolver;
 use App\Submission\ProofFile\ProofToken;
 use App\Submission\ProofFile\RawFileUrls;
-use App\Submission\ProofFile\SafeFetcher;
 use App\Submission\Repository\OwnershipClaimRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\CoversClass;

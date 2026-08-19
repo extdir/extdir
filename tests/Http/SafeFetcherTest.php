@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Submission;
+namespace App\Tests\Http;
 
-use App\Submission\ProofFile\HostResolver;
-use App\Submission\ProofFile\SafeFetcher;
+use App\Http\HostResolver;
+use App\Http\SafeFetcher;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
