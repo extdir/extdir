@@ -896,3 +896,23 @@ table.data td.num, table.data th.num { text-align: right; font-variant-numeric: 
 .queue-actions { display: flex; gap: var(--s-4); flex-wrap: wrap; }
 .act-form { display: flex; gap: var(--s-2); align-items: center; flex: 1 1 22rem; }
 .act-form .input { flex: 1; min-width: 0; font-size: var(--t-small); padding: var(--s-2) var(--s-3); }
+
+/* ============================================================ ALTERNATIVES */
+
+.alt-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-3); }
+
+.alt {
+    display: flex; justify-content: space-between; gap: var(--s-4);
+    align-items: baseline; flex-wrap: wrap;
+    padding-bottom: var(--s-3);
+    border-bottom: 1px solid var(--border);
+}
+.alt:last-child { border-bottom: 0; padding-bottom: 0; }
+
+.alt-main { min-width: 0; flex: 1 1 16rem; }
+.alt-title { font-weight: 500; display: block; }
+.alt-title:hover { color: var(--signal-info); }
+/* The stated basis for the suggestion. A "similar extensions" list with no reason
+   given is one nobody can check, which is the opposite of what this site argues. */
+.alt-why { margin: var(--s-1) 0 0; }
+.alt-meta { display: flex; align-items: center; gap: var(--s-2); white-space: nowrap; }

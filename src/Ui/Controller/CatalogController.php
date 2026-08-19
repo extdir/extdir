@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Ui\Controller;
 
+use App\Catalog\Alternatives\AlternativeFinder;
 use App\Catalog\Entity\Extension;
 use App\Catalog\Repository\CategoryRepository;
 use App\Catalog\Repository\ExtensionRepository;
@@ -27,6 +28,7 @@ final class CatalogController extends AbstractController
         private readonly CategoryRepository $categories,
         private readonly CompatibilityClaimRepository $claims,
         private readonly CatalogueStatus $status,
+        private readonly AlternativeFinder $alternatives,
     ) {
     }
 
@@ -64,6 +66,32 @@ final class CatalogController extends AbstractController
             'shopwareVersions' => $this->shopwareVersions->findShownInMatrix(),
             'matrix' => $this->claims->findMatrixForExtension($extension),
             'releases' => $this->recentStableReleases($extension),
+            'catalogueStatus' => $this->status->toArray(),
+            'alternatives' => $this->alternatives->forExtension($extension, 5),
+        ]);
+    }
+
+    /**
+     * Alternatives as a page of their own.
+     *
+     * The detail page already shows a short list; this exists because "what else
+     * does this" is a question people arrive at from a search engine with, and it
+     * deserves a URL that answers it directly rather than an anchor two thirds of
+     * the way down another page.
+     */
+    #[Route('/alternatives/{slug}', name: 'alternatives', requirements: ['slug' => Requirement::CATCH_ALL], methods: ['GET'])]
+    public function alternatives(string $slug): Response
+    {
+        $extension = $this->extensions->findOneBySlug($slug);
+
+        if (null === $extension || !$extension->getIndexStatus()->isPubliclyVisible()) {
+            throw $this->createNotFoundException();
+        }
+
+        return $this->render('catalog/alternatives.html.twig', [
+            'extension' => $extension,
+            'alternatives' => $this->alternatives->forExtension($extension, 12),
+            'shopwareVersions' => $this->shopwareVersions->findShownInMatrix(),
             'catalogueStatus' => $this->status->toArray(),
         ]);
     }

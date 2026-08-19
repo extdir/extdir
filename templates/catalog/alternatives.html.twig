@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Alternatives to {{ extension.label }} — extdir{% endblock %}
+{% block meta_description %}Open-source Shopware 6 extensions that do what {{ extension.label }} does, with the Shopware versions each one declares and how recently it was touched.{% endblock %}
+
+{% block canonical %}
+    <link rel="canonical" href="{{ url('alternatives', {slug: extension.slug}) }}">
+{% endblock %}
+
+{% block og_title %}Alternatives to {{ extension.label }}{% endblock %}
+{% block og_description %}Open-source Shopware 6 extensions that do the same job, ranked by category, declared compatibility and maintenance.{% endblock %}
+{% block og_image %}{{ url('og_extension', {slug: extension.slug}) }}{% endblock %}
+
+{% block structured_data %}
+    {{ parent() }}
+    <script type="application/ld+json">{{ {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+            { '@type': 'ListItem', 'position': 1, 'name': 'Extensions', 'item': url('home') },
+            { '@type': 'ListItem', 'position': 2, 'name': extension.label, 'item': url('extension_detail', {slug: extension.slug}) },
+            { '@type': 'ListItem', 'position': 3, 'name': 'Alternatives', 'item': url('alternatives', {slug: extension.slug}) }
+        ]
+    }|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE'))|raw }}</script>
+{% endblock %}
+
+{% block body %}
+<div class="wrap page page--narrow">
+    <div class="page-head">
+        <p class="eyebrow">Alternatives</p>
+        <h1>Instead of {{ extension.label }}</h1>
+        <p>
+            Ranked by shared category, how much of the same Shopware compatibility they
+            declare, and whether anyone still maintains them. The
+            <a href="{{ path('ranking') }}">formula is public</a> and applies to every vendor.
+        </p>
+    </div>
+
+    {% if alternatives is empty %}
+        <div class="empty">
+            <p><strong>Nothing comparable found.</strong></p>
+            <p class="small">
+                {# Honest about the cause rather than implying the extension is unique.
+                   147 of the indexed extensions publish neither categories nor
+                   keywords in composer.json, which leaves nothing to match on. #}
+                This extension publishes no categories or keywords in its
+                <code>composer.json</code>, so there is nothing to compare it against.
+                That is a gap in the metadata rather than a statement about the extension.
+            </p>
+            <p><a class="link-arrow" href="{{ path('home') }}">Browse everything</a></p>
+        </div>
+    {% else %}
+        {{ include('catalog/_alternatives.html.twig') }}
+
+        <p class="small subtle page-note">
+            {# The licence rule, stated where it applies. #}
+            An extension you may not redistribute is never offered as a replacement for
+            one you may — so this list can be shorter than it looks like it should be.
+        </p>
+    {% endif %}
+
+    <p class="stack"><a class="link-arrow" href="{{ path('extension_detail', {slug: extension.slug}) }}">Back to {{ extension.label }}</a></p>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{#
+    Suggested alternatives, with the reason each one was suggested.
+
+    The reason is shown rather than implied. A list of "similar extensions" with no
+    stated basis is a list nobody can check, and this directory's whole argument is
+    that its claims are inspectable. Saying "same category, covers the same Shopware
+    versions" lets a reader disagree, which is the difference between a
+    recommendation and an assertion.
+#}
+<ul class="alt-list">
+    {% for alternative in alternatives %}
+        <li class="alt">
+            <div class="alt-main">
+                <a class="alt-title" href="{{ path('extension_detail', {slug: alternative.extension.slug}) }}">
+                    {{ alternative.extension.label }}
+                </a>
+                <span class="row-package">{{ alternative.extension.packageName }}</span>
+                {% if alternative.reasons %}
+                    <p class="alt-why small subtle">{{ alternative.reasons|join(' · ') }}</p>
+                {% endif %}
+            </div>
+
+            <div class="alt-meta">
+                <span class="chip {{ alternative.extension.licenseStatus.value in ['unknown', 'rejected'] ? 'chip--risk' : '' }}">
+                    {{ alternative.extension.licenseSpdx ?? alternative.extension.licenseStatus.badgeLabel }}
+                </span>
+                {% if alternative.extension.lastCommitAt %}
+                    <span class="small muted num">{{ alternative.extension.lastCommitAt|ago }}</span>
+                {% endif %}
+            </div>
+        </li>
+    {% endfor %}
+</ul>

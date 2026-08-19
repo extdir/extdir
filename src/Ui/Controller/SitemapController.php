@@ -96,6 +96,19 @@ final class SitemapController extends AbstractController
                 // ask a search engine to re-read the page.
                 'lastmod' => ($extension->getLastCommitAt() ?? $extension->getLastReleaseAt())?->format('Y-m-d'),
             ];
+
+            // The alternatives page answers "what else does this", which is a
+            // question people arrive with from a search engine. Listing it costs one
+            // line here and is the difference between the page existing and the page
+            // being found.
+            $urls[] = [
+                'loc' => $this->generateUrl(
+                    'alternatives',
+                    ['slug' => $extension->getSlug()],
+                    UrlGeneratorInterface::ABSOLUTE_URL,
+                ),
+                'lastmod' => ($extension->getLastCommitAt() ?? $extension->getLastReleaseAt())?->format('Y-m-d'),
+            ];
         }
 
         $response = $this->render('sitemap/sitemap.xml.twig', ['urls' => $urls]);
