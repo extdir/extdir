@@ -34,6 +34,13 @@ final readonly class ForgeSignals
         public ?int $stars,
         public ?int $forks,
         public bool $archived = false,
+        /**
+         * The default branch, used only to build raw-file URLs for icons.
+         *
+         * All three forges publish it, so there is no reason to guess `main` and be
+         * wrong for every repository still on `master`, `develop` or `trunk`.
+         */
+        public ?string $defaultBranch = null,
     ) {
     }
 }

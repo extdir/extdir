@@ -52,6 +52,7 @@ final readonly class GiteaClient implements ForgeClient
             stars: \is_int($data['stars_count'] ?? null) ? $data['stars_count'] : null,
             forks: \is_int($data['forks_count'] ?? null) ? $data['forks_count'] : null,
             archived: true === ($data['archived'] ?? false),
+            defaultBranch: \is_string($data['default_branch'] ?? null) ? $data['default_branch'] : null,
         );
     }
 }

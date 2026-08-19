@@ -69,6 +69,9 @@ final readonly class BitbucketClient implements ForgeClient
             // two different measurements, so it stays null.
             stars: null,
             forks: null,
+            // Bitbucket nests it, and calls it the main branch rather than the
+            // default branch.
+            defaultBranch: \is_string($data['mainbranch']['name'] ?? null) ? $data['mainbranch']['name'] : null,
         );
     }
 }

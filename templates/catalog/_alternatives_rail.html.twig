@@ -16,6 +16,7 @@
     <div class="rail-track" data-rail-target="track" tabindex="0" role="group" aria-label="Alternative extensions">
         {% for alternative in alternatives %}
             <article class="alt-card">
+                {{ include('catalog/_icon.html.twig', {extension: alternative.extension}) }}
                 <a class="alt-card-title" href="{{ path('extension_detail', {slug: alternative.extension.slug}) }}">
                     {{ alternative.extension.label }}
                 </a>

@@ -79,11 +79,13 @@ final readonly class ForgeEnricher
             $snapshot
                 ->setCounts($signals->stars ?? 0, $signals->forks ?? 0, 0, 0)
                 ->setLastCommitAt($signals->lastActivityAt)
+                ->setDefaultBranch($signals->defaultBranch)
                 ->setArchived($signals->archived);
 
             $this->em->persist($snapshot);
 
             $extension->setLastCommitAt($signals->lastActivityAt);
+            $extension->setDefaultBranch($signals->defaultBranch);
 
             // Only where the forge actually publishes the number. Bitbucket counts
             // watchers rather than stars, so leaving the existing value alone beats

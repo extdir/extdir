@@ -63,6 +63,7 @@ final readonly class GitLabClient implements ForgeClient
             stars: \is_int($data['star_count'] ?? null) ? $data['star_count'] : null,
             forks: \is_int($data['forks_count'] ?? null) ? $data['forks_count'] : null,
             archived: true === ($data['archived'] ?? false),
+            defaultBranch: \is_string($data['default_branch'] ?? null) ? $data['default_branch'] : null,
         );
     }
 }

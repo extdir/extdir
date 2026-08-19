@@ -53,26 +53,59 @@ final readonly class SafeFetcher
     }
 
     /**
+     * Whether the URL answers 200, without downloading what is behind it.
+     *
+     * Used to check that an extension's icon actually exists before its URL is
+     * offered to a reader's browser. Most icon paths in the catalogue are a
+     * convention (`src/Resources/config/plugin.png`) filled in when composer.json
+     * declares none, so roughly a third of them point at nothing — measured, not
+     * assumed. Publishing those unverified would make every reader who allows remote
+     * media issue a few hundred requests to GitHub that can only 404, which is the
+     * exact privacy cost they agreed to, spent on nothing.
+     *
+     * Runs from the nightly crawl, never from a request, so it is not an oracle —
+     * but it goes through the same guard as everything else here, because the host
+     * still comes from Packagist.
+     */
+    public function exists(string $url): bool
+    {
+        $target = $this->guard($url);
+
+        if (null === $target) {
+            return false;
+        }
+
+        [$host, $address] = $target;
+
+        try {
+            // HEAD, so a 3 MB logo behind a correct URL is never transferred.
+            $response = $this->http->request('HEAD', $url, [
+                'timeout' => 5,
+                'max_duration' => 10,
+                'max_redirects' => 0,
+                'resolve' => [$host => $address],
+            ]);
+
+            return 200 === $response->getStatusCode();
+        } catch (HttpExceptionInterface $e) {
+            $this->logger->debug('Icon check failed.', ['url' => $url, 'error' => $e->getMessage()]);
+
+            return false;
+        }
+    }
+
+    /**
      * @return string|null the body, capped, or null if the URL was refused or unreachable
      */
     public function fetch(string $url): ?string
     {
-        $parts = parse_url($url);
+        $target = $this->guard($url);
 
-        if (false === $parts || !isset($parts['scheme'], $parts['host'])) {
+        if (null === $target) {
             return null;
         }
 
-        if ('https' !== strtolower($parts['scheme'])) {
-            return null;
-        }
-
-        $host = $parts['host'];
-        $address = $this->resolveToPublicAddress($host);
-
-        if (null === $address) {
-            return null;
-        }
+        [$host, $address] = $target;
 
         try {
             $response = $this->http->request('GET', $url, [
@@ -123,6 +156,37 @@ final readonly class SafeFetcher
      * deliberate: a name answering with both a public and a private address is not a
      * configuration to be worked around, it is the shape of an attack.
      */
+    /**
+     * The checks every request through this class passes, in one place.
+     *
+     * Deliberately shared rather than repeated per method. Duplicated security logic
+     * is logic that drifts, and the copy nobody remembers to update is the one that
+     * lets a request out.
+     *
+     * @return array{0: string, 1: string}|null the host and the address it was pinned to
+     */
+    private function guard(string $url): ?array
+    {
+        $parts = parse_url($url);
+
+        if (false === $parts || !isset($parts['scheme'], $parts['host'])) {
+            return null;
+        }
+
+        if ('https' !== strtolower($parts['scheme'])) {
+            return null;
+        }
+
+        $host = $parts['host'];
+        $address = $this->resolveToPublicAddress($host);
+
+        if (null === $address) {
+            return null;
+        }
+
+        return [$host, $address];
+    }
+
     private function resolveToPublicAddress(string $host): ?string
     {
         // A literal address skips resolution but not the filter.

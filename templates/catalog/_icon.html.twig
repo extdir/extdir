@@ -1,0 +1,15 @@
+{#
+    The extension's mark.
+
+    The monogram is drawn locally and always shows, so a reader who never allows
+    remote media sees a complete page rather than a row of gaps. If they have allowed
+    it, the controller layers the real icon on top; if that icon 404s — routine when a
+    repository has been renamed — the image removes itself and the monogram is still
+    there underneath.
+#}
+{% set mono = extension_monogram(extension) %}
+{% set icon = extension_icon(extension) %}
+<span class="ext-icon-slot"
+      style="--icon-hue: {{ mono.hue }}"
+      {% if icon %}data-remote-media-target="slot" data-remote-media-url="{{ icon }}"{% endif %}
+      aria-hidden="true">{{ mono.initials }}</span>

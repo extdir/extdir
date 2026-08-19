@@ -68,7 +68,7 @@
         {{ importmap('app') }}
     {% endblock %}
 </head>
-<body data-controller="shortcuts">
+<body data-controller="shortcuts remote-media">
 <a class="skip-link" href="#main">Skip to content</a>
 
 {% set route = app.request.attributes.get('_route') %}
@@ -219,8 +219,21 @@
             Powered by <a href="https://runio.dev" rel="noopener">runio.dev</a>
             <span class="subtle">— operator and maintainer</span>
         </p>
-        <p class="powered-by">
-            <a href="{{ path('ranking') }}">Ranking is algorithmic and public</a>
+        {# Off by default, and withdrawable. Consent that cannot be taken back is not
+           consent, so both directions are one click from every page. The server always
+           renders the "off" wording and the controller corrects it on connect —
+           the reverse would flash a false claim to anyone who has not opted in. #}
+        <p class="powered-by remote-media-control">
+            <span class="subtle" data-remote-media-target="status">
+                Extension icons are not loaded from their forges.
+            </span>
+            <button type="button" class="btn btn--sm"
+                    data-remote-media-target="enable"
+                    data-action="remote-media#allow">Show icons</button>
+            <button type="button" class="btn btn--sm" hidden
+                    data-remote-media-target="disable"
+                    data-action="remote-media#revoke">Stop loading icons</button>
+            <a href="{{ path('privacy') }}">What this shares</a>
         </p>
     </div>
 </footer>

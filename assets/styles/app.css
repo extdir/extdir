@@ -361,6 +361,12 @@ p:last-child { margin-bottom: 0; }
     color: var(--ink);
 }
 
+/* Any component rule that sets `display` silently defeats the `hidden` attribute,
+   which is how both halves of the remote-media toggle ended up on screen at once.
+   One declaration, near the top of the component layer, rather than remembering it
+   per component. */
+[hidden] { display: none !important; }
+
 .btn { cursor: pointer; font-weight: 500; display: inline-flex; align-items: center; gap: var(--s-2); }
 .btn:hover { background: var(--surface-sunk); text-decoration: none; }
 
@@ -1049,3 +1055,55 @@ table.data a:hover { text-decoration-thickness: 2px; }
 .vendor-name { flex: 1; min-width: 0; }
 .vendor-name:hover { color: var(--signal-info); }
 .vendor-count { color: var(--ink-subtle); font-family: var(--font-mono); font-size: var(--t-small); }
+
+/* ============================================================ EXTENSION MARKS
+ *
+ * The monogram is generated from the package name and always renders, so a reader
+ * who never allows remote media still gets a complete page rather than a row of
+ * gaps — and it stays underneath as the fallback when an icon 404s. */
+
+.ext-icon-slot {
+    position: relative;
+    flex: 0 0 auto;
+    width: 1.75rem; height: 1.75rem;
+    display: inline-grid; place-items: center;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    font-size: .6875rem; font-weight: 600; letter-spacing: -.02em;
+    /* Derived hue, fixed saturation and lightness, so every mark sits at the same
+       weight and no extension shouts louder than its neighbour. */
+    background: hsl(var(--icon-hue, 0) 32% 88%);
+    color: hsl(var(--icon-hue, 0) 45% 28%);
+    user-select: none;
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .ext-icon-slot {
+        background: hsl(var(--icon-hue, 0) 24% 22%);
+        color: hsl(var(--icon-hue, 0) 45% 78%);
+    }
+}
+:root[data-theme="dark"] .ext-icon-slot {
+    background: hsl(var(--icon-hue, 0) 24% 22%);
+    color: hsl(var(--icon-hue, 0) 45% 78%);
+}
+
+.ext-icon {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    padding: 2px;
+    /* A light tile in both themes, deliberately not var(--surface). Plugin icons are
+       drawn for the Shopware admin, which is light, and a large share of them are
+       dark marks on transparency — on a dark card those disappear entirely. A fixed
+       pale tile renders every logo the way its author drew it. */
+    background: #f4f5f7;
+}
+
+.row-main { display: flex; align-items: flex-start; gap: var(--s-3); min-width: 0; }
+.row-text { min-width: 0; }
+
+.ext-icon-lg .ext-icon-slot { width: 2.5rem; height: 2.5rem; font-size: .9375rem; border-radius: var(--radius); }
+
+.alt-card .ext-icon-slot { width: 1.5rem; height: 1.5rem; }
+
+.remote-media-control { display: inline-flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; }

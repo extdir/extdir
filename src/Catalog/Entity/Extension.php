@@ -187,6 +187,29 @@ class Extension
     #[ORM\Column(options: ['default' => 0])]
     private int $forks = 0;
 
+    /**
+     * The repository's default branch, denormalised from RepositorySnapshot.
+     *
+     * Only used to build raw-file URLs for icons. Guessing `main` and falling back to
+     * `master` was measured against the corpus and found the icon for 23 of 40
+     * sampled repositories; the stored branch is right for all of them, and the
+     * catalogue contains `develop`, `trunk`, `stable` and `main_65` besides. Kept
+     * here rather than joined per row for the same reason stars are.
+     */
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $defaultBranch = null;
+
+    /**
+     * When the icon was last confirmed to exist at its declared path.
+     *
+     * Null means unchecked or absent, and no URL is offered to the browser. Most
+     * icon paths are a convention filled in when composer.json declares none, and
+     * about a third of those point at nothing — offering them unverified would spend
+     * a reader's consent on a few hundred requests that can only 404.
+     */
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $iconVerifiedAt = null;
+
     /** Reason recorded when index status becomes Delisted. Required by the takedown policy. */
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $delistReason = null;
@@ -372,6 +395,31 @@ class Extension
     public function setIconPath(?string $iconPath): void
     {
         $this->iconPath = $iconPath;
+    }
+
+    public function getDefaultBranch(): ?string
+    {
+        return $this->defaultBranch;
+    }
+
+    public function setDefaultBranch(?string $defaultBranch): void
+    {
+        $this->defaultBranch = $defaultBranch;
+    }
+
+    public function getIconVerifiedAt(): ?\DateTimeImmutable
+    {
+        return $this->iconVerifiedAt;
+    }
+
+    public function setIconVerifiedAt(?\DateTimeImmutable $iconVerifiedAt): void
+    {
+        $this->iconVerifiedAt = $iconVerifiedAt;
+    }
+
+    public function hasVerifiedIcon(): bool
+    {
+        return null !== $this->iconVerifiedAt;
     }
 
     public function getManufacturerLink(): ?string

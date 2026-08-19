@@ -19,15 +19,21 @@
    screen reader read every one in full. #}
 <article class="row" role="option" aria-selected="false" data-shortcuts-target="row">
     <div class="row-main">
-        <h2 class="row-title">
-            <a href="{{ path('extension_detail', {slug: extension.slug}) }}">{{ extension.label }}</a>
-        </h2>
-        <span class="row-package">{{ extension.packageName }}</span>
-        {% if extension.description and not compact %}
-            <p class="row-desc">{{ extension.description|length > 160
-                ? extension.description|slice(0, 160)|trim ~ '…'
-                : extension.description }}</p>
-        {% endif %}
+        {{ include('catalog/_icon.html.twig') }}
+
+        {# The text stacks; the mark sits beside it. Without this wrapper the flex
+           row would put the title, package name and description side by side. #}
+        <div class="row-text">
+            <h2 class="row-title">
+                <a href="{{ path('extension_detail', {slug: extension.slug}) }}">{{ extension.label }}</a>
+            </h2>
+            <span class="row-package">{{ extension.packageName }}</span>
+            {% if extension.description and not compact %}
+                <p class="row-desc">{{ extension.description|length > 160
+                    ? extension.description|slice(0, 160)|trim ~ '…'
+                    : extension.description }}</p>
+            {% endif %}
+        </div>
     </div>
 
     <div class="row-versions">

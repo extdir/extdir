@@ -47,6 +47,19 @@
 # since an unlicensed extension is never offered a maintainer archive.
 47 5 * * *   cd $HOME/websites/extdir.com && /usr/bin/php83 bin/console app:distribution:resolve >> $HOME/logs/extdir-cron.log 2>&1
 
+# Extension icons: confirm each one still exists where its metadata claims.
+#
+# Weekly, not nightly. Only a tenth of icon paths are declared in composer.json —
+# the rest are the conventional src/Resources/config/plugin.png filled in by the
+# extractor, and about a quarter of those point at nothing. The command re-checks
+# an icon roughly monthly, so a weekly run spreads the work without ever leaving a
+# renamed repository advertised for long. Must follow enrichment: it needs the
+# default branch the signals refresh records.
+#
+# Runs after the catalogue is otherwise settled because it is the slowest job per
+# request served — a HEAD to a few hundred forges, about two minutes.
+29 6 * * 3   cd $HOME/websites/extdir.com && /usr/bin/php83 bin/console app:ui:verify-icons >> $HOME/logs/extdir-cron.log 2>&1
+
 # Categories, recomputed from stored data. Seconds, no network.
 13 6 * * *   cd $HOME/websites/extdir.com && /usr/bin/php83 bin/console app:taxonomy:classify >> $HOME/logs/extdir-cron.log 2>&1
 

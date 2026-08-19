@@ -184,6 +184,7 @@ final class RepositoryEnricher
 
         $extension->setLastCommitAt($lastCommit);
         $extension->setPopularity($snapshot->getStars(), $snapshot->getForks());
+        $extension->setDefaultBranch($snapshot->getDefaultBranch());
 
         // GitHub runs licensee over the repository's licence file — the detector
         // The licence gate asks for, already paid for by this query. It was being
