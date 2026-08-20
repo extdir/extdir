@@ -42,7 +42,16 @@
             <div class="table-scroll" tabindex="0">
                 <table class="data">
                     <thead>
-                    <tr><th>Extension</th><th>Verified</th><th>How</th><th></th></tr>
+                    {# The last column holds the remove button. An empty <th> leaves a screen
+                       reader announcing the cell with no idea what it is for, so the label is
+                       present and only visually hidden — the column heading would be noise
+                       above a single button. #}
+                    <tr>
+                        <th>Extension</th>
+                        <th>Verified</th>
+                        <th>How</th>
+                        <th><span class="visually-hidden">Actions</span></th>
+                    </tr>
                     </thead>
                     <tbody>
                     {% for claim in claims %}
