@@ -834,6 +834,11 @@ table.data td.num, table.data th.num { text-align: right; font-variant-numeric: 
 .error-code { font-family: var(--font-mono); font-size: var(--t-display); color: var(--ink-subtle);
     margin-bottom: var(--s-2); letter-spacing: -0.05em; }
 .error-search { display: flex; gap: var(--s-2); max-width: 26rem; margin: var(--s-6) auto 0; }
+/* A flex item defaults to min-width: auto, so the input refuses to shrink below the
+   width of its own placeholder and pushes the row — and the page — 29px wider than a
+   320px screen. The same default that made the detail grid overflow, one layout mode
+   over. */
+.error-search .input { flex: 1 1 auto; min-width: 0; }
 .error-links { display: flex; flex-wrap: wrap; gap: var(--s-4); justify-content: center; margin-top: var(--s-5); font-size: var(--t-small); }
 
 /* ============================================================ IMPRINT REVEAL */
@@ -1285,3 +1290,30 @@ table.data a:hover { text-decoration-thickness: 2px; }
 }
 
 .chip--count { background: var(--signal-info-bg); color: var(--signal-info); border-color: transparent; }
+
+/* ============================================================== TAP TARGETS
+ *
+ * WCAG 2.2 asks for 24x24 CSS pixels on anything you are meant to hit (SC 2.5.8,
+ * AA). Measured on a phone, the controls that matter most were all just under: the
+ * extension title in a listing row was 17px tall, the copy button 21, the theme
+ * buttons and every row on the vendor list 23.
+ *
+ * A link inside a sentence is exempt — its size is set by the line-height of the
+ * text around it, and padding it out would wreck the paragraph. So this touches only
+ * the things that behave as controls: row and card titles, and actual buttons.
+ *
+ * Padding rather than height, so the text keeps its position and only the hit area
+ * grows. On a desktop the change is invisible; on a phone it is the difference
+ * between hitting the extension you meant and the one below it. */
+
+.row-title a,
+.alt-card-title,
+.vendor-name {
+    display: inline-block;
+    padding-block: 0.25rem;
+}
+
+.copy-btn,
+.theme-btn {
+    min-height: 1.75rem;
+}
