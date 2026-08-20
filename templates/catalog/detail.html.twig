@@ -266,8 +266,13 @@
                             <code>composer require</code> alone cannot find it. Add extdir as a
                             repository once:
                         </p>
-                        <pre class="code">composer config repositories.extdir composer https://extdir.com/repo
+                        {# Generated from the route rather than typed, so the address in the
+                           instruction and the address that answers can never drift apart. #}
+                        <pre class="code">composer config repositories.extdir composer {{ url('repo_landing') }}
 composer require {{ extension.packageName }}</pre>
+                        <p class="small subtle">
+                            <a href="{{ path('repo_landing') }}">What that repository is and what it serves</a>
+                        </p>
                         <p class="small subtle">
                             Or point Composer straight at the source, with no third party involved:
                         </p>
