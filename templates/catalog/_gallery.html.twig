@@ -18,7 +18,8 @@
 #}
 {% set images = extension_gallery(extension) %}
 {% if images|length %}
-    <section class="panel" data-remote-media-target="gallery" hidden aria-label="Screenshots">
+    <section class="panel" data-remote-media-target="gallery" hidden aria-label="Screenshots"
+             data-controller="lightbox">
         <h2>Screenshots</h2>
         <p class="subtle gallery-note">
             Published by the maintainer in their own repository, and loaded directly from
@@ -30,14 +31,17 @@
             <div class="rail-track gallery-track" data-rail-target="track" tabindex="0"
                  role="group" aria-label="Screenshots of {{ extension.label }}">
                 {% for image in images %}
-                    {# Opens the full-size original on the forge rather than in a
-                       lightbox: the file is theirs and stays theirs, and a new tab
-                       puts where it came from in the address bar. #}
+                    {# Still a real link to the original on the forge — middle-click,
+                       "open in new tab" and a JavaScript-free browser all behave the
+                       way a link should. The lightbox intercepts the plain click
+                       only, because landing on a bare PNG in a new tab with no
+                       caption and no way back is the worse outcome. #}
                     <a class="shot" href="{{ image }}" target="_blank" rel="noopener noreferrer nofollow"
                        data-remote-media-target="slot"
                        data-remote-media-url="{{ image }}"
                        data-remote-media-class="shot-img"
-                       aria-label="Screenshot {{ loop.index }} of {{ images|length }}, opens on {{ extension_icon_host(extension) ?? 'the source repository' }}">
+                       data-action="lightbox#open"
+                       aria-label="Screenshot {{ loop.index }} of {{ images|length }}">
                         <span class="shot-index" aria-hidden="true">{{ loop.index }}</span>
                     </a>
                 {% endfor %}
@@ -48,5 +52,33 @@
             <button class="rail-nav rail-nav--next" type="button" hidden
                     data-rail-target="next" data-action="rail#next" aria-label="Scroll to more screenshots">›</button>
         </div>
+
+        {# The native dialog, so Escape, focus trapping and restoring focus to the
+           thumbnail afterwards are the browser's job. #}
+        <dialog class="lightbox" data-lightbox-target="dialog"
+                aria-label="Screenshots of {{ extension.label }}">
+            <div class="lightbox-frame">
+                <img data-lightbox-target="image" alt="" decoding="async">
+            </div>
+
+            <div class="lightbox-bar">
+                <button class="lightbox-nav" type="button" hidden
+                        data-lightbox-target="prev" data-action="lightbox#prev"
+                        aria-label="Previous screenshot">‹</button>
+
+                <p class="lightbox-caption">
+                    <span data-lightbox-target="caption"></span>
+                    <a data-lightbox-target="source" target="_blank" rel="noopener noreferrer nofollow"
+                       href="{{ images|first }}">open the original on {{ extension_icon_host(extension) ?? 'the forge' }} →</a>
+                </p>
+
+                <button class="lightbox-nav" type="button" hidden
+                        data-lightbox-target="next" data-action="lightbox#next"
+                        aria-label="Next screenshot">›</button>
+
+                <button class="lightbox-close" type="button"
+                        data-action="lightbox#close" aria-label="Close">×</button>
+            </div>
+        </dialog>
     </section>
 {% endif %}

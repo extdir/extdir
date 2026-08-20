@@ -453,7 +453,7 @@ p:last-child { margin-bottom: 0; }
 .header-disclaimer { font-size: var(--t-micro); color: var(--ink-subtle); margin: 0; }
 
 @media (max-width: 900px) {
-    .masthead { grid-template-columns: 1fr auto; row-gap: var(--s-3); }
+    .masthead { grid-template-columns: minmax(0, 1fr) auto; row-gap: var(--s-3); }
     .header-search { grid-column: 1 / -1; max-width: none; order: 3; }
     .header-search .kbd { display: none; }
     .header-disclaimer { display: none; }
@@ -469,7 +469,7 @@ p:last-child { margin-bottom: 0; }
 .page-head > p { color: var(--ink-muted); max-width: 66ch; }
 
 .catalog { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: var(--s-7); align-items: start; }
-@media (max-width: 900px) { .catalog { grid-template-columns: 1fr; gap: var(--s-5); } }
+@media (max-width: 900px) { .catalog { grid-template-columns: minmax(0, 1fr); gap: var(--s-5); } }
 
 /* ============================================================ FACETS */
 
@@ -694,7 +694,25 @@ pre.code {
 code { font-family: var(--font-mono); font-size: 0.9em; }
 
 .detail-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: var(--s-7); align-items: start; }
-@media (max-width: 900px) { .detail-grid { grid-template-columns: 1fr; gap: var(--s-5); } }
+@media (max-width: 900px) { .detail-grid { grid-template-columns: minmax(0, 1fr); gap: var(--s-5); } }
+
+/* A grid track defaults to minmax(auto, 1fr), so its *content* can force it wider
+ * than the viewport — a releases table or a 69-character package name does exactly
+ * that, and the page then scrolls sideways with every element clipped, not just the
+ * long one. Measured at a 420px viewport: the document was 755px wide.
+ *
+ * The desktop rules already guard with minmax(0, …); the narrow-viewport overrides
+ * had quietly dropped it, which is why this only showed up on a phone. This is the
+ * backstop for any grid child that is missed. */
+.detail-grid > *,
+.catalog > *,
+.footer-grid > * { min-width: 0; }
+
+/* Long names must break rather than push. Labels are free text from composer.json
+ * and run to 86 characters, sometimes with no spaces to break at. */
+.row-title, .alt-card-title, .page-head h1, .detail-head h1, .panel h2 {
+    overflow-wrap: anywhere;
+}
 
 /* ============================================================ PANELS, TABLES, PROSE */
 
@@ -774,8 +792,8 @@ table.data td.num, table.data th.num { text-align: right; font-variant-numeric: 
 .flash--warning { color: var(--signal-caution); background: var(--signal-caution-bg); border-left-color: var(--signal-caution); }
 
 .site-footer { border-top: 1px solid var(--border); background: var(--surface); padding: var(--s-7) 0; margin-top: var(--s-9); }
-.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: var(--s-6); }
-@media (max-width: 800px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+.footer-grid { display: grid; grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)); gap: var(--s-6); }
+@media (max-width: 800px) { .footer-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
 .footer-brand { font-family: var(--font-mono); font-weight: 500; margin-bottom: var(--s-2); letter-spacing: -0.05em; }
 .footer-heading { font-size: var(--t-micro); text-transform: uppercase; letter-spacing: 0.09em;
     color: var(--ink-subtle); margin-bottom: var(--s-2); font-weight: 500; }
@@ -1149,3 +1167,70 @@ table.data a:hover { text-decoration-thickness: 2px; }
     object-fit: contain;
     background: #f4f5f7;
 }
+
+/* ================================================================== LIGHTBOX
+ *
+ * The native <dialog>, so Escape, focus trapping and returning focus to the thumbnail
+ * come from the browser rather than from listeners that get two thirds of it right. */
+
+.lightbox {
+    width: min(94vw, 1100px);
+    max-height: 92vh;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+    overflow: hidden;
+}
+
+/* Scoped to [open]: a bare `display: flex` on the dialog would override the
+   browser's own `display: none` and leave it on screen permanently. */
+.lightbox[open] { display: flex; flex-direction: column; }
+.lightbox::backdrop {
+    /* Dark in both themes: a screenshot is being judged against it, and a light
+       scrim behind a light UI screenshot hides where the image ends. */
+    background: rgb(0 0 0 / 0.72);
+}
+
+.lightbox-frame {
+    display: grid; place-items: center;
+    /* Takes whatever is left after the bar. min-height:0 is what actually allows it
+       to shrink — without it a tall screenshot pushes the controls off screen, which
+       is how the close button ended up below the fold the first time. */
+    flex: 1 1 auto;
+    min-height: 0;
+    background: #f4f5f7;
+}
+.lightbox-frame img {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.lightbox-bar {
+    flex: 0 0 auto;
+    display: flex; align-items: center; gap: var(--s-3);
+    padding: var(--s-3) var(--s-4);
+    border-top: 1px solid var(--border);
+}
+.lightbox-caption {
+    flex: 1 1 auto; min-width: 0;
+    margin: 0;
+    font-size: var(--t-small); color: var(--ink-subtle);
+    display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-3);
+}
+
+.lightbox-nav, .lightbox-close {
+    flex: 0 0 auto;
+    width: 2rem; height: 2rem;
+    display: grid; place-items: center;
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--surface); color: var(--ink);
+    font-size: 1.125rem; line-height: 1; cursor: pointer;
+}
+.lightbox-nav:hover, .lightbox-close:hover { border-color: var(--accent); color: var(--accent); }
+
+/* The thumbnail is a link but opens a dialog, so it should read as pressable. */
+.shot { cursor: zoom-in; }

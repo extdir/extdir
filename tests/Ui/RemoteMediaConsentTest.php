@@ -145,7 +145,10 @@ final class RemoteMediaConsentTest extends KernelTestCase
 
         $html = $this->renderGallery($extension);
 
-        self::assertStringNotContainsString('<img', $html);
+        // The lightbox ships an <img> with no src — inert, since a source-less image
+        // makes no request. What must never appear is an img the browser would fetch,
+        // so the assertion is about the attribute rather than the tag.
+        self::assertDoesNotMatchRegularExpression('/<img[^>]+\bsrc\s*=/i', $html);
         self::assertStringContainsString('hidden', $html, 'The section must ship hidden.');
         self::assertSame(2, substr_count($html, 'data-remote-media-url='));
 
@@ -160,6 +163,23 @@ final class RemoteMediaConsentTest extends KernelTestCase
         // href is the exception and is deliberate: it is a link the reader chooses to
         // follow, not something the browser fetches on its own.
         self::assertStringContainsString('href="https://raw.githubusercontent.com/acme/sw-widget/main/docs/one.png"', $html);
+    }
+
+    /**
+     * The lightbox is an enhancement, not the mechanism. Each thumbnail stays a real
+     * link to the original, so middle-click, "open in new tab" and a browser with no
+     * JavaScript all keep working — the controller intercepts the plain click only.
+     */
+    public function testThumbnailsRemainRealLinks(): void
+    {
+        $extension = $this->extension('https://github.com/acme/sw-widget', 'src/Resources/config/plugin.png');
+        $extension->setGalleryImages(['https://raw.githubusercontent.com/acme/sw-widget/main/docs/one.png']);
+
+        $html = $this->renderGallery($extension);
+
+        self::assertStringContainsString('href="https://raw.githubusercontent.com/acme/sw-widget/main/docs/one.png"', $html);
+        self::assertStringContainsString('data-action="lightbox#open"', $html);
+        self::assertStringContainsString('rel="noopener noreferrer nofollow"', $html);
     }
 
     /**
