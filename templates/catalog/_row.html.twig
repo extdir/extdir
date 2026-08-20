@@ -93,13 +93,28 @@
 
     {# The single most frequent action here. Previously the composer line existed only
        on the detail page, and only as text to select by hand. #}
+    {# For an extension Packagist does not carry, a bare `composer require` fails with
+       "could not be found in any version" — which the detail page says in as many
+       words while this button handed out that very command. Copying what actually
+       installs it is better than copying nothing: these are the 125 extensions that
+       are hardest to install, and the reason the directory exists at all.
+
+       The repository line is deliberately visible in what gets pasted rather than
+       hidden behind the button, because it adds a third-party repository to somebody's
+       project and they should be able to read that before running it. #}
+    {% set installCommand = extension.isOnPackagist
+        ? 'composer require ' ~ extension.packageName
+        : 'composer config repositories.extdir composer ' ~ url('repo_landing') ~ "\n" ~ 'composer require ' ~ extension.packageName %}
+
     <div class="row-copy">
         <button type="button" class="copy-btn"
                 data-controller="clipboard"
                 data-action="clipboard#copy"
-                data-clipboard-text="composer require {{ extension.packageName }}"
-                aria-label="Copy composer require {{ extension.packageName }}"
-                title="composer require {{ extension.packageName }}">
+                data-clipboard-text="{{ installCommand }}"
+                aria-label="Copy the command that installs {{ extension.packageName }}"
+                title="{{ extension.isOnPackagist
+                    ? installCommand
+                    : 'Not on Packagist — copies both lines, including the one that adds the extdir repository' }}">
             <span data-copy-label aria-hidden="true">Copy</span>
         </button>
     </div>
