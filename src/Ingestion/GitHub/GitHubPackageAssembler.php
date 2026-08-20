@@ -155,7 +155,15 @@ final class GitHubPackageAssembler
 
             // Assembled into the same shape Packagist serves, so the ingestor cannot
             // tell the difference.
-            $versions[] = $composerJson + [
+            //
+            // Our fields are on the LEFT of the + on purpose: `+` keeps the left
+            // operand's keys, and composer.json is allowed to carry a hardcoded
+            // `version`. When it does, it is almost always stale — one plugin tagged
+            // v1.0.1 while its manifest still said 1.0.0, so the release listed the
+            // wrong version and appeared to be a duplicate of the release before it.
+            // Packagist ignores that field for VCS packages for the same reason: the
+            // tag is what identifies a release, not what the file claims.
+            $versions[] = [
                 'name' => $packageName,
                 'version' => $tag['tag'],
                 'version_normalized' => $normalized,
@@ -173,7 +181,7 @@ final class GitHubPackageAssembler
                     'url' => \sprintf('https://api.github.com/repos/%s/%s/zipball/%s', $owner, $name, $tag['tag']),
                     'reference' => $tag['oid'],
                 ],
-            ];
+            ] + $composerJson;
         }
 
         return $versions;

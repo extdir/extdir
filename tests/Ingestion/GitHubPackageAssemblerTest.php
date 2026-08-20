@@ -52,6 +52,47 @@ final class GitHubPackageAssemblerTest extends TestCase
     }
 
     /**
+     * A hardcoded `version` in composer.json must not override the tag.
+     *
+     * From the live catalogue: a plugin tagged v1.0.1 whose manifest still said
+     * 1.0.0. The release was listed as 1.0.0, directly above the real 1.0.0 with a
+     * different date — indistinguishable from a duplicate, and simply wrong.
+     * Packagist ignores that field for VCS packages for the same reason.
+     */
+    public function testAStaleVersionInTheManifestLosesToTheTag(): void
+    {
+        $assembled = $this->assemble(
+            tags: ['v1.0.1', 'v1.0.0'],
+            manifests: [
+                'v1.0.1' => '{"name":"acme/widget","version":"1.0.0"}',
+                'v1.0.0' => '{"name":"acme/widget","version":"1.0.0"}',
+            ],
+        );
+
+        self::assertNotNull($assembled);
+        self::assertCount(2, $assembled['versions'], 'These are two releases, not one.');
+        self::assertSame('v1.0.1', $assembled['versions'][0]['version']);
+        self::assertSame('1.0.1.0', $assembled['versions'][0]['version_normalized']);
+        self::assertSame('v1.0.0', $assembled['versions'][1]['version']);
+    }
+
+    /**
+     * Everything the manifest says that we do not derive ourselves still comes
+     * through — the tag wins on identity, not on content.
+     */
+    public function testTheRestOfTheManifestSurvives(): void
+    {
+        $assembled = $this->assemble(
+            tags: ['v1.0.0'],
+            manifests: ['v1.0.0' => '{"name":"acme/widget","require":{"shopware/core":"~6.6.0"},"license":"MIT"}'],
+        );
+
+        self::assertNotNull($assembled);
+        self::assertSame('MIT', $assembled['versions'][0]['license']);
+        self::assertSame(['shopware/core' => '~6.6.0'], $assembled['versions'][0]['require']);
+    }
+
+    /**
      * The gate, exercised through the real entry point rather than the shared helper.
      */
     public function testARepositoryThatIsNotAPluginIsRejected(): void
