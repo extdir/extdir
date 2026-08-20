@@ -110,6 +110,19 @@ class ExtensionRelease
         return $this->versionRaw;
     }
 
+    /**
+     * The tag as the maintainer wrote it, which can be corrected on a later crawl.
+     *
+     * Not immutable, because it has been wrong: a manifest carrying a stale hardcoded
+     * `version` used to override the tag it was read from, and existing rows kept that
+     * value even after the reading was fixed — the row said 1.0.0 while its normalised
+     * version said 1.0.1. Re-crawling has to be able to correct what it once got wrong.
+     */
+    public function setVersionRaw(string $versionRaw): void
+    {
+        $this->versionRaw = $versionRaw;
+    }
+
     public function isStable(): bool
     {
         return $this->stable;

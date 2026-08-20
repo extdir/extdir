@@ -217,6 +217,10 @@ final class PackageIngestor
             $this->em->persist($release);
         }
 
+        // Kept in step with the stability flag below, which was already being
+        // recomputed from the fresh raw value on every crawl while the stored raw
+        // itself never moved.
+        $release->setVersionRaw($raw);
         $release->setComposerJson($entry);
         $release->setStable('stable' === VersionParser::parseStability($raw));
         $release->setReleasedAt($this->releaseDate($entry));
