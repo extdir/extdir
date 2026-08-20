@@ -31,7 +31,28 @@ final class RelativeTimeExtension extends AbstractExtension
     {
         return [
             new TwigFilter('ago', $this->ago(...)),
+            new TwigFilter('ago_phrase', $this->agoPhrase(...)),
         ];
+    }
+
+    /**
+     * The same span as a sentence rather than a column value.
+     *
+     * `ago` is deliberately terse — "2 d" scans in a table where "2 days ago" would
+     * not — but appending " ago" to it in prose produces "crawled today ago". The
+     * masthead already carried a conditional to work around that; the detail page
+     * carried the naive version and shipped the broken sentence. One filter, so the
+     * two cannot disagree again.
+     */
+    public function agoPhrase(?\DateTimeInterface $moment): string
+    {
+        $relative = $this->ago($moment);
+
+        return match ($relative) {
+            '—' => 'never',
+            'today' => 'today',
+            default => $relative.' ago',
+        };
     }
 
     public function ago(?\DateTimeInterface $moment): string

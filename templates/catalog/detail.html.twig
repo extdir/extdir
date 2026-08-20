@@ -150,7 +150,7 @@
                     {% endif %}
                 </div>
                 <span class="spec-note">
-                    {% if catalogueStatus.crawledAt %}crawled {{ catalogueStatus.crawledAt|ago }} ago{% endif %}
+                    {% if catalogueStatus.crawledAt %}crawled {{ catalogueStatus.crawledAt|ago_phrase }}{% endif %}
                 </span>
             </div>
         </div>

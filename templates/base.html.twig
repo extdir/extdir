@@ -104,10 +104,10 @@
                        : 'Refreshed from Packagist and the source forges.' }}">
                     <span class="num">{{ catalogueStatus.total }}</span> extensions
                     {%- if catalogueStatus.crawledAt %}
-                        {%- set age = catalogueStatus.crawledAt|ago %}
+
                         {# "today old" is what a naive suffix produces, and the filter is
                            terse on purpose for the results column. #}
-                        · {{ age == 'today' ? 'updated today' : 'updated ' ~ age ~ ' ago' }}
+                        · updated {{ catalogueStatus.crawledAt|ago_phrase }}
                     {%- endif %}
                 </p>
             {% endif %}
