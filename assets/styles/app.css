@@ -450,7 +450,20 @@ p:last-child { margin-bottom: 0; }
     display: flex; align-items: center; justify-content: space-between;
     gap: var(--s-4); flex-wrap: wrap; padding-block: var(--s-2);
 }
-.header-nav { display: flex; gap: var(--s-5); }
+/* Wrapping, because signing in changes how many links there are. Three fit on a
+   phone; six — Extensions, Ranking, About, Your extensions, Moderate, Sign out — do
+   not, and a nowrap flex row is 474px wide whatever the viewport, so the whole page
+   scrolled sideways with Sign out off the edge. Only a signed-in moderator ever saw
+   it, which is why every sweep so far missed it: those pages need a session.
+
+   min-width: 0 as well, so the nav can shrink as a flex item rather than forcing its
+   parent open — the same default that has caused this three times now. */
+.header-nav { display: flex; flex-wrap: wrap; min-width: 0; gap: var(--s-3) var(--s-5); }
+
+@media (max-width: 480px) {
+    /* Tighter on a phone so six links need two rows rather than three. */
+    .header-nav { gap: var(--s-2) var(--s-4); }
+}
 .header-nav a {
     font-size: var(--t-micro); text-transform: uppercase; letter-spacing: 0.09em;
     font-weight: 500; color: var(--ink-subtle);
