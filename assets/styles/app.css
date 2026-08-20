@@ -728,7 +728,11 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
 
 .kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--s-2) var(--s-4); font-size: var(--t-small); }
 .kv dt { color: var(--ink-subtle); }
-.kv dd { margin: 0; }
+/* The track is already guarded with minmax(0, …), so the column can shrink — but the
+   value inside it still needs permission to break. A plugin's technical name is one
+   CamelCase token of thirty-odd characters with no space, hyphen or slash to break
+   at, so without this it simply draws straight through the side of the panel. */
+.kv dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
 
 table.data { width: 100%; border-collapse: collapse; font-size: var(--t-small); }
 table.data th, table.data td { text-align: left; padding: var(--s-3); border-bottom: 1px solid var(--border); }
