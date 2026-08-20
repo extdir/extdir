@@ -100,4 +100,44 @@ final class OperationsTest extends WebTestCase
             self::assertArrayHasKey($check, $payload['checks']);
         }
     }
+
+    /**
+     * The URL an uptime monitor watches to learn that last night's crawl did not run.
+     *
+     * A heartbeat monitor is the usual way to check a cron job, and UptimeRobot only
+     * sells it on a paid tier. This asks the same question with an ordinary HTTP check,
+     * which every plan has — and answers it better: a heartbeat proves a command
+     * exited, while this proves the catalogue actually got fresher.
+     */
+    public function testTheCrawlEndpointAnswersWithAStatusCode(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/health/crawl');
+
+        // The test database holds no extensions, so no crawl has ever completed and
+        // the honest answer is 503 — which is the alerting path, exercised.
+        self::assertResponseStatusCodeSame(503);
+        self::assertResponseHeaderSame('Content-Type', 'application/json');
+
+        $payload = json_decode((string) $client->getResponse()->getContent(), true);
+
+        self::assertIsArray($payload);
+        self::assertSame('overdue', $payload['status']);
+        self::assertSame('no crawl has ever completed', $payload['detail']);
+    }
+
+    /**
+     * A cached answer reports the past, which is the one thing a monitor must not be
+     * told.
+     */
+    public function testTheCrawlEndpointIsNeverCached(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/health/crawl');
+
+        self::assertStringContainsString(
+            'no-store',
+            (string) $client->getResponse()->headers->get('Cache-Control'),
+        );
+    }
 }

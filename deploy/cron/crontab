@@ -19,13 +19,23 @@
 # asked for a few hundred requests; doing that politely costs nothing and being
 # rate-limited costs a day of freshness.
 
-# Optional: dead-man's-switch monitoring. /health notices staleness after 48
-# hours, which is the right threshold for "the data is untrustworthy" but a slow
-# way to learn that last night's crawl died. Appending a ping to each job tells
-# you which one failed, within minutes.
+# Monitoring: nothing to add here, deliberately.
 #
-#   HC_INGEST=https://hc-ping.com/<uuid>
-#   ... && curl -fsS -m 10 --retry 3 $HC_INGEST > /dev/null
+# The usual way to watch a cron job is a heartbeat — the job pings a URL when it
+# finishes, and the monitor alerts when the ping stops. UptimeRobot sells that only
+# on a paid tier, so instead the app answers the same question at
+# https://extdir.com/health/crawl, which returns 503 once the last completed crawl
+# is more than 26 hours old. Point an ordinary HTTP(s) monitor at it; every plan
+# has those.
+#
+# The pull version is the better one regardless of price. A heartbeat proves a
+# command exited, and a crawl that ran, failed and still exited 0 would satisfy it.
+# /health/crawl reads the catalogue's own last_crawled_at, so it proves the data
+# actually got fresher — and it keeps working when the server cannot reach the
+# internet, which is one of the failure modes worth catching.
+#
+# /health stays the separate, slower check: it tolerates 48 hours, because "a night
+# was missed" and "this data is no longer trustworthy" are different alerts.
 
 # Shopware release timeline. Rarely changes, but everything downstream depends on
 # it: the compatibility matrix columns and every maintenance status are measured
