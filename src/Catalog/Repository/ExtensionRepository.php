@@ -57,6 +57,33 @@ class ExtensionRepository extends ServiceEntityRepository
     }
 
     /**
+     * Discovery source per package name.
+     *
+     * Tells the GitHub sweep whether Packagist owns a package's release data — in
+     * which case re-reading a bounded window of tags would replace complete metadata
+     * with a worse copy — or whether this sweep is the only thing that will ever
+     * refresh it.
+     *
+     * @return array<string, DiscoverySource>
+     */
+    public function findAllPackageSources(): array
+    {
+        /** @var list<array{packageName: string, discoverySource: DiscoverySource}> $rows */
+        $rows = $this->createQueryBuilder('e')
+            ->select('e.packageName', 'e.discoverySource')
+            ->getQuery()
+            ->getArrayResult();
+
+        $sources = [];
+
+        foreach ($rows as $row) {
+            $sources[$row['packageName']] = $row['discoverySource'];
+        }
+
+        return $sources;
+    }
+
+    /**
      * Known repositories, keyed by lowercased "owner/repo".
      *
      * Discovery works in repository names while the catalogue is keyed by package

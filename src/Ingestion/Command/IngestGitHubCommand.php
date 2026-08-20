@@ -242,10 +242,12 @@ final class IngestGitHubCommand extends Command
     private function ingest(array $candidates, bool $dryRun, SymfonyStyle $io, OutputInterface $output): int
     {
         $known = $this->extensions->findAllPackageNames();
+        $sources = $this->extensions->findAllPackageSources();
 
         $io->progressStart(\count($candidates));
 
         $ingested = [];
+        $refreshed = 0;
         $notAnExtension = 0;
         $alreadyKnown = 0;
         $failed = [];
@@ -259,17 +261,33 @@ final class IngestGitHubCommand extends Command
                     // The probe said yes and the assembler said no: usually a
                     // repository with no usable tags, or one renamed since the search.
                     ++$notAnExtension;
-                } elseif (isset($known[$assembled['package']])) {
+                } elseif (($sources[$assembled['package']] ?? null)?->isOnPackagist()) {
+                    // Packagist owns this one and refreshes it nightly with complete,
+                    // versioned metadata. Overwriting that from a 30-tag window would
+                    // be a downgrade.
                     ++$alreadyKnown;
                 } else {
+                    $isNew = !isset($known[$assembled['package']]);
+
+                    // Known but not on Packagist: this command is the only thing that
+                    // will ever add its new tags. It used to assemble those and throw
+                    // the result away, which froze every GitHub-discovered extension
+                    // at the releases it had on the day it was found — and the
+                    // compatibility matrix is built from exactly that list.
                     if (!$dryRun) {
                         $this->ingestor->ingest($assembled['package'], $assembled['versions'], $source);
                     }
 
-                    // Recorded immediately: forks share a package name, and two
-                    // channels can surface the same repository under different casing.
-                    $known[$assembled['package']] = true;
-                    $ingested[] = $assembled['package'];
+                    if ($isNew) {
+                        // Recorded immediately: forks share a package name, and two
+                        // channels can surface the same repository under different
+                        // casing.
+                        $known[$assembled['package']] = true;
+                        $sources[$assembled['package']] = $source;
+                        $ingested[] = $assembled['package'];
+                    } else {
+                        ++$refreshed;
+                    }
                 }
             } catch (\Throwable $e) {
                 $failed[$fullName] = $e->getMessage();
@@ -282,12 +300,14 @@ final class IngestGitHubCommand extends Command
                 if (!$this->em->isOpen()) {
                     $this->registry->resetManager();
                     $known = $this->extensions->findAllPackageNames();
+                    $sources = $this->extensions->findAllPackageSources();
                 }
             }
 
             if (0 === (++$index) % 25) {
                 $this->em->clear();
                 $known = $this->extensions->findAllPackageNames();
+                $sources = $this->extensions->findAllPackageSources();
             }
 
             $io->progressAdvance();
@@ -299,7 +319,8 @@ final class IngestGitHubCommand extends Command
             ['Outcome', 'Repositories'],
             [
                 [$dryRun ? 'Would ingest (new)' : 'Ingested (new)', \count($ingested)],
-                ['Already indexed under this package name', $alreadyKnown],
+                [$dryRun ? 'Would refresh (new tags)' : 'Refreshed (new tags)', $refreshed],
+                ['Owned by Packagist, left alone', $alreadyKnown],
                 ['No usable release after all', $notAnExtension],
                 ['Failed', \count($failed)],
             ],
