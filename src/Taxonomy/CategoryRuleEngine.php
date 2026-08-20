@@ -46,9 +46,20 @@ final class CategoryRuleEngine
     private const WEIGHT_DESCRIPTION = 1;
 
     /**
-     * A description-only match scores 1 and does not clear this bar. That is
-     * intentional: descriptions mention neighbouring concepts constantly ("works
-     * alongside your payment provider"), and a wrong category is a support email.
+     * A single generic term found only in the description scores 1 and does not clear
+     * this bar. That is intentional: descriptions mention neighbouring concepts
+     * constantly ("works alongside your payment provider"), and a wrong category is a
+     * support email.
+     *
+     * What changed is that a description naming an unambiguous term — `klarna`,
+     * `turnstile`, `datev` — is not mentioning a neighbouring concept, it is stating
+     * its subject. Those reach the bar; generic words still do not, however many of
+     * them appear.
+     *
+     * This mattered because of the shape of the corpus rather than theory: 520 of the
+     * 595 indexed extensions declare no composer keywords at all, and every one of them
+     * has a description. The strongest signal is missing for 87% of the catalogue and
+     * the weakest is universal, which left 223 extensions uncategorised.
      */
     private const MIN_SCORE = 2;
 
@@ -76,13 +87,19 @@ final class CategoryRuleEngine
 
         $scores = [];
 
-        foreach (CategoryDefinition::all() as $key => [, , $terms]) {
+        foreach (CategoryDefinition::all() as $key => [, , $terms, $strong]) {
             foreach ($sources as [$weight, $haystack]) {
                 if ('' === $haystack) {
                     continue;
                 }
 
-                foreach ($terms as $term) {
+                if (self::WEIGHT_DESCRIPTION === $weight) {
+                    $scores[$key] = ($scores[$key] ?? 0) + $this->descriptionWeight($haystack, $terms, $strong);
+
+                    continue;
+                }
+
+                foreach ([...$strong, ...$terms] as $term) {
                     if ($this->matches($haystack, $this->normalise($term))) {
                         // Once per source, not once per synonym.
                         $scores[$key] = ($scores[$key] ?? 0) + $weight;
@@ -109,14 +126,19 @@ final class CategoryRuleEngine
     }
 
     /**
-     * Scores for every category that matched, for the explain command and for
-     * auditing a disputed assignment.
+     * Which terms matched, per category, for auditing an assignment.
+     *
+     * Reports the terms themselves rather than a count, and says which source found
+     * them and whether they were strong. A category assigned on the strength of one
+     * word in a description is exactly the case worth reviewing before it ships, and a
+     * number cannot tell you that; "payment — description: klarna, alipay" can.
      *
      * @param list<string>          $keywords
      * @param array<string, string> $labels
      * @param array<string, string> $descriptions
      *
-     * @return array<string, int>
+     * @return array<string, array<string, list<string>>> category => source => terms,
+     *                                                    strong terms marked with a leading *
      */
     public function explain(
         array $keywords,
@@ -126,30 +148,80 @@ final class CategoryRuleEngine
     ): array {
         $matched = [];
 
-        foreach (CategoryDefinition::all() as $key => [, , $terms]) {
-            $hits = [];
-            $sources = [
-                $keywords,
-                [$this->packageSegment($packageName)],
-                array_values($labels),
-                array_values($descriptions),
-            ];
+        $sources = [
+            'keywords' => $keywords,
+            'name' => [$this->packageSegment($packageName)],
+            'label' => array_values($labels),
+            'description' => array_values($descriptions),
+        ];
 
-            foreach ($sources as $texts) {
+        foreach (CategoryDefinition::all() as $key => [, , $terms, $strong]) {
+            $hits = [];
+
+            foreach ($sources as $source => $texts) {
                 $haystack = $this->normalise(implode(' ', $texts));
+
+                if ('' === $haystack) {
+                    continue;
+                }
+
+                foreach ($strong as $term) {
+                    if ($this->matches($haystack, $this->normalise($term))) {
+                        $hits[$source][] = '*'.$term;
+                    }
+                }
+
                 foreach ($terms as $term) {
-                    if ('' !== $haystack && $this->matches($haystack, $this->normalise($term))) {
-                        $hits[] = $term;
+                    if ($this->matches($haystack, $this->normalise($term))) {
+                        $hits[$source][] = $term;
                     }
                 }
             }
 
             if ([] !== $hits) {
-                $matched[$key] = \count(array_unique($hits));
+                $matched[$key] = $hits;
             }
         }
 
         return $matched;
+    }
+
+    /**
+     * What one category's presence in a description is worth.
+     *
+     * Enough on its own only when the description names a term that means exactly one
+     * thing. Any number of generic terms is worth one, which never assigns anything by
+     * itself.
+     *
+     * Counting two generic terms as corroboration was tried and measured against the
+     * corpus first. It was wrong, and wrong in a way worth recording: the term lists
+     * carry English and German side by side, so `customer` and `kunde` — or `delivery`
+     * and `lieferung`, or `payment` and `zahlung` — are the same concept written twice,
+     * not two independent signals. A CDN plugin was filed under Shipping on "delivery,
+     * lieferung" and a search-suggest plugin under Customers on "customer, kunde".
+     * Roughly a third of the new assignments were wrong that way.
+     *
+     * A brand is different: nobody writes "Klarna" or "Turnstile" in a description
+     * unless that is what the extension is for.
+     *
+     * @param list<string> $terms  generic terms, indicative but never conclusive
+     * @param list<string> $strong terms that mean exactly one thing
+     */
+    private function descriptionWeight(string $haystack, array $terms, array $strong): int
+    {
+        foreach ($strong as $term) {
+            if ($this->matches($haystack, $this->normalise($term))) {
+                return self::MIN_SCORE;
+            }
+        }
+
+        foreach ($terms as $term) {
+            if ($this->matches($haystack, $this->normalise($term))) {
+                return self::WEIGHT_DESCRIPTION;
+            }
+        }
+
+        return 0;
     }
 
     /**

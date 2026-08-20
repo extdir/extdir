@@ -42,12 +42,27 @@ final class ClassifyExtensionsCommand extends Command
 
     protected function configure(): void
     {
-        $this->addOption(
-            'show-uncategorised',
-            null,
-            InputOption::VALUE_NONE,
-            'List the extensions no rule matched, to guide the next rule additions',
-        );
+        $this
+            ->addOption(
+                'show-uncategorised',
+                null,
+                InputOption::VALUE_NONE,
+                'List the extensions no rule matched, to guide the next rule additions',
+            )
+            // Categories are overwritten wholesale on every run, so without this there
+            // was no way to see what a rule change would do until after it had done it.
+            ->addOption(
+                'dry-run',
+                null,
+                InputOption::VALUE_NONE,
+                'Report what would be assigned without writing anything',
+            )
+            ->addOption(
+                'explain',
+                null,
+                InputOption::VALUE_NONE,
+                'Print the terms behind each assignment, marking strong terms with *',
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -57,9 +72,13 @@ final class ClassifyExtensionsCommand extends Command
         $this->syncCategories();
         $categories = $this->categories->findAllKeyed();
 
+        $dryRun = (bool) $input->getOption('dry-run');
+        $explain = (bool) $input->getOption('explain');
+
         $extensions = $this->extensions->findBy([]);
         $counts = [];
         $uncategorised = [];
+        $reasons = [];
 
         foreach ($extensions as $extension) {
             $keys = $this->engine->categorise(
@@ -69,21 +88,42 @@ final class ClassifyExtensionsCommand extends Command
                 $extension->getPackageName(),
             );
 
-            $extension->clearCategories();
+            if (!$dryRun) {
+                $extension->clearCategories();
+            }
 
             foreach ($keys as $key) {
                 if (isset($categories[$key])) {
-                    $extension->addCategory($categories[$key]);
+                    if (!$dryRun) {
+                        $extension->addCategory($categories[$key]);
+                    }
+
                     $counts[$key] = ($counts[$key] ?? 0) + 1;
                 }
             }
 
             if ([] === $keys) {
                 $uncategorised[] = $extension->getPackageName();
+            } elseif ($explain) {
+                $reasons[$extension->getPackageName()] = [
+                    $keys,
+                    $this->engine->explain(
+                        $extension->getKeywords(),
+                        $extension->getLabels(),
+                        $extension->getDescriptions(),
+                        $extension->getPackageName(),
+                    ),
+                ];
             }
         }
 
-        $this->em->flush();
+        if ($dryRun) {
+            // Categories were never cleared, so there is nothing pending; clearing the
+            // manager as well guarantees no half-built association is flushed later.
+            $this->em->clear();
+        } else {
+            $this->em->flush();
+        }
 
         arsort($counts);
         $rows = [];
@@ -104,9 +144,32 @@ final class ClassifyExtensionsCommand extends Command
             $missed,
         ));
 
+        if ($dryRun) {
+            $io->note('Dry run: nothing was written.');
+        }
+
         if ($input->getOption('show-uncategorised') && [] !== $uncategorised) {
             $io->section('Matched no rule');
             $io->listing($uncategorised);
+        }
+
+        if ($explain && [] !== $reasons) {
+            $io->section('Why each extension was categorised');
+
+            foreach ($reasons as $package => [$keys, $matched]) {
+                $io->writeln(\sprintf(' <info>%s</info>', $package));
+
+                foreach ($keys as $key) {
+                    foreach ($matched[$key] ?? [] as $source => $terms) {
+                        $io->writeln(\sprintf(
+                            '   %-14s %-12s %s',
+                            $key,
+                            $source,
+                            implode(', ', $terms),
+                        ));
+                    }
+                }
+            }
         }
 
         return Command::SUCCESS;

@@ -83,8 +83,11 @@ final class CategoryRuleEngineTest extends TestCase
      * A description mentioning a neighbouring concept must not create a category.
      * Descriptions constantly say things like "works alongside your payment
      * provider", and every wrong assignment is a support email.
+     *
+     * This is the case the whole description rule is built around: one ordinary word,
+     * and nothing else, stays below the bar.
      */
-    public function testDescriptionAloneDoesNotAssignACategory(): void
+    public function testOneGenericTermInADescriptionIsStillNotEnough(): void
     {
         $categories = $this->engine->categorise(
             [],
@@ -93,6 +96,91 @@ final class CategoryRuleEngineTest extends TestCase
         );
 
         self::assertNotContains('payment', $categories);
+    }
+
+    /**
+     * A term that means only one thing is enough on its own.
+     *
+     * Nobody writes "Turnstile" in a plugin description by accident, so the
+     * corroboration a generic word needs would be ceremony here. 520 of the 595
+     * indexed extensions declare no keywords at all, and this is how the ones that
+     * name their subject plainly get categorised at all.
+     */
+    public function testAStrongTermInADescriptionAssignsOnItsOwn(): void
+    {
+        $categories = $this->engine->categorise(
+            [],
+            ['en-GB' => 'Simple Turnstile'],
+            ['en-GB' => 'Adds Cloudflare Turnstile as a captcha solution for Shopware 6.'],
+        );
+
+        self::assertContains('security', $categories);
+    }
+
+    /**
+     * Several generic terms are still not corroboration.
+     *
+     * Counting two of them as evidence was tried and measured, and it was wrong: the
+     * term lists carry English and German side by side, so `customer` and `kunde` are
+     * one concept written twice, not two independent signals. On the live corpus that
+     * filed a CDN plugin under Shipping on "delivery, lieferung" and a search-suggest
+     * plugin under Customers on "customer, kunde" — about a third of the new
+     * assignments were wrong that way.
+     */
+    public function testSeveralGenericTermsAreStillNotEnough(): void
+    {
+        $translations = $this->engine->categorise(
+            [],
+            ['en-GB' => 'Bunny CDN Storage'],
+            ['en-GB' => 'Speeds up delivery of media. Beschleunigt die Lieferung.'],
+        );
+
+        self::assertNotContains('shipping', $translations, 'delivery and Lieferung are one signal.');
+
+        $sameConcept = $this->engine->categorise(
+            [],
+            ['en-GB' => 'Turbo Suggest'],
+            ['en-GB' => 'Shows suggestions to the customer. Für jeden Kunde nützlich.'],
+        );
+
+        self::assertNotContains('customer', $sameConcept);
+    }
+
+    /**
+     * From the live catalogue, verbatim: uncategorised before this rule existed.
+     */
+    public function testTheMultisafepayDescriptionCategorisesAsPayment(): void
+    {
+        $categories = $this->engine->categorise(
+            [],
+            ['en-GB' => 'MultiSafepay'],
+            ['en-GB' => 'MultiSafepay online payments for Shopware (iDEAL | Wero, Cards, Klarna, Alipay etc.)'],
+        );
+
+        self::assertContains('payment', $categories);
+    }
+
+    /**
+     * Also from the live catalogue: a description whose only payment word is the
+     * generic one must still not be enough, even now.
+     */
+    public function testABitcoinPaymentDescriptionNeedsItsStrongTerm(): void
+    {
+        $withBrand = $this->engine->categorise(
+            [],
+            ['en-GB' => 'Coinsnap'],
+            ['en-GB' => 'Accept Bitcoin and Lightning payment in Shopware with Coinsnap.'],
+        );
+
+        self::assertContains('payment', $withBrand, 'bitcoin is unambiguous.');
+
+        $withoutBrand = $this->engine->categorise(
+            [],
+            ['en-GB' => 'Some Widget'],
+            ['en-GB' => 'Works with the payment method you already accept.'],
+        );
+
+        self::assertNotContains('payment', $withoutBrand);
     }
 
     /**
@@ -141,9 +229,14 @@ final class CategoryRuleEngineTest extends TestCase
         $many = $this->engine->explain(['payment', 'zahlung', 'paypal', 'stripe', 'klarna'], [], []);
         $one = $this->engine->explain(['payment'], [], []);
 
-        // explain() reports raw hit counts, but categorise() must rank them equally
-        // against a competing single-hit category.
-        self::assertGreaterThan($one['payment'], $many['payment']);
+        // explain() lists every term that matched, so the stuffed one legitimately
+        // reports more of them — that is its job, showing why an assignment happened.
+        self::assertGreaterThan(
+            \count($one['payment']['keywords']),
+            \count($many['payment']['keywords']),
+        );
+
+        // categorise() must not care: five payment synonyms score exactly what one does.
         self::assertSame(['payment'], $this->engine->categorise(['payment', 'zahlung', 'paypal'], [], []));
     }
 
