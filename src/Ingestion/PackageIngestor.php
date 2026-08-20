@@ -76,7 +76,18 @@ final class PackageIngestor
         $latestStable = $this->pickLatestStable($sorted);
 
         $extension = $this->upsertExtension($packageName, $latestStable ?? $sorted[0]);
-        $extension->setDiscoverySource($discoveredVia);
+
+        // A brand-new row starts life holding the column default, Packagist, so the
+        // "never downgrade away from Packagist" guard in setDiscoverySource() refuses
+        // the source it was actually found by — every GitHub-discovered extension was
+        // recorded as being on Packagist, which is the one claim that is not merely
+        // cosmetic: isOnPackagist() decides whether we publish it in our Composer
+        // repository. Creation establishes provenance; later crawls may only upgrade it.
+        if (null === $extension->getId()) {
+            $extension->forceDiscoverySource($discoveredVia);
+        } else {
+            $extension->setDiscoverySource($discoveredVia);
+        }
 
         $shopwareVersions = $this->shopwareVersions->findOrdered();
         $existing = $this->releases->findKeyedByVersion($extension);

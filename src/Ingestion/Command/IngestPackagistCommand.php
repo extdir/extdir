@@ -144,12 +144,26 @@ final class IngestPackagistCommand extends Command
         $corrected = 0;
 
         foreach ($this->extensions->findBy([]) as $extension) {
-            $shouldBe = isset($onPackagist[$extension->getPackageName()])
-                ? DiscoverySource::Packagist
-                : DiscoverySource::GitHubTopic;
+            $listed = isset($onPackagist[$extension->getPackageName()]);
+            $current = $extension->getDiscoverySource();
 
-            if ($extension->getDiscoverySource() !== $shouldBe) {
-                $extension->forceDiscoverySource($shouldBe);
+            if ($listed) {
+                if (!$current->isOnPackagist()) {
+                    $extension->forceDiscoverySource(DiscoverySource::Packagist);
+                    ++$corrected;
+                }
+
+                continue;
+            }
+
+            // Not on Packagist. This pass knows that much and no more: topic, search
+            // and submitted are all equally "not on Packagist", and it cannot tell
+            // which one found the extension. So it corrects a stale Packagist claim
+            // and otherwise leaves the recorded channel alone — rewriting them all to
+            // GitHubTopic, as it used to, erased the provenance of every extension
+            // found any other way.
+            if ($current->isOnPackagist()) {
+                $extension->forceDiscoverySource(DiscoverySource::GitHubTopic);
                 ++$corrected;
             }
         }
