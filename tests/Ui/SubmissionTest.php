@@ -66,7 +66,12 @@ final class SubmissionTest extends WebTestCase
         $crawler = $client->request('GET', '/submit');
         $token = $crawler->filter('input[name="_token"]')->attr('value');
 
-        $client->request('POST', '/submit', ['url' => $url, '_token' => $token]);
+        // Its own IP with a reset budget, following the convention the imprint tests
+        // set: the limiter's storage outlives a single run, so sharing the default
+        // client address makes a later assertion fail on a 429 it never asked about.
+        $ip = self::withFreshLimiterBudget('198.51.100.21');
+
+        $client->request('POST', '/submit', ['url' => $url, '_token' => $token], [], ['REMOTE_ADDR' => $ip]);
 
         self::assertResponseRedirects('/submit');
 
@@ -90,6 +95,35 @@ final class SubmissionTest extends WebTestCase
         // Not a forge at all. The point is that nothing is fetched from it.
         yield 'someone elses host' => ['https://example.com/acme/widget'];
         yield 'file scheme' => ['file:///etc/passwd'];
+    }
+
+    /**
+     * The ceiling exists because each accepted submission spends GitHub requests and
+     * can write to the catalogue.
+     */
+    public function testTooManySubmissionsFromOneNetworkAreRefused(): void
+    {
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/submit');
+        $token = $crawler->filter('input[name="_token"]')->attr('value');
+
+        $ip = self::withFreshLimiterBudget('198.51.100.22');
+
+        $limiter = static::getContainer()->get('limiter.submission');
+        while ($limiter->create($ip)->consume(1)->isAccepted()) {
+        }
+
+        $client->request('POST', '/submit', ['url' => 'https://github.com/acme/widget', '_token' => $token], [], ['REMOTE_ADDR' => $ip]);
+
+        self::assertResponseRedirects('/submit');
+        self::assertStringContainsString('Too many submissions', $client->followRedirect()->filter('body')->text());
+    }
+
+    private static function withFreshLimiterBudget(string $ip): string
+    {
+        static::getContainer()->get('limiter.submission')->create($ip)->reset();
+
+        return $ip;
     }
 
     /**

@@ -55,7 +55,7 @@ final class GitHubPackageAssembler
         GRAPHQL;
 
     public function __construct(
-        private readonly GitHubClient $github,
+        private readonly GitHubGraphQl $github,
         private readonly LoggerInterface $logger,
         private readonly VersionParser $versionParser = new VersionParser(),
     ) {
@@ -126,6 +126,7 @@ final class GitHubPackageAssembler
         $repoUrl = \is_string($repo['url'] ?? null) ? $repo['url'] : \sprintf('https://github.com/%s/%s', $owner, $name);
 
         $versions = [];
+        $seen = [];
 
         foreach ($tags as $tag) {
             $composerJson = $manifests[$tag['tag']] ?? null;
@@ -138,6 +139,19 @@ final class GitHubPackageAssembler
             if (null === $normalized) {
                 continue;
             }
+
+            // Two tags can normalise to one version: `v1.0.0` and `1.0.0` are the same
+            // release spelled twice, and repositories that switched convention carry
+            // both. Emitting both violates the unique index on (extension, version)
+            // and — because a failed insert closes the EntityManager — took the rest
+            // of the sweep down with it when it was first hit.
+            //
+            // Tags arrive newest first, so the first spelling of a version wins.
+            if (isset($seen[$normalized])) {
+                continue;
+            }
+
+            $seen[$normalized] = true;
 
             // Assembled into the same shape Packagist serves, so the ingestor cannot
             // tell the difference.

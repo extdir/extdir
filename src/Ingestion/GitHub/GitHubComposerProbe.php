@@ -37,7 +37,7 @@ final class GitHubComposerProbe
     private const int BATCH = 25;
 
     public function __construct(
-        private readonly GitHubClient $github,
+        private readonly GitHubGraphQl $github,
         private readonly LoggerInterface $logger,
     ) {
     }

@@ -13,6 +13,7 @@ use App\Ingestion\GitHub\GitHubRepositoryDiscovery;
 use App\Ingestion\GitHub\GitHubTopicDiscovery;
 use App\Ingestion\PackageIngestor;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -63,6 +64,7 @@ final class IngestGitHubCommand extends Command
         private readonly ExtensionRepository $extensions,
         private readonly GitHubClient $github,
         private readonly EntityManagerInterface $em,
+        private readonly ManagerRegistry $registry,
     ) {
         parent::__construct();
     }
@@ -271,6 +273,16 @@ final class IngestGitHubCommand extends Command
                 }
             } catch (\Throwable $e) {
                 $failed[$fullName] = $e->getMessage();
+
+                // Doctrine closes the EntityManager on any failed query, and every
+                // later write then throws "The EntityManager is closed" — so a single
+                // bad package silently took out the remaining 95 of a sweep the first
+                // time this was run for real. Catching per candidate is not enough on
+                // its own; the manager has to be replaced before continuing.
+                if (!$this->em->isOpen()) {
+                    $this->registry->resetManager();
+                    $known = $this->extensions->findAllPackageNames();
+                }
             }
 
             if (0 === (++$index) % 25) {

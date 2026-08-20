@@ -18,7 +18,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * eight hours, a crawl can outlive that, and the refresh must be transparent to the
  * worker halfway through a run.
  */
-final class GitHubClient
+final class GitHubClient implements GitHubGraphQl
 {
     /**
      * Seconds between search requests: 30 a minute is one every two, plus a margin for
