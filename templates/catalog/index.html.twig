@@ -71,7 +71,21 @@
     </div>
 
     <div class="catalog">
-        <aside class="facets" aria-label="Filters">
+        {# On a phone the filter column stacks above the results, and it is long: 40
+           links, so the first extension began 1.6 screens down on a directory whose
+           entire purpose is browsing extensions.
+
+           Collapsed into a drawer rather than reordered with CSS `order`, which would
+           have left a keyboard user tabbing through filters while looking at results.
+           The markup ships open, so a browser without JavaScript keeps today's
+           behaviour; the controller closes it only on the widths where it is a
+           problem. #}
+        <aside class="facets" aria-label="Filters" data-controller="facet-drawer">
+            <details class="facet-drawer" open data-facet-drawer-target="drawer">
+                <summary class="facet-drawer-toggle">
+                    Filters{% if criteria.hasFilters %} <span class="chip chip--count">active</span>{% endif %}
+                </summary>
+
             {% if criteria.hasFilters %}
                 <p class="facet-clear-wrap">
                     <a class="facet-clear" href="{{ path('home', criteria.isCompact ? {view: 'compact'} : {}) }}">Clear all filters</a>
@@ -189,6 +203,7 @@
                     {% endif %}
                 </div>
             {% endif %}
+            </details>
         </aside>
 
         <div>

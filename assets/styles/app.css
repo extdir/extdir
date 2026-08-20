@@ -314,7 +314,17 @@ p:last-child { margin-bottom: 0; }
 
 /* ============================================================ UTILITIES */
 
-.wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--s-5); }
+/* padding-inline, not the shorthand: every companion class on a .wrap element —
+   .masthead, .page, .header-nav-inner — sets its own vertical padding, and a
+   `padding: X 0` shorthand in any of them silently reset this to zero. The gutter
+   vanished on every page; on a desktop the max-width left slack so nobody noticed,
+   and on a phone the content sat flush against the edge of the screen. */
+.wrap { max-width: var(--wrap); margin: 0 auto; padding-inline: var(--s-5); }
+
+/* 24px of each side out of a 320px screen is a lot of the screen. */
+@media (max-width: 480px) {
+    .wrap { padding-inline: var(--s-4); }
+}
 .mono { font-family: var(--font-mono); }
 .num { font-variant-numeric: tabular-nums; }
 .muted { color: var(--ink-muted); }
@@ -390,7 +400,7 @@ p:last-child { margin-bottom: 0; }
     grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
     gap: var(--s-5);
-    padding: var(--s-4) 0;
+    padding-block: var(--s-4);
 }
 
 .brand { display: inline-flex; align-items: center; gap: var(--s-2); }
@@ -438,7 +448,7 @@ p:last-child { margin-bottom: 0; }
 .header-nav-bar { border-top: 1px solid var(--border); background: var(--surface-sunk); }
 .header-nav-inner {
     display: flex; align-items: center; justify-content: space-between;
-    gap: var(--s-4); flex-wrap: wrap; padding: var(--s-2) 0;
+    gap: var(--s-4); flex-wrap: wrap; padding-block: var(--s-2);
 }
 .header-nav { display: flex; gap: var(--s-5); }
 .header-nav a {
@@ -461,7 +471,7 @@ p:last-child { margin-bottom: 0; }
 
 /* ============================================================ PAGE */
 
-.page { padding: var(--s-7) 0 var(--s-9); }
+.page { padding-block: var(--s-7) var(--s-9); }
 .page--narrow { max-width: 48rem; }
 
 .page-head { margin-bottom: var(--s-6); }
@@ -672,7 +682,7 @@ a.badge:hover { border-color: var(--signal-info); color: var(--signal-info); tex
 /* The facts, as a table rather than prose. Four columns on desktop so the whole
    answer is one glance. */
 .spec {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(min(11rem, 100%), 1fr));
     gap: var(--s-5); margin-top: var(--s-5);
     padding-top: var(--s-5); border-top: 1px solid var(--border);
 }
@@ -952,7 +962,10 @@ table.data td.num, table.data th.num { text-align: right; font-variant-numeric: 
    the content beside it. */
 .detail-actions {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    /* min(…, 100%) rather than a bare 20rem: a fixed minimum track cannot shrink, so
+       on a 320px screen a 20rem floor is wider than the content column and the panels
+       hang 16px past the edge of the page. */
+    grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
     gap: var(--s-4);
     margin-top: var(--s-4);
 }
@@ -1238,3 +1251,37 @@ table.data a:hover { text-decoration-thickness: 2px; }
 
 /* The thumbnail is a link but opens a dialog, so it should read as pressable. */
 .shot { cursor: zoom-in; }
+
+/* ============================================================ FILTER DRAWER
+ *
+ * A control only on the widths where the filter column is in the way. On desktop the
+ * sidebar is beside the results, not above them, so there is nothing to collapse and
+ * the toggle would be furniture. */
+
+.facet-drawer-toggle { display: none; }
+
+@media (max-width: 900px) {
+    .facet-drawer-toggle {
+        display: flex; align-items: center; gap: var(--s-2);
+        padding: var(--s-3) var(--s-4);
+        border: 1px solid var(--border); border-radius: var(--radius);
+        background: var(--surface);
+        font-size: var(--t-small); font-weight: 500;
+        cursor: pointer;
+        list-style: none;
+    }
+    /* Safari draws its own triangle through ::-webkit-details-marker. */
+    .facet-drawer-toggle::-webkit-details-marker { display: none; }
+
+    .facet-drawer-toggle::after {
+        content: '▾';
+        margin-left: auto;
+        color: var(--ink-subtle);
+        transition: transform 120ms ease;
+    }
+    .facet-drawer[open] > .facet-drawer-toggle::after { transform: rotate(180deg); }
+
+    .facet-drawer[open] > .facet-drawer-toggle { margin-bottom: var(--s-4); }
+}
+
+.chip--count { background: var(--signal-info-bg); color: var(--signal-info); border-color: transparent; }
