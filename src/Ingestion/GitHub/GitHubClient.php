@@ -20,6 +20,14 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  */
 final class GitHubClient
 {
+    /**
+     * Seconds between search requests: 30 a minute is one every two, plus a margin for
+     * clock drift and for GitHub counting the window slightly differently than we do.
+     */
+    private const float SEARCH_INTERVAL_SECONDS = 2.1;
+
+    private float $lastSearchAt = 0.0;
+
     public function __construct(
         #[Autowire(service: 'github.api')]
         private readonly HttpClientInterface $api,
@@ -63,6 +71,27 @@ final class GitHubClient
     }
 
     /**
+     * Core requests left this hour, as opposed to rateLimit()'s ceiling.
+     *
+     * The distinction matters: a guard written against the ceiling compares 5,000
+     * against its threshold every time and therefore never fires, which is worse than
+     * having no guard because it reads like one.
+     *
+     * Reports the core bucket only. Search has its own, far smaller per-minute budget
+     * that this cannot see, which get() paces for separately.
+     */
+    public function remainingRequests(): ?int
+    {
+        $response = $this->get('rate_limit');
+
+        $remaining = $response['resources']['core']['remaining']
+            ?? $response['rate']['remaining']
+            ?? null;
+
+        return \is_int($remaining) ? $remaining : null;
+    }
+
+    /**
      * Null means the request failed; an empty array means GitHub answered with one.
      * The distinction matters for the canary check in app:github:authorize, where
      * "could not read" and "read nothing" lead to opposite conclusions.
@@ -75,6 +104,8 @@ final class GitHubClient
         if (null === $token) {
             return null;
         }
+
+        $this->paceSearch($path);
 
         try {
             $response = $this->api->request('GET', $path, [
@@ -182,6 +213,34 @@ final class GitHubClient
     /**
      * A usable access token, refreshed first if it is close to expiring.
      */
+    /**
+     * Keeps search requests inside GitHub's separate per-minute budget.
+     *
+     * Search is limited to 30 requests a minute for an authenticated token, and that
+     * budget is nothing to do with the 5,000-an-hour core one. A full sweep pages
+     * through several queries at 100 results each and would otherwise burn through it
+     * in seconds, then receive 403s that look exactly like a broken query.
+     *
+     * It lives here rather than in the discovery classes because the budget belongs to
+     * the token, not to a class: topic and repository discovery run back to back in a
+     * single sweep, and pacing each of them separately would still let the pair exceed
+     * the limit together.
+     */
+    private function paceSearch(string $path): void
+    {
+        if (!str_starts_with($path, 'search/')) {
+            return;
+        }
+
+        $elapsed = microtime(true) - $this->lastSearchAt;
+
+        if ($elapsed < self::SEARCH_INTERVAL_SECONDS) {
+            usleep((int) ((self::SEARCH_INTERVAL_SECONDS - $elapsed) * 1_000_000));
+        }
+
+        $this->lastSearchAt = microtime(true);
+    }
+
     private function currentAccessToken(): ?string
     {
         $token = $this->tokens->findCurrent();

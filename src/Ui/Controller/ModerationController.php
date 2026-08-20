@@ -77,8 +77,14 @@ final class ModerationController extends AbstractController
             throw $this->createNotFoundException();
         }
 
+        // Not an AccessDeniedException: Symfony answers that for an anonymous visitor
+        // by redirecting into the GitHub sign-in, and this form's whole premise is
+        // that a rights holder never needs an account. An expired token means try
+        // again, not authenticate.
         if (!$this->isCsrfTokenValid('report'.$slug, (string) $request->request->get('_token'))) {
-            throw $this->createAccessDeniedException('Invalid token.');
+            $this->addFlash('error', 'That form had expired. Please try again.');
+
+            return $this->redirectToRoute('complaint_new', ['slug' => $slug]);
         }
 
         // An unauthenticated form that writes to the database needs a ceiling, or the

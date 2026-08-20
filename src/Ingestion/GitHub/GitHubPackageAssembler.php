@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Ingestion\GitHub;
 
+use App\Ingestion\ShopwarePackageType;
 use Composer\Semver\VersionParser;
 use Psr\Log\LoggerInterface;
 
@@ -85,7 +86,7 @@ final class GitHubPackageAssembler
         // author thinks the repository is about; the type says what Composer will
         // actually install, and the topics carry plenty of themes, demos, docker
         // setups and Shopware 5 plugins that are none of our business.
-        if (null === $headJson || !$this->isShopwareExtension($headJson)) {
+        if (null === $headJson || !ShopwarePackageType::matches($headJson)) {
             return null;
         }
 
@@ -261,14 +262,6 @@ final class GitHubPackageAssembler
         }
 
         return $tags;
-    }
-
-    /**
-     * @param array<string, mixed> $composerJson
-     */
-    private function isShopwareExtension(array $composerJson): bool
-    {
-        return 'shopware-platform-plugin' === ($composerJson['type'] ?? null);
     }
 
     private function normalise(string $tag): ?string

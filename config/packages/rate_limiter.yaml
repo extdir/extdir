@@ -30,6 +30,16 @@ framework:
             limit: 10
             interval: '1 hour'
 
+        # Submitting a repository triggers several GitHub requests and can write a
+        # new extension, so it needs a ceiling for the same reason the report form
+        # does. Five an hour: a maintainer submits their own plugin once, and someone
+        # tidying up after a crawl gap might submit a handful. Anything above that is
+        # not a person.
+        submission:
+            policy: 'fixed_window'
+            limit: 5
+            interval: '1 hour'
+
 # Tests would exhaust the real budget within one test class, turning an unrelated
 # assertion into a 429. The limiter still runs — only the ceiling moves — so the
 # 429 path stays testable by exhausting it deliberately, which the rate-limit test
@@ -46,6 +56,10 @@ when@test:
                 limit: 50
                 interval: '1 hour'
             complaint:
+                policy: 'fixed_window'
+                limit: 50
+                interval: '1 hour'
+            submission:
                 policy: 'fixed_window'
                 limit: 50
                 interval: '1 hour'

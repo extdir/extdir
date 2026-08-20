@@ -23,6 +23,18 @@ enum DiscoverySource: string
     case Packagist = 'packagist';
     case GitHubTopic = 'github_topic';
 
+    /**
+     * Found by searching repositories rather than by a topic the maintainer set.
+     *
+     * Same standing as GitHubTopic — not on Packagist, so it is exactly what the
+     * Composer repository is for. Recorded separately only so the channel's yield and
+     * its noise can be measured rather than guessed at.
+     */
+    case GitHubSearch = 'github_search';
+
+    /** Somebody pointed us at it. Also not on Packagist, or a crawl would have it. */
+    case Submitted = 'submitted';
+
     public function isOnPackagist(): bool
     {
         return self::Packagist === $this;
@@ -33,6 +45,8 @@ enum DiscoverySource: string
         return match ($this) {
             self::Packagist => 'Packagist',
             self::GitHubTopic => 'GitHub (not on Packagist)',
+            self::GitHubSearch => 'GitHub (not on Packagist)',
+            self::Submitted => 'Submitted (not on Packagist)',
         };
     }
 }

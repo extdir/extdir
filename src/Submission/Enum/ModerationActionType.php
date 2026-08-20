@@ -26,6 +26,15 @@ enum ModerationActionType: string
 
     case MetadataCorrected = 'metadata_corrected';
 
+    /**
+     * Somebody pointed us at a repository the crawlers had not found.
+     *
+     * Recorded because it is the one way into the catalogue that a person chose
+     * rather than an algorithm, and the audit log should be able to answer "why is
+     * this here" for every entry, not only for the ones that were removed.
+     */
+    case Submitted = 'submitted';
+
     public function label(): string
     {
         return match ($this) {
@@ -34,6 +43,7 @@ enum ModerationActionType: string
             self::Delisted => 'Removed from the index',
             self::Relisted => 'Restored to the index',
             self::MetadataCorrected => 'Metadata corrected',
+            self::Submitted => 'Submitted by a visitor',
         };
     }
 }

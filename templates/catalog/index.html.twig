@@ -272,6 +272,14 @@
                         Search terms shorter than three characters are ignored — the database index
                         does not store them.
                     </p>
+                    {# Someone staring at an empty result is the one person who knows
+                       about an extension we do not. Asking here costs nothing and is
+                       the only moment they are certain of the gap. #}
+                    <p class="small">
+                        Know an extension that should be listed?
+                        <a href="{{ path('submission_new') }}">Submit it</a> — it is added
+                        straight away if its composer.json says it is a Shopware 6 plugin.
+                    </p>
                     <p><a class="link-arrow" href="{{ path('home') }}">Clear filters</a></p>
                 </div>
             {% else %}
