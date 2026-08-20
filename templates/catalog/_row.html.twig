@@ -14,10 +14,17 @@
     Wording stays "declares" and never "works with": this is the maintainer's own
     constraint from composer.json, not a test result.
 #}
-{# role=option inside the list's role=listbox: the keyboard controller moves a
-   selection rather than DOM focus, because focusing each of forty rows would make a
-   screen reader read every one in full. #}
-<article class="row" role="option" aria-selected="false" data-shortcuts-target="row">
+{# role=listitem, not role=option.
+
+   This was a listbox, on the reasoning that the keyboard shortcuts move a selection
+   rather than DOM focus. But an option may not contain interactive descendants, and
+   every row holds a title link and a copy button — so the row announced as a single
+   choice and the links inside it were not reliably reachable. A row is a record in a
+   list, not one of forty things you pick between.
+
+   The selection is still not focus: it stays a class, and the row's name is announced
+   through the live region the shortcuts controller owns. #}
+<article class="row" role="listitem" data-shortcuts-target="row">
     <div class="row-main">
         {{ include('catalog/_icon.html.twig') }}
 

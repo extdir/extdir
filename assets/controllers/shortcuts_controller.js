@@ -16,7 +16,7 @@ import { Controller } from '@hotwired/stimulus';
  *
  * Selection is deliberately not focus. Moving DOM focus through forty rows makes a
  * screen reader announce each one in full, which is unusable; instead the selected
- * row is marked with aria-selected inside a listbox and announced through a live
+ * row is marked with a class and announced through a live
  * region, and Enter follows its link.
  */
 export default class extends Controller {
@@ -102,8 +102,10 @@ export default class extends Controller {
     render(rows) {
         rows.forEach((row, i) => {
             const selected = i === this._index;
+            // A class, not aria-selected: that attribute belongs to a listbox
+            // option, and these rows contain links and a button, which an option may
+            // not. The live region below is what carries the move to a screen reader.
             row.classList.toggle('is-selected', selected);
-            row.setAttribute('aria-selected', selected ? 'true' : 'false');
         });
 
         const current = rows[this._index];
@@ -144,7 +146,6 @@ export default class extends Controller {
         this._index = -1;
         this.rowTargets.forEach((row) => {
             row.classList.remove('is-selected');
-            row.setAttribute('aria-selected', 'false');
         });
     }
 }

@@ -86,6 +86,28 @@
                     Filters{% if criteria.hasFilters %} <span class="chip chip--count">active</span>{% endif %}
                 </summary>
 
+                {# Closed here, during parsing, rather than by the controller after
+                   hydration. Collapsing it later moved the results column up by 590px
+                   *after* first paint — a layout shift of 0.26 on its own, which is
+                   most of a failing CLS score, and exactly the kind of jump that makes
+                   a page feel broken on a phone.
+
+                   Same trick as the theme script in base.html.twig: it runs before the
+                   content below it has been laid out, so nothing ever moves. The
+                   markup ships open, so a browser with no JavaScript still shows the
+                   filters. #}
+                <script>
+                    (function (drawer) {
+                        try {
+                            if (window.matchMedia('(max-width: 900px)').matches) {
+                                drawer.open = false;
+                            }
+                        } catch (e) {
+                            /* No matchMedia. Leaving it open is the safe direction. */
+                        }
+                    })(document.currentScript.parentNode);
+                </script>
+
             {% if criteria.hasFilters %}
                 <p class="facet-clear-wrap">
                     <a class="facet-clear" href="{{ path('home', criteria.isCompact ? {view: 'compact'} : {}) }}">Clear all filters</a>
@@ -299,7 +321,7 @@
                 </div>
             {% else %}
                 <div class="rows {{ criteria.isCompact ? 'rows--compact' : '' }}"
-                     role="listbox" aria-label="Extensions"
+                     role="list" aria-label="Extensions"
                      tabindex="-1">
                     {# Column headers, so every row is read against a label rather than
                        against a legend. They stay put while the list scrolls. #}

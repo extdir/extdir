@@ -32,9 +32,10 @@ export default class extends Controller {
             if (!this.touched) this.drawerTarget.open = !this.query.matches;
         };
 
-        // Set before first paint where possible, so the panel does not visibly
-        // collapse a moment after the page appears.
-        this.drawerTarget.open = !this.query.matches;
+        // The initial state is set by an inline script during parsing — doing it
+        // here instead moved the results 590px after first paint, which was most of
+        // a failing CLS score. This controller only handles what happens afterwards:
+        // a rotation, or a window being resized across the breakpoint.
         this.query.addEventListener('change', this.apply);
     }
 
