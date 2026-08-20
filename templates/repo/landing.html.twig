@@ -19,7 +19,7 @@
         </p>
 
         <h2>Using it</h2>
-        <pre class="code"><code>composer config repositories.extdir composer {{ url('repo_landing') }}
+        <pre class="code" tabindex="0"><code>composer config repositories.extdir composer {{ url('repo_landing') }}
 composer require vendor/plugin-name</code></pre>
         <p class="small subtle">
             Composer appends <code>/packages.json</code> to that URL by itself — which is why this
@@ -42,7 +42,7 @@ composer require vendor/plugin-name</code></pre>
         </p>
 
         <h2>After installing</h2>
-        <pre class="code"><code>bin/console plugin:refresh
+        <pre class="code" tabindex="0"><code>bin/console plugin:refresh
 bin/console plugin:install --activate YourPluginName</code></pre>
         <p class="small subtle">
             The technical name is the class in <code>extra.shopware-plugin-class</code>, not the

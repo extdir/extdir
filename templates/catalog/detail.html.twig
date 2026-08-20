@@ -159,7 +159,7 @@
             <div class="install">
                 <span class="label spec-key">Install</span>
                 <div class="install-row">
-                    <pre class="code">composer require {{ extension.packageName }}</pre>
+                    <pre class="code" tabindex="0">composer require {{ extension.packageName }}</pre>
                     <button type="button" class="btn btn--sm copy-btn"
                             data-controller="clipboard"
                             data-action="clipboard#copy"
@@ -197,7 +197,7 @@
             {% if releases|length %}
             <section class="panel">
                 <h2>Releases</h2>
-                <div class="table-scroll">
+                <div class="table-scroll" tabindex="0">
                     <table class="data">
                         <thead>
                         <tr>
@@ -256,7 +256,7 @@
                 {% if extension.licenseStatus.isRedistributable %}
                     {% if extension.onPackagist %}
                         <p class="small muted">Available on Packagist:</p>
-                        <pre class="code">composer require {{ extension.packageName }}</pre>
+                        <pre class="code" tabindex="0">composer require {{ extension.packageName }}</pre>
                     {% else %}
                         {# Not on Packagist, so a bare `composer require` fails with
                            "could not be found in any version". The Composer surface plan asks for both paths;
@@ -268,7 +268,7 @@
                         </p>
                         {# Generated from the route rather than typed, so the address in the
                            instruction and the address that answers can never drift apart. #}
-                        <pre class="code">composer config repositories.extdir composer {{ url('repo_landing') }}
+                        <pre class="code" tabindex="0">composer config repositories.extdir composer {{ url('repo_landing') }}
 composer require {{ extension.packageName }}</pre>
                         <p class="small subtle">
                             <a href="{{ path('repo_landing') }}">What that repository is and what it serves</a>
@@ -276,7 +276,7 @@ composer require {{ extension.packageName }}</pre>
                         <p class="small subtle">
                             Or point Composer straight at the source, with no third party involved:
                         </p>
-                        <pre class="code">composer config repositories.{{ extension.slug }} vcs {{ extension.repositoryUrl }}
+                        <pre class="code" tabindex="0">composer config repositories.{{ extension.slug }} vcs {{ extension.repositoryUrl }}
 composer require {{ extension.packageName }}</pre>
                     {% endif %}
                 {% else %}
@@ -293,7 +293,7 @@ composer require {{ extension.packageName }}</pre>
 
                 {% if technicalName and extension.licenseStatus.isRedistributable %}
                     <p class="small muted stack">Then activate it:</p>
-                    <pre class="code">bin/console plugin:refresh
+                    <pre class="code" tabindex="0">bin/console plugin:refresh
 bin/console plugin:install --activate {{ technicalName }}</pre>
                     <p class="small subtle">
                         The technical name comes from <code>extra.shopware-plugin-class</code> in the
@@ -427,7 +427,7 @@ bin/console plugin:install --activate {{ technicalName }}</pre>
             </p>
             <p class="small muted">Markdown:</p>
             <div class="install-row">
-                <pre class="code">[![Shopware]({{ url('badge', {slug: extension.slug}) }})]({{ url('extension_detail', {slug: extension.slug}) }})</pre>
+                <pre class="code" tabindex="0">[![Shopware]({{ url('badge', {slug: extension.slug}) }})]({{ url('extension_detail', {slug: extension.slug}) }})</pre>
                 <button type="button" class="btn btn--sm copy-btn"
                     data-controller="clipboard"
                     data-action="clipboard#copy"

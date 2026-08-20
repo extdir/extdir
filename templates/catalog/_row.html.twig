@@ -14,17 +14,21 @@
     Wording stays "declares" and never "works with": this is the maintainer's own
     constraint from composer.json, not a test result.
 #}
-{# role=listitem, not role=option.
+{# A div carrying role=listitem, not an <article>.
 
-   This was a listbox, on the reasoning that the keyboard shortcuts move a selection
-   rather than DOM focus. But an option may not contain interactive descendants, and
-   every row holds a title link and a copy button — so the row announced as a single
-   choice and the links inside it were not reliably reachable. A row is a record in a
-   list, not one of forty things you pick between.
+   Two rounds of this were wrong for the same reason, and the reason is the element
+   rather than the role. ARIA in HTML allows <article> only these roles: application,
+   document, feed, main, none, presentation, region. Neither `option` — what this was
+   originally — nor `listitem` is among them, so both failed axe's aria-allowed-role
+   with the element named in the report each time. A <div> has no implicit role and
+   accepts any.
+
+   listitem rather than option because an option may not contain interactive
+   descendants, and every row holds a title link and a copy button.
 
    The selection is still not focus: it stays a class, and the row's name is announced
    through the live region the shortcuts controller owns. #}
-<article class="row" role="listitem" data-shortcuts-target="row">
+<div class="row" role="listitem" data-shortcuts-target="row">
     <div class="row-main">
         {{ include('catalog/_icon.html.twig') }}
 
@@ -141,4 +145,4 @@
             </span>
         </div>
     {% endif %}
-</article>
+</div>
