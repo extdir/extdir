@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
  * Routes an extension to whichever forge actually hosts it.
  *
  * Adding support for another platform means adding one class implementing
- * ReleaseAssetSource — nothing here changes, and neither does the resolver. That
+ * ReleaseAssetSource, nothing here changes, and neither does the resolver. That
  * matters because the corpus keeps disagreeing with assumptions about where
  * Shopware extensions live: Bitbucket turned out to host more of them than GitLab
  * and Gitea combined, which no part of the original design anticipated.

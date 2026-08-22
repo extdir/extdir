@@ -7,7 +7,7 @@ namespace App\Compatibility\Enum;
 /**
  * How much weight a declared `shopware/core` constraint can carry.
  *
- * The constraint is self-reported by the maintainer and is frequently stale — a
+ * The constraint is self-reported by the maintainer and is frequently stale, a
  * plugin may declare `^6.4` and never bump it, or declare `*` and mean nothing at
  * all. The directory's central claim depends on this data, so the uncertainty is
  * modelled explicitly rather than averaged away: every compatibility statement in
@@ -29,7 +29,7 @@ enum ConstraintTier: string
 
     /**
      * Multiplier applied to the ranking score. Deliberately public and documented
-     * on /ranking — the conflict-of-interest rule requires the algorithm be auditable, which means
+     * on /ranking, the conflict-of-interest rule requires the algorithm be auditable, which means
      * these numbers live in one place and are rendered from the source of truth.
      */
     public function rankingWeight(): float

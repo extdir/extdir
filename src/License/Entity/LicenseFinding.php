@@ -14,8 +14,8 @@ use Doctrine\ORM\Mapping as ORM;
  * A single piece of evidence about an extension's license.
  *
  * Kept as an append-only evidence trail rather than a string overwritten on the
- * extension. If a maintainer ever disputes a badge — or worse, if we are asked to
- * justify why we redistributed something — the answer needs to be "this detector,
+ * extension. If a maintainer ever disputes a badge, or worse, if we are asked to
+ * justify why we redistributed something, the answer needs to be "this detector,
  * at this version, on this commit, produced this identifier at this confidence",
  * not "the database currently says MIT". The verifiable-build rule asks for that standard of
  * evidence for builds; licensing deserves the same.
@@ -57,7 +57,7 @@ class LicenseFinding
     #[ORM\Column(length: 64, nullable: true)]
     private ?string $commitSha = null;
 
-    /** Whatever was read, verbatim — an unnormalised `license` value, a file path. */
+    /** Whatever was read, verbatim, an unnormalised `license` value, a file path. */
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $rawValue = null;
 

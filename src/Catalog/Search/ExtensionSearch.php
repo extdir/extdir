@@ -28,7 +28,7 @@ final class ExtensionSearch
     /**
      * Statuses that may appear publicly. Delisted extensions are excluded here, at
      * the single point every listing passes through, rather than being filtered by
-     * each caller — a takedown that only half applies is worse than none.
+     * each caller, a takedown that only half applies is worse than none.
      */
     private const VISIBLE_STATUSES = ['listed', 'index_only'];
 
@@ -260,7 +260,7 @@ final class ExtensionSearch
         }
 
         // findBy() does not honour the id order, and the ordering is the result of
-        // the search — so it is reapplied here rather than lost.
+        // the search, so it is reapplied here rather than lost.
         return array_values(array_filter(array_map(
             static fn (int $id): ?Extension => $byId[$id] ?? null,
             $ids,

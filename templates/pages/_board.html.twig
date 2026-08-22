@@ -4,7 +4,7 @@
     Every board on the page goes through this partial, vendors and extensions alike,
     because the rule that governs them is the same: a board must publish the expression
     that produced it. Keeping one renderer is the cheapest way to make that structural
-    rather than a habit — there is no second template where the rule could be left out.
+    rather than a habit, there is no second template where the rule could be left out.
 
     An ordered list, not a table. The rank is the list's own numbering, so it is not
     repeated as a column, and a screen reader announces position without us restating it
@@ -31,7 +31,7 @@
                     {% endif %}
                     {# Precision comes from the board, not from the value. Deciding it by
                        comparing against round() worked only because summed scores carry
-                       float noise — the moment one summed to exactly 7, it would have
+                       float noise, the moment one summed to exactly 7, it would have
                        printed "7" in a column of "8.3" and "6.4". #}
                     <span class="board-value num">{{ row.value|number_format(board.decimals, '.', ',') }}</span>
                     <span class="weight-bar" style="width: {{ row.share }}%" aria-hidden="true"></span>

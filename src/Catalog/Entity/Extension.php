@@ -25,7 +25,7 @@ use Doctrine\ORM\Mapping as ORM;
  * intentional: the primary UI is a faceted list filtered by Shopware version,
  * category, license and maintenance simultaneously, and recomputing those per
  * request would turn the one page that matters into the slow one. They are
- * rewritten by the signals pass after each crawl and are never authoritative — the
+ * rewritten by the signals pass after each crawl and are never authoritative, the
  * evidence tables are.
  */
 #[ORM\Entity(repositoryClass: ExtensionRepository::class)]
@@ -36,7 +36,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Index(name: 'idx_extension_rank', columns: ['rank_score'])]
 #[ORM\Index(name: 'idx_extension_crawl', columns: ['last_crawled_at'])]
 // Declared through the ORM rather than raw migration SQL so that
-// doctrine:schema:validate stays green — otherwise every future diff would try to
+// doctrine:schema:validate stays green, otherwise every future diff would try to
 // drop an index it does not know about. MariaDB's innodb_ft_min_token_size of 3
 // applies and is not changeable on shared hosting: two-letter terms will not match.
 //
@@ -63,7 +63,7 @@ class Extension
 
     /**
      * Human-readable name from `extra.label`, resolved to English where available.
-     * Falls back to the package name — never to a README heading, which would mean
+     * Falls back to the package name, never to a README heading, which would mean
      * scraping content we have no license to reuse.
      */
     #[ORM\Column(length: 255)]
@@ -153,7 +153,7 @@ class Extension
 
     /**
      * Which crawler found this. Decides whether it is published in our Composer
-     * repository — see DiscoverySource.
+     * repository, see DiscoverySource.
      */
     #[ORM\Column(length: 16, enumType: DiscoverySource::class, options: ['default' => 'packagist'])]
     private DiscoverySource $discoverySource = DiscoverySource::Packagist;
@@ -178,7 +178,7 @@ class Extension
      * Latest star and fork counts, denormalised from RepositorySnapshot.
      *
      * Shown on the card and offered as a sort option, but never fed into the
-     * ranking score — the ranking guidance is explicit that popularity misleads in this ecosystem.
+     * ranking score, the ranking guidance is explicit that popularity misleads in this ecosystem.
      * Kept here only so listing and sorting do not need a join per row.
      */
     #[ORM\Column(options: ['default' => 0])]
@@ -196,7 +196,7 @@ class Extension
      * in 2019 outranks a better one published last year on age alone. The monthly
      * figure is the one that answers "is anyone installing this now".
      *
-     * Zero is ambiguous by itself and must never be read as unpopular — 170 of the
+     * Zero is ambiguous by itself and must never be read as unpopular, 170 of the
      * indexed extensions are not on Packagist at all and cannot be measured this
      * way. packagistCheckedAt is what distinguishes the two: null means we have
      * never had a number, not that the number is nought.
@@ -227,7 +227,7 @@ class Extension
      *
      * Null means unchecked or absent, and no URL is offered to the browser. Most
      * icon paths are a convention filled in when composer.json declares none, and
-     * about a third of those point at nothing — offering them unverified would spend
+     * about a third of those point at nothing, offering them unverified would spend
      * a reader's consent on a few hundred requests that can only 404.
      */
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
@@ -236,7 +236,7 @@ class Extension
     /**
      * Screenshots, as URLs on the extension's own forge.
      *
-     * Never fetched, resized or stored here — §4.3 prefers linking, and an extension's
+     * Never fetched, resized or stored here, §4.3 prefers linking, and an extension's
      * screenshots are the vendor's material rather than ours. The list is handed to
      * the browser only after the reader allows remote media, exactly like the icon.
      *
@@ -306,7 +306,7 @@ class Extension
 
     /**
      * Whether we may host or mirror an artifact for this extension. Both conditions
-     * must hold — a delisted extension stays unbuilt even if perfectly licensed.
+     * must hold, a delisted extension stays unbuilt even if perfectly licensed.
      */
     public function isRedistributable(): bool
     {
@@ -551,7 +551,7 @@ class Extension
      * otherwise unfalsifiable from the page. A reader who sees a repository
      * advertising a "Free license" and a badge saying the opposite has no way to
      * tell whether the index is wrong or the word "free" means price rather than
-     * freedom — and the answer is sitting in a column nobody displays.
+     * freedom, and the answer is sitting in a column nobody displays.
      *
      * Naming the raw value turns an accusation into a citation. It also puts the
      * disagreement where the maintainer can see it, which is the only way a wrong
@@ -712,8 +712,8 @@ class Extension
      * Undoes a delisting.
      *
      * Delisting existed without this for longer than it should have, which meant a
-     * removal made in error — a complaint that turned out to be unfounded, a
-     * maintainer who changed their mind, a wrong slug clicked in a hurry — had no
+     * removal made in error, a complaint that turned out to be unfounded, a
+     * maintainer who changed their mind, a wrong slug clicked in a hurry, had no
      * remedy short of editing the database by hand. An irreversible destructive
      * action is a worse problem than the mistake it was meant to prevent.
      *

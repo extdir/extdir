@@ -16,7 +16,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * The device flow is chosen over the standard web flow for a specific reason: the
  * crawler is a background process, not a web session. The web flow needs a browser
  * redirect into a running callback endpoint, which means the app must be deployed
- * and reachable before it can crawl anything. The device flow needs neither — it
+ * and reachable before it can crawl anything. The device flow needs neither, it
  * runs from the console, the operator authorises in whatever browser they have
  * open, and the resulting token is stored for the workers.
  *
@@ -73,7 +73,7 @@ final class DeviceFlowAuthenticator
      *
      * GitHub's documented polling contract is specific and worth honouring exactly:
      * `authorization_pending` simply means "keep waiting", while `slow_down` means
-     * we polled too fast and must add five seconds to the interval — ignoring it
+     * we polled too fast and must add five seconds to the interval, ignoring it
      * escalates to being rate limited out of the flow entirely.
      *
      * @param callable(string):void|null $onWaiting called on each pending poll
@@ -171,7 +171,7 @@ final class DeviceFlowAuthenticator
             'device_flow_disabled' => 'Device flow is not enabled for this GitHub App. '
                 .'Tick "Enable Device Flow" on the App settings page and try again.',
             'incorrect_client_credentials' => 'GITHUB_APP_CLIENT_ID is wrong. It looks like '
-                .'"Iv23li..." and is shown on the App settings page — note that it is not the App ID.',
+                .'"Iv23li..." and is shown on the App settings page, note that it is not the App ID.',
             'expired_token' => 'The device code expired before it was authorised. Run the command again.',
             'access_denied' => 'Authorisation was declined in the browser.',
             'unsupported_grant_type' => 'GitHub rejected the grant type; the app registration may be an '

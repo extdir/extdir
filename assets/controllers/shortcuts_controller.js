@@ -35,7 +35,7 @@ export default class extends Controller {
     handleKey(event) {
         const typing = this.isTypingContext(event.target);
 
-        // ⌘K works while typing — it is how you get back to the field from anywhere.
+        // ⌘K works while typing, it is how you get back to the field from anywhere.
         if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
             event.preventDefault();
             this.focusSearch();

@@ -47,7 +47,7 @@ final class AlternativeFinderTest extends TestCase
         self::assertSame(1.0, $method->invoke($finder, ['a', 'b'], ['a', 'b']));
         self::assertSame(0.0, $method->invoke($finder, ['a'], ['b']));
         self::assertSame(0.0, $method->invoke($finder, [], ['a']));
-        // One shared element out of three distinct: 1/3. Not 1/2 — that is the
+        // One shared element out of three distinct: 1/3. Not 1/2, that is the
         // Dice coefficient, which weights the intersection twice.
         self::assertEqualsWithDelta(1 / 3, $method->invoke($finder, ['a', 'b'], ['b', 'c']), 0.0001);
         self::assertSame(

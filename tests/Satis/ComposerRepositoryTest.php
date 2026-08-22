@@ -25,7 +25,7 @@ final class ComposerRepositoryTest extends TestCase
      *
      * Everywhere else an unlicensed extension is listed with a warning badge.
      * Here it must vanish, because publishing a package in a Composer repository
-     * is instructing a machine to download and install it — and a Composer client
+     * is instructing a machine to download and install it, and a Composer client
      * does not read warnings.
      */
     #[DataProvider('unpublishableProvider')]

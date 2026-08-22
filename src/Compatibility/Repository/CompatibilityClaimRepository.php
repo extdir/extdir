@@ -73,7 +73,7 @@ class CompatibilityClaimRepository extends ServiceEntityRepository
      * Matrix rows for many extensions in one query.
      *
      * The listing renders a compatibility strip on every card, so doing this per
-     * extension would be one query per result — the single most likely way for a
+     * extension would be one query per result, the single most likely way for a
      * page that must stay fast to stop being fast.
      *
      * @param list<Extension> $extensions

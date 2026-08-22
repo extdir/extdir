@@ -14,8 +14,8 @@ use Doctrine\ORM\Mapping as ORM;
  * One published version of an extension.
  *
  * The full composer.json is kept as a snapshot rather than only its parsed fields.
- * Parsing rules will change — new `extra` keys appear, the constraint tiering gets
- * refined — and re-fetching every version of every package to backfill would cost
+ * Parsing rules will change, new `extra` keys appear, the constraint tiering gets
+ * refined, and re-fetching every version of every package to backfill would cost
  * an entire crawl budget. Packagist's p2 endpoint hands us every version's complete
  * require block in one request, so storing it is nearly free and lets the whole
  * corpus be reprocessed offline.
@@ -68,7 +68,7 @@ class ExtensionRelease
     /**
      * Where Composer should fetch this version from. Populated by the resolver
      * chain, which prefers a maintainer-attached ZIP, then GitHub's zipball, and
-     * only builds as a last resort — hosting is the exception, not the default.
+     * only builds as a last resort, hosting is the exception, not the default.
      */
     #[ORM\Column(length: 512, nullable: true)]
     private ?string $distUrl = null;
@@ -115,7 +115,7 @@ class ExtensionRelease
      *
      * Not immutable, because it has been wrong: a manifest carrying a stale hardcoded
      * `version` used to override the tag it was read from, and existing rows kept that
-     * value even after the reading was fixed — the row said 1.0.0 while its normalised
+     * value even after the reading was fixed, the row said 1.0.0 while its normalised
      * version said 1.0.1. Re-crawling has to be able to correct what it once got wrong.
      */
     public function setVersionRaw(string $versionRaw): void

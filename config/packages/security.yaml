@@ -4,8 +4,8 @@ parameters:
     # at the bottom of this file.
     #
     # It is a parameter rather than a second access_control block because Symfony
-    # refuses to merge that key across configuration sections — "Configuration
-    # path security.access_control cannot be overwritten" — and the failure only
+    # refuses to merge that key across configuration sections, "Configuration
+    # path security.access_control cannot be overwritten", and the failure only
     # appears when the prod container is built, which is to say on the server.
     app.required_channel: ~
 
@@ -41,7 +41,7 @@ security:
     #
     # Everything a visitor sees stays public. Only the maintainer area needs an
     # identity, and moderation needs a role that no amount of GitHub standing can
-    # grant you — it is set by hand.
+    # grant you, it is set by hand.
     #
     # The final rule exists to carry the channel requirement across the whole
     # site, not to restrict anything: the OAuth callback carries an authorisation

@@ -13,7 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
  *
  * These are not smoke tests for their own sake. A missing or defective Impressum
  * is a live Abmahnung risk in Germany, and the realistic way it breaks is not that
- * someone deletes the page — it is that a template edit quietly drops the postal
+ * someone deletes the page, it is that a template edit quietly drops the postal
  * address while the page still returns 200. So the assertions are about the
  * required *content*, not the status code.
  */
@@ -55,7 +55,7 @@ final class LegalPagesTest extends WebTestCase
 
         // Only what stays in the markup. The street and city are asserted by
         // testTheAddressIsBehindTheRevealRatherThanInTheMarkup, which checks the
-        // opposite — that they are absent — and by the endpoint test.
+        // opposite, that they are absent, and by the endpoint test.
         foreach (['name', 'email'] as $field) {
             self::assertStringContainsString(
                 self::operator()[$field],
@@ -103,7 +103,7 @@ final class LegalPagesTest extends WebTestCase
     }
 
     /**
-     * The endpoint answers a plain request — no token, no referer check.
+     * The endpoint answers a plain request, no token, no referer check.
      *
      * Deliberate: those would lock out a visitor with JavaScript disabled while a
      * scraper worked around them in an afternoon. The rate limit is the control.
@@ -135,7 +135,7 @@ final class LegalPagesTest extends WebTestCase
 
     /**
      * Exhausting the limit must produce a 429 with Retry-After, not a 500 and not
-     * a silent empty response — the JavaScript branches on exactly this.
+     * a silent empty response, the JavaScript branches on exactly this.
      */
     public function testTheContactEndpointRateLimits(): void
     {
@@ -143,7 +143,7 @@ final class LegalPagesTest extends WebTestCase
 
         // A client IP of its own. Limiter state outlives the request and even the
         // test run, so exhausting the default 127.0.0.1 would 429 every later test
-        // that touches this endpoint — which is exactly what it did once.
+        // that touches this endpoint, which is exactly what it did once.
         $ip = self::withFreshLimiterBudget('203.0.113.7');
 
         $limit = static::getContainer()->get('limiter.imprint_reveal')->create($ip);
@@ -157,7 +157,7 @@ final class LegalPagesTest extends WebTestCase
     }
 
     /**
-     * The trademark rule requires the non-affiliation disclaimer from day one, on every page —
+     * The trademark rule requires the non-affiliation disclaimer from day one, on every page,
      * it lives in the base layout, so this checks it is actually rendering.
      */
     #[DataProvider('legalRoutes')]
@@ -174,7 +174,7 @@ final class LegalPagesTest extends WebTestCase
 
     /**
      * The site is written in English, but it is operated from Germany and § 5 DDG
-     * is a German obligation — so the operative text is German, with the English
+     * is a German obligation, so the operative text is German, with the English
      * version offered as a translation. A well-meaning cleanup that dropped the
      * German would quietly remove the part that actually satisfies the law.
      */
@@ -227,7 +227,7 @@ final class LegalPagesTest extends WebTestCase
      * The policy must not claim a data processing agreement that has not been
      * concluded. A privacy policy asserting a contract you do not hold is worse
      * than one that stays quiet, because it is the first document a supervisory
-     * authority reads — and it is the kind of claim that gets copied from a
+     * authority reads, and it is the kind of claim that gets copied from a
      * generator and never checked.
      */
     public function testTheDataProcessingAgreementIsOnlyClaimedWhenItExists(): void
@@ -280,7 +280,7 @@ final class LegalPagesTest extends WebTestCase
      *
      * The limiter stores state in a cache pool that outlives both the request and
      * the test run, so without this each run spends part of a shared hourly budget
-     * and the suite starts failing after enough runs — a failure that looks like a
+     * and the suite starts failing after enough runs, a failure that looks like a
      * broken endpoint and is really just yesterday's tests. Each test also gets a
      * documentation-range IP of its own so exhausting one cannot affect another.
      */
@@ -294,7 +294,7 @@ final class LegalPagesTest extends WebTestCase
     /**
      * Storing a theme is still storing something on someone's device. It needs no
      * consent under § 25 Abs. 2 Nr. 2 TTDSG, being strictly necessary for the thing
-     * the visitor explicitly asked for by clicking — but an undisclosed store would
+     * the visitor explicitly asked for by clicking, but an undisclosed store would
      * make the policy describe an application that does not exist, which is the same
      * failure as claiming a data processing agreement we never signed.
      */
@@ -317,7 +317,7 @@ final class LegalPagesTest extends WebTestCase
     /**
      * The published operator details, read from the environment exactly as the
      * controller reads them. Asserting against .env.test rather than a literal
-     * means these tests also prove the env wiring works — a typo in the variable
+     * means these tests also prove the env wiring works, a typo in the variable
      * name fails here rather than silently blanking the Impressum in production.
      *
      * @return array<string, string>

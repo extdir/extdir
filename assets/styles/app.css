@@ -1,5 +1,5 @@
 /*
- * extdir — design system.
+ * extdir, design system.
  *
  * Order: tokens, primitives, then the few places that need something of their own.
  * Thirteen templates share these primitives, so nearly all visual work happens above
@@ -7,8 +7,8 @@
  *
  * Three rules this file holds itself to:
  *
- * 1. Colour means something. Every colour outside the neutral ramp is a signal —
- *    compatible, caution, risk, informational — and nothing is tinted for decoration.
+ * 1. Colour means something. Every colour outside the neutral ramp is a signal,
+ *    compatible, caution, risk, informational, and nothing is tinted for decoration.
  *    That is not minimalism for its own sake: this site asks people to trust data
  *    about someone else's software, and an interface that decorates is an interface
  *    that might also be dressing up its data. Restraint is the trust signal.
@@ -24,7 +24,7 @@
  *
  * Fonts are served from this repository, never a CDN. Embedding Google Fonts from
  * Google's servers was held to breach the GDPR in LG München I, 20 January 2022,
- * 3 O 17493/20, which began a wave of German warning letters — untenable for a site
+ * 3 O 17493/20, which began a wave of German warning letters, untenable for a site
  * whose own Impressum argues § 5 DDG. Geist is SIL OFL and assets/fonts/LICENSE-geist.txt
  * travels with it, exactly as the licence gate demands of everyone we index.
  */
@@ -203,7 +203,7 @@
 }
 
 /* An explicit choice, restored from localStorage before first paint. It wins
-   over the system preference in both directions — someone who picks light on a
+   over the system preference in both directions, someone who picks light on a
    dark machine means it. */
 :root[data-theme="dark"] {
         --canvas: var(--dark-canvas);
@@ -238,7 +238,7 @@
  *
  * Two soft washes anchored to the top corners, fading out well before the fold, over
  * a flat canvas. Content sits on solid surfaces above it, so the gradient reads as
- * depth behind the page rather than as colour on the page — which is the whole trick:
+ * depth behind the page rather than as colour on the page, which is the whole trick:
  * a directional field the eye registers without ever looking at.
  *
  * A fixed pseudo-element rather than background-attachment: fixed, which forces a
@@ -290,7 +290,7 @@ p:last-child { margin-bottom: 0; }
  *
  * One treatment for each state, applied everywhere. Interfaces read as
  * unfinished when the same gesture produces a different response depending on
- * which element received it — so hover, focus and selection are defined once,
+ * which element received it, so hover, focus and selection are defined once,
  * here, and components inherit rather than reinvent.
  */
 
@@ -314,8 +314,7 @@ p:last-child { margin-bottom: 0; }
 
 /* ============================================================ UTILITIES */
 
-/* padding-inline, not the shorthand: every companion class on a .wrap element —
-   .masthead, .page, .header-nav-inner — sets its own vertical padding, and a
+/* padding-inline, not the shorthand: every companion class on a .wrap element, .masthead, .page, .header-nav-inner, sets its own vertical padding, and a
    `padding: X 0` shorthand in any of them silently reset this to zero. The gutter
    vanished on every page; on a desktop the max-width left slack so nobody noticed,
    and on a phone the content sat flush against the edge of the screen. */
@@ -451,13 +450,13 @@ p:last-child { margin-bottom: 0; }
     gap: var(--s-4); flex-wrap: wrap; padding-block: var(--s-2);
 }
 /* Wrapping, because signing in changes how many links there are. Three fit on a
-   phone; six — Extensions, Ranking, About, Your extensions, Moderate, Sign out — do
+   phone; six, Extensions, Ranking, About, Your extensions, Moderate, Sign out, do
    not, and a nowrap flex row is 474px wide whatever the viewport, so the whole page
    scrolled sideways with Sign out off the edge. Only a signed-in moderator ever saw
    it, which is why every sweep so far missed it: those pages need a session.
 
    min-width: 0 as well, so the nav can shrink as a flex item rather than forcing its
-   parent open — the same default that has caused this three times now. */
+   parent open, the same default that has caused this three times now. */
 .header-nav { display: flex; flex-wrap: wrap; min-width: 0; gap: var(--s-3) var(--s-5); }
 
 @media (max-width: 480px) {
@@ -591,7 +590,7 @@ p:last-child { margin-bottom: 0; }
 }
 .row:hover { background: var(--surface-sunk); }
 /* Keyboard navigation needs a visible cursor that is not the focus ring, because the
-   row itself is not focused — the reader is moving a selection through a list. */
+   row itself is not focused, the reader is moving a selection through a list. */
 .row.is-selected { background: var(--signal-info-bg); box-shadow: inset 2px 0 0 var(--signal-info); }
 
 .row-main { min-width: 0; }
@@ -683,7 +682,7 @@ a.badge:hover { border-color: var(--signal-info); color: var(--signal-info); tex
 /* ============================================================ DETAIL
  *
  * A spec sheet. This is the page an agency developer arrives at from a search engine,
- * so everything needed to decide — compatibility, licence, maintenance, install —
+ * so everything needed to decide, compatibility, licence, maintenance, install,
  * resolves without scrolling, and each value states where it came from.
  */
 
@@ -720,11 +719,11 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
 @media (max-width: 900px) { .detail-grid { grid-template-columns: minmax(0, 1fr); gap: var(--s-5); } }
 
 /* A grid track defaults to minmax(auto, 1fr), so its *content* can force it wider
- * than the viewport — a releases table or a 69-character package name does exactly
+ * than the viewport, a releases table or a 69-character package name does exactly
  * that, and the page then scrolls sideways with every element clipped, not just the
  * long one. Measured at a 420px viewport: the document was 755px wide.
  *
- * The desktop rules already guard with minmax(0, …); the narrow-viewport overrides
+ * The desktop rules already guard with minmax(0, ...); the narrow-viewport overrides
  * had quietly dropped it, which is why this only showed up on a phone. This is the
  * backstop for any grid child that is missed. */
 .detail-grid > *,
@@ -752,7 +751,7 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
 
 .kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--s-2) var(--s-4); font-size: var(--t-small); }
 .kv dt { color: var(--ink-subtle); }
-/* The track is already guarded with minmax(0, …), so the column can shrink — but the
+/* The track is already guarded with minmax(0, ...), so the column can shrink, but the
    value inside it still needs permission to break. A plugin's technical name is one
    CamelCase token of thirty-odd characters with no space, hyphen or slash to break
    at, so without this it simply draws straight through the side of the panel. */
@@ -831,7 +830,7 @@ table.data td.num, table.data th.num { text-align: right; font-variant-numeric: 
 .site-footer a:hover { color: var(--ink); }
 
 /* Operator credit. The ownership model is explicit that the platform belongs to the
-   extdir org and runio.dev appears as operator and maintainer — so this credits the
+   extdir org and runio.dev appears as operator and maintainer, so this credits the
    operator without implying ownership of the code. */
 .footer-base {
     display: flex; justify-content: space-between; align-items: center; gap: var(--s-4);
@@ -849,7 +848,7 @@ table.data td.num, table.data th.num { text-align: right; font-variant-numeric: 
     margin-bottom: var(--s-2); letter-spacing: -0.05em; }
 .error-search { display: flex; gap: var(--s-2); max-width: 26rem; margin: var(--s-6) auto 0; }
 /* A flex item defaults to min-width: auto, so the input refuses to shrink below the
-   width of its own placeholder and pushes the row — and the page — 29px wider than a
+   width of its own placeholder and pushes the row, and the page, 29px wider than a
    320px screen. The same default that made the detail grid overflow, one layout mode
    over. */
 .error-search .input { flex: 1 1 auto; min-width: 0; }
@@ -857,7 +856,7 @@ table.data td.num, table.data th.num { text-align: right; font-variant-numeric: 
 
 /* ============================================================ IMPRINT REVEAL */
 
-/* The address is fetched after a countdown rather than rendered into the page — see
+/* The address is fetched after a countdown rather than rendered into the page, see
    LegalController for the reasoning and what it trades away. Framed deliberately:
    asking someone to wait a minute is unusual enough that it should look considered. */
 .reveal { margin: var(--s-4) 0 var(--s-5); padding: var(--s-4);
@@ -939,7 +938,7 @@ table.data td.num, table.data th.num { text-align: right; font-variant-numeric: 
     padding: var(--s-4);
 }
 /* Past the seven days the takedown policy commits to. Marked with a border and a
-   word, never colour alone — the one state a moderator must not scroll past. */
+   word, never colour alone, the one state a moderator must not scroll past. */
 .queue-item.is-overdue { border-left-color: var(--signal-risk); }
 
 .queue-head { display: flex; justify-content: space-between; gap: var(--s-4); flex-wrap: wrap; align-items: baseline; }
@@ -981,7 +980,7 @@ table.data td.num, table.data th.num { text-align: right; font-variant-numeric: 
    the content beside it. */
 .detail-actions {
     display: grid;
-    /* min(…, 100%) rather than a bare 20rem: a fixed minimum track cannot shrink, so
+    /* min(..., 100%) rather than a bare 20rem: a fixed minimum track cannot shrink, so
        on a 320px screen a 20rem floor is wider than the content column and the panels
        hang 16px past the edge of the page. */
     grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
@@ -992,7 +991,7 @@ table.data td.num, table.data th.num { text-align: right; font-variant-numeric: 
 /* Links inside panels, notices and tables.
  *
  * The reset sets `a { color: inherit }` and only .prose restyled it, so every link
- * in a panel rendered as plain body text — "reported here" in the maintainer panel
+ * in a panel rendered as plain body text, "reported here" in the maintainer panel
  * was indistinguishable from the sentence around it, and "How this score is
  * calculated" looked like a caption. A link nobody can see is a link nobody clicks.
  *
@@ -1064,7 +1063,7 @@ table.data a:hover { text-decoration-thickness: 2px; }
 .alt-card-versions { display: flex; flex-wrap: wrap; gap: var(--s-1); }
 .alt-card-why {
     margin: 0; font-size: var(--t-micro); color: var(--ink-subtle);
-    /* The reason is context, not the headline — capped so one verbose entry cannot
+    /* The reason is context, not the headline, capped so one verbose entry cannot
        make every card in the rail taller. */
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
     overflow: hidden;
@@ -1114,7 +1113,7 @@ table.data a:hover { text-decoration-thickness: 2px; }
  *
  * The monogram is generated from the package name and always renders, so a reader
  * who never allows remote media still gets a complete page rather than a row of
- * gaps — and it stays underneath as the fallback when an icon 404s. */
+ * gaps, and it stays underneath as the fallback when an icon 404s. */
 
 .ext-icon-slot {
     position: relative;
@@ -1148,7 +1147,7 @@ table.data a:hover { text-decoration-thickness: 2px; }
     padding: 2px;
     /* A light tile in both themes, deliberately not var(--surface). Plugin icons are
        drawn for the Shopware admin, which is light, and a large share of them are
-       dark marks on transparency — on a dark card those disappear entirely. A fixed
+       dark marks on transparency, on a dark card those disappear entirely. A fixed
        pale tile renders every logo the way its author drew it. */
     background: #f4f5f7;
 }
@@ -1232,7 +1231,7 @@ table.data a:hover { text-decoration-thickness: 2px; }
 .lightbox-frame {
     display: grid; place-items: center;
     /* Takes whatever is left after the bar. min-height:0 is what actually allows it
-       to shrink — without it a tall screenshot pushes the controls off screen, which
+       to shrink, without it a tall screenshot pushes the controls off screen, which
        is how the close button ended up below the fold the first time. */
     flex: 1 1 auto;
     min-height: 0;
@@ -1312,7 +1311,7 @@ table.data a:hover { text-decoration-thickness: 2px; }
  * extension title in a listing row was 17px tall, the copy button 21, the theme
  * buttons and every row on the vendor list 23.
  *
- * A link inside a sentence is exempt — its size is set by the line-height of the
+ * A link inside a sentence is exempt, its size is set by the line-height of the
  * text around it, and padding it out would wreck the paragraph. So this touches only
  * the things that behave as controls: row and card titles, and actual buttons.
  *
@@ -1335,7 +1334,7 @@ table.data a:hover { text-decoration-thickness: 2px; }
 /* Boards ------------------------------------------------------------------ */
 
 /* Three boards abreast on a wide screen, one on a phone. min() on the track so a
-   long vendor name cannot push the grid wider than the viewport — the same guard
+   long vendor name cannot push the grid wider than the viewport, the same guard
    the other auto-fit grids here carry, and the fix for the same bug four times over. */
 .board-grid {
     display: grid;

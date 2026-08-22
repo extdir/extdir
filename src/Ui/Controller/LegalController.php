@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * Legally required pages.
  *
  * The legal obligations treats these as launch blockers rather than follow-up work, and
- * names a defective Impressum as a live Abmahnung risk in Germany — not a
+ * names a defective Impressum as a live Abmahnung risk in Germany, not a
  * theoretical one.
  *
  * The operator's name and postal address are read from the environment rather than
@@ -28,7 +28,7 @@ use Symfony\Component\Routing\Attribute\Route;
  *
  * An unset value is treated as a fatal misconfiguration rather than an empty
  * string. An Impressum that renders a blank address is a worse defect than one that
- * fails to render at all, because it looks compliant and is not — and § 5 is
+ * fails to render at all, because it looks compliant and is not, and § 5 is
  * enforced by competitors sending invoices, not by a validator.
  *
  * The address is served from a separate endpoint rather than in the page, behind a
@@ -38,7 +38,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * IP budget is a weaker claim on all three than plain markup would be. Against that:
  * this is a private individual's home address, GitHub and the open web are harvested
  * for exactly this, and the operator runs the same mechanism on another site. The
- * mitigations that follow from that reading are deliberate — the endpoint needs no
+ * mitigations that follow from that reading are deliberate, the endpoint needs no
  * JavaScript to answer, the limit is per hour rather than per day, and the operator's
  * name and a monitored email stay in the markup unconditionally, so the page always
  * identifies who is behind it and offers a way to reach them.
@@ -51,7 +51,7 @@ final class LegalController extends AbstractController
      * Amer Malik Mohammed operates extdir as a private individual. There is no
      * Handelsregister entry and no USt-IdNr, and neither is a gap: § 5 Abs. 1 Nr. 4
      * and Nr. 6 require them only "soweit vorhanden". A regulated-profession block
-     * (§ 5 Abs. 1 Nr. 5) does not apply either — software development is not a
+     * (§ 5 Abs. 1 Nr. 5) does not apply either, software development is not a
      * chambered profession.
      *
      * The email address is not among these because it is a role address on this
@@ -98,13 +98,13 @@ final class LegalController extends AbstractController
      *
      * Deliberately a switch rather than a sentence in the template. The privacy
      * policy previously stated the agreement existed, which was written from the
-     * standard generator wording and never verified — and a privacy policy that
+     * standard generator wording and never verified, and a privacy policy that
      * claims a contract you do not hold is worse than one that stays quiet, because
      * it is the document a supervisory authority reads first.
      *
      * Hosting is processing: server logs contain IP addresses, which are personal
      * data. Art. 28(3) requires the agreement in writing, so this is not optional
-     * paperwork to be deferred — it is a precondition for the site being lawful to
+     * paperwork to be deferred, it is a precondition for the site being lawful to
      * operate. Flip this to true once it is signed and the paragraph appears.
      */
     public const HOSTING_DPA_CONCLUDED = false;

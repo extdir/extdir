@@ -12,8 +12,8 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
  *
  * Everything asserted here is checked *before* GitHub is contacted, which is what
  * makes the tests runnable without network: a bad URL, a missing token or an exhausted
- * limiter must all be refused on our side. The GitHub-dependent half — assembling a
- * real repository — is covered by the command, which does have an API token.
+ * limiter must all be refused on our side. The GitHub-dependent half, assembling a
+ * real repository, is covered by the command, which does have an API token.
  */
 final class SubmissionTest extends WebTestCase
 {

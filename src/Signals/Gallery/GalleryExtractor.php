@@ -9,11 +9,11 @@ namespace App\Signals\Gallery;
  *
  * Two sources, in order of trustworthiness:
  *
- * 1. `src/Resources/store/images/` — the images the maintainer prepared for the
+ * 1. `src/Resources/store/images/`, the images the maintainer prepared for the
  *    Shopware Store listing. Curated, in a known place, and unambiguously screenshots.
  *    Rare, though: of 28 randomly sampled repositories, none had the directory at all.
- * 2. The README. Far more common — 21 of 60 sampled repositories carry at least one
- *    non-badge image — and correspondingly messier, since a README mixes screenshots
+ * 2. The README. Far more common, 21 of 60 sampled repositories carry at least one
+ *    non-badge image, and correspondingly messier, since a README mixes screenshots
  *    with build badges, sponsor banners and vendor logos.
  *
  * **Every result must be served by the extension's own forge.** A reader who allowed
@@ -101,7 +101,7 @@ final class GalleryExtractor
     {
         $found = [];
 
-        // ![alt](url "title") — the title and any <> wrapper are stripped by the
+        // ![alt](url "title"), the title and any <> wrapper are stripped by the
         // character class, and alt text may itself contain brackets.
         if (preg_match_all('~!\[[^\]]*\]\(\s*<?([^)\s>]+)~', $markdown, $matches)) {
             $found = array_merge($found, $matches[1]);
@@ -169,7 +169,7 @@ final class GalleryExtractor
 
     /**
      * GitHub's own upload hosts serve images under opaque, extensionless URLs, so the
-     * filename test above would reject every drag-and-dropped screenshot — which is
+     * filename test above would reject every drag-and-dropped screenshot, which is
      * how most maintainers add one today.
      */
     private static function isAttachment(string $url): bool

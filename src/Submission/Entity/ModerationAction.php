@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * Two rules in the brief are claims about history rather than about code. The legal obligations
  * requires a takedown procedure that was actually followed; the conflict-of-interest rule requires that no
- * vendor — including the one operated by this directory's maintainer — receives
+ * vendor, including the one operated by this directory's maintainer, receives
  * treatment another vendor could not get. Neither can be demonstrated from current
  * state alone, only from a record of how the state was reached.
  *
@@ -39,7 +39,7 @@ class ModerationAction
     private Extension $extension;
 
     /**
-     * Null when the actor was the system rather than a person — a crawler
+     * Null when the actor was the system rather than a person, a crawler
      * correcting metadata, say. Recorded as null rather than as a fake user so the
      * log never implies a human made a decision they did not make.
      */

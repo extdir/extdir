@@ -188,7 +188,7 @@ final class SpdxAllowlistTest extends TestCase
 
     /**
      * `proprietary` is the value composer's own project skeleton writes, and 71
-     * packages in the corpus still carry it. It must stay rejected — the whole
+     * packages in the corpus still carry it. It must stay rejected, the whole
      * point of the licence gate is that we do not decide on an author's behalf that they meant
      * something more permissive than what they wrote.
      */

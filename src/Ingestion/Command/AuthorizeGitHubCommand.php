@@ -16,8 +16,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * Authorises the crawler against GitHub and verifies the token can do the job.
  *
  * The verification step is the point of the command as much as the authorisation
- * is. The entire enrichment stage rests on an assumption — that a user access token
- * can read public repositories the App is not installed on — and an assumption that
+ * is. The entire enrichment stage rests on an assumption, that a user access token
+ * can read public repositories the App is not installed on, and an assumption that
  * load-bearing should be checked against the live API rather than inferred from
  * documentation.
  */
@@ -60,7 +60,7 @@ final class AuthorizeGitHubCommand extends Command
         $io->writeln(\sprintf('   Code: <info>%s</info>', $code->userCode));
         $io->newLine();
         $io->writeln(\sprintf(
-            ' <comment>Waiting for authorisation (expires in %d minutes)…</comment>',
+            ' <comment>Waiting for authorisation (expires in %d minutes)...</comment>',
             intdiv($code->expiresIn, 60),
         ));
 
@@ -102,7 +102,7 @@ final class AuthorizeGitHubCommand extends Command
             $io->error([
                 'Could not read a public repository the app is not installed on.',
                 'Enrichment cannot work with this token. The likely cause is that an installation '
-                .'token was issued instead of a user token — installation tokens are scoped to the '
+                .'token was issued instead of a user token, installation tokens are scoped to the '
                 .'repositories the app is installed on.',
             ]);
 

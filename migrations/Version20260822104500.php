@@ -20,7 +20,7 @@ use Doctrine\Migrations\AbstractMigration;
  *
  * packagist_checked_at carries the difference between "nobody installs this" and "we
  * have no way to know". 170 of the indexed extensions are not on Packagist at all, and
- * without this column they would be indistinguishable from packages with no installs —
+ * without this column they would be indistinguishable from packages with no installs,
  * which would be a straightforward slander of exactly the agency-built repositories the
  * search channel was added to find.
  */

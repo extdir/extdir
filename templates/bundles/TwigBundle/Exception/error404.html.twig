@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Page not found — extdir{% endblock %}
+{% block title %}Page not found - extdir{% endblock %}
 
 {#
     A 404 here is usually one of three things: an extension that was delisted at its
@@ -8,8 +8,8 @@
     before a slug changed. All three are better served by a search box than by an
     apology, so this page offers one.
 
-    Nothing on this page touches the database. A 404 is cheap and common — crawlers
-    generate them constantly — and a template that ran a query would turn every bad
+    Nothing on this page touches the database. A 404 is cheap and common, crawlers
+    generate them constantly, and a template that ran a query would turn every bad
     URL into database load. The generic error page goes further and avoids this
     layout entirely; see error.html.twig for why.
 #}
@@ -20,13 +20,13 @@
         <p class="error-code">404</p>
         <h1>That page is not here</h1>
         <p class="lede">
-            The extension may have been removed at its maintainer's request, or the address may
-            have changed. Searching usually finds it.
+            It may have been removed at its maintainer's request, or the address changed.
+            Searching usually finds it.
         </p>
 
         <form class="error-search" action="{{ path('home') }}" method="get" role="search">
             <label class="visually-hidden" for="error-q">Search extensions</label>
-            <input class="input" id="error-q" type="search" name="q" placeholder="Search extensions…" autocomplete="off">
+            <input class="input" id="error-q" type="search" name="q" placeholder="Search extensions" autocomplete="off">
             <button class="btn btn--primary" type="submit">Search</button>
         </form>
 
@@ -37,8 +37,8 @@
         </div>
 
         <p class="small subtle error-note">
-            Maintainers can remove their own extensions, and removals are permanent —
-            a delisted entry does not come back in a later crawl.
+            Maintainers can remove their own extensions. Removals are permanent; a delisted entry
+            does not return in a later crawl.
         </p>
     </div>
 </div>

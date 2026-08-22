@@ -17,7 +17,7 @@ use App\Signals\Enum\MaintenanceStatus;
  * because the calendar rule answers the wrong question. A finished, single-purpose
  * plugin can sit untouched for two years and work perfectly; what actually breaks
  * it is a core release. So the question is not "how old is this?" but "has anyone
- * touched it since the Shopware I run came out?" — which is both more useful to a
+ * touched it since the Shopware I run came out?", which is both more useful to a
  * merchant and far more defensible when a maintainer objects to their badge.
  */
 final class MaintenanceEvaluator

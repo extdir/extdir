@@ -8,7 +8,7 @@ namespace App\Distribution\Enum;
  * Lifecycle of a build we asked the isolated CI runner to perform.
  *
  * `Rejected` is deliberately distinct from `Failed`. A failed build is a technical
- * problem — a broken dependency, a timeout, a compiler error. A rejected build
+ * problem, a broken dependency, a timeout, a compiler error. A rejected build
  * means the licence gate refused it, and that is a decision rather than a fault: it
  * must never be retried automatically, and it must be visible as a reason rather
  * than as noise in a failure list.

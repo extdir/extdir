@@ -37,7 +37,7 @@ final class PackageIngestor
     /**
      * The vendor operated by the person who runs extdir.
      *
-     * Used for one thing only — setting the disclosure flag that renders a badge
+     * Used for one thing only, setting the disclosure flag that renders a badge
      * (the conflict-of-interest rule). It is deliberately absent from ranking, verification and
      * ordering, and there is a test asserting that stays true. A directory whose
      * maintainer also publishes extensions has exactly one way to remain credible,
@@ -79,7 +79,7 @@ final class PackageIngestor
 
         // A brand-new row starts life holding the column default, Packagist, so the
         // "never downgrade away from Packagist" guard in setDiscoverySource() refuses
-        // the source it was actually found by — every GitHub-discovered extension was
+        // the source it was actually found by, every GitHub-discovered extension was
         // recorded as being on Packagist, which is the one claim that is not merely
         // cosmetic: isOnPackagist() decides whether we publish it in our Composer
         // repository. Creation establishes provenance; later crawls may only upgrade it.
@@ -143,10 +143,10 @@ final class PackageIngestor
     /**
      * Stage 1 of the license gate: read what composer.json declares.
      *
-     * This is indicative only and never authorises a build — that requires a real
+     * This is indicative only and never authorises a build, that requires a real
      * detector run over the actual files inside CI (the licence gate). What it does decide is
      * whether the extension is fully listed or shown index-only with the "License
-     * unknown — not redistributable" badge, and the default is the cautious one.
+     * unknown, not redistributable" badge, and the default is the cautious one.
      *
      * @param string|list<string>|null $declared
      */

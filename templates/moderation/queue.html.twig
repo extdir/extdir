@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Moderation — extdir{% endblock %}
+{% block title %}Moderation - extdir{% endblock %}
 {% block canonical %}<meta name="robots" content="noindex, nofollow">{% endblock %}
 
 {% macro act_form(complaint, extension, action, label, variant) %}
@@ -18,8 +18,8 @@
         <p class="eyebrow">Moderation</p>
         <h1>{{ open|length }} open {{ open|length == 1 ? 'complaint' : 'complaints' }}</h1>
         <p>
-            Oldest first, because what is being managed is a seven-day commitment — a
-            newest-first queue buries whatever is closest to breaching it.
+            Oldest first: this is a seven-day commitment, and newest-first would bury whatever is
+            closest to breaching it.
         </p>
     </div>
 
@@ -83,7 +83,7 @@
                         <td class="small">{{ complaint.kind.label }}</td>
                         <td class="small">{{ complaint.status.label }}</td>
                         <td class="small muted">{{ complaint.resolution }}</td>
-                        <td class="small muted num">{{ complaint.resolvedAt ? complaint.resolvedAt|date('Y-m-d') : '—' }}</td>
+                        <td class="small muted num">{{ complaint.resolvedAt ? complaint.resolvedAt|date('Y-m-d') : '-' }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -93,8 +93,8 @@
 
     <h2 class="section-head">Moderation log</h2>
     <p class="muted small">
-        Every action taken on the catalogue, including those a maintainer took on their own
-        extension. The ranking rules require this to be auditable rather than trusted.
+        Every action taken on the catalogue, including a maintainer's own. The ranking rules
+        require this to be auditable.
     </p>
     {% if recentActions is empty %}
         <p class="muted small">No actions recorded.</p>

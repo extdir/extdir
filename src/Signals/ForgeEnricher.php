@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
  * Forty-two of 423 extensions live on Bitbucket, GitLab, Gitea or a self-hosted
  * instance, and every one of them showed a dash in every signal column. That is half
  * the stated purpose of the directory missing for the maintainers who are already
- * least visible — the same ones who cannot use API ownership verification either.
+ * least visible, the same ones who cannot use API ownership verification either.
  *
  * The fields written are the ones RepositoryEnricher already writes for GitHub, so
  * MaintenanceStatus scoring and the ranking formula need no knowledge of where a
@@ -25,7 +25,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
  *
  * Every fetch goes through SafeFetcher. These URLs come from Packagist metadata,
  * which anyone can publish, and a self-hosted GitLab is by definition an arbitrary
- * host — the same untrusted input that made the proof-file check an SSRF surface.
+ * host, the same untrusted input that made the proof-file check an SSRF surface.
  * The crawler running on a schedule rather than on demand makes it less attractive
  * to an attacker, not less of a hole.
  */

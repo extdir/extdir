@@ -19,7 +19,7 @@ use App\Signals\Enum\MaintenanceStatus;
  * 6.4 is similar and useless to somebody running 6.7.
  *
  * So compatibility is weighted almost as heavily as category, and a licence rule
- * overrides both — see below.
+ * overrides both, see below.
  *
  * Nothing here is personalised and nothing is paid for. The scoring is the same for
  * every vendor including the operator's own, which the conflict-of-interest rule
@@ -103,7 +103,7 @@ final readonly class AlternativeFinder
      * The pool to score against.
      *
      * Categories first, because they are the strongest signal, and keywords as a
-     * fallback — 156 of the 423 indexed extensions matched no category rule, and
+     * fallback, 156 of the 423 indexed extensions matched no category rule, and
      * leaving those pages empty would mean the feature is missing exactly where the
      * catalogue is already thinnest.
      *

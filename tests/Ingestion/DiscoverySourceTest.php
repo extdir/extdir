@@ -18,8 +18,8 @@ use PHPUnit\Framework\TestCase;
  * quietly withheld from the one place a merchant could install it from.
  *
  * The regression: a new Extension holds the column default, Packagist, before anything
- * sets it. setDiscoverySource() refuses to move away from Packagist — correct for a
- * later crawl, wrong at creation — so every GitHub-discovered extension was stored
+ * sets it. setDiscoverySource() refuses to move away from Packagist, correct for a
+ * later crawl, wrong at creation, so every GitHub-discovered extension was stored
  * claiming a Packagist entry it did not have. 108 of them, before it was noticed.
  */
 final class DiscoverySourceTest extends TestCase

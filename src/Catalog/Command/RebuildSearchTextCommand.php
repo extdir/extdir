@@ -17,7 +17,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * Rebuilds the denormalised search text for every extension.
  *
  * Ingestion writes this column as it goes, so this exists for the case where the
- * *builder* changes rather than the data — adding a field to the indexed text, or
+ * *builder* changes rather than the data, adding a field to the indexed text, or
  * fixing how locales are folded in. Recomputing from stored metadata takes seconds;
  * re-crawling Packagist to achieve the same thing would be several hundred HTTP
  * requests for information already sitting in the database.

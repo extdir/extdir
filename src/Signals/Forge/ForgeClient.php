@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
  *
  * One implementation per forge, selected by SourceHost. Each returns null rather
  * than throwing when a repository is private, deleted or on an instance that is
- * simply down — all three are ordinary states for a corpus assembled from a decade
+ * simply down, all three are ordinary states for a corpus assembled from a decade
  * of Packagist metadata, and none of them is an application error.
  */
 #[AutoconfigureTag('app.forge_client')]

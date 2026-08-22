@@ -18,7 +18,7 @@ final class SpdxAllowlist
 {
     /**
      * Permissive licenses. Redistribution is allowed provided the copyright notice
-     * and license text travel with every copy — which is why the packaging step
+     * and license text travel with every copy, which is why the packaging step
      * asserts that the original LICENSE file is present inside each ZIP rather than
      * trusting shopware-cli to have included it.
      *

@@ -20,7 +20,7 @@ use Symfony\Component\HttpClient\Response\MockResponse;
  * The forge clients exist to close 42 rows that showed no maintenance signal at all.
  * What matters is that they read the right field from each API, refuse to invent the
  * fields a forge does not publish, and treat an unreachable instance as unknown
- * rather than as inactive — because "we could not look" and "nobody has touched this
+ * rather than as inactive, because "we could not look" and "nobody has touched this
  * in three years" would rank very differently and mean opposite things.
  */
 final class ForgeClientTest extends TestCase

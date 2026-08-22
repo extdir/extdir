@@ -19,7 +19,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
  *
  * These had no test and no audit, because reaching them needs a GitHub session and
  * every sweep ran anonymously. That gap cost something real: the header nav
- * overflowed on both of them for months — signing in adds three links, the nav could
+ * overflowed on both of them for months, signing in adds three links, the nav could
  * not wrap, and no anonymous check could ever have seen it.
  *
  * Populated rather than empty on purpose. The moderation queue's controls only exist
@@ -46,7 +46,7 @@ final class SignedInPagesTest extends WebTestCase
      * The nav grows when you sign in, and it must be able to wrap.
      *
      * A flex row with the default nowrap laid out at its content width whatever the
-     * viewport — 474px on a 390px phone — and pushed the page sideways with "Sign out"
+     * viewport, 474px on a 390px phone, and pushed the page sideways with "Sign out"
      * off the edge.
      */
     public function testTheSignedInNavCanWrap(): void
@@ -61,7 +61,7 @@ final class SignedInPagesTest extends WebTestCase
         self::assertGreaterThan(
             3,
             $links->count(),
-            'Signing in should add links — that is the case the nav has to survive.',
+            'Signing in should add links, that is the case the nav has to survive.',
         );
         self::assertStringContainsString('Sign out', $crawler->filter('.header-nav')->text());
     }

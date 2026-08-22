@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Composer repository — extdir{% endblock %}
+{% block title %}Composer repository - extdir{% endblock %}
 {% block canonical %}<link rel="canonical" href="{{ url('repo_landing') }}">{% endblock %}
 {% block meta_description %}extdir's Composer repository, serving metadata for open-source Shopware 6 extensions that are not published on Packagist.{% endblock %}
 
@@ -14,32 +14,28 @@
     <div class="prose">
         <p class="lead">
             A Composer v2 repository for the {{ packages|length }} indexed extensions that are
-            <strong>not published on Packagist</strong>. Everything Packagist already carries is
-            deliberately absent: adding this repository to reach those would put extdir in the
-            middle of your dependency resolution for no benefit and one more thing to go down.
+            <strong>not on Packagist</strong>. Anything Packagist already carries is left out, so
+            extdir stays out of your dependency resolution where it adds nothing.
         </p>
 
         <h2>Using it</h2>
         <pre class="code" tabindex="0"><code>composer config repositories.extdir composer {{ url('repo_landing') }}
 composer require vendor/plugin-name</code></pre>
         <p class="small subtle">
-            Composer appends <code>/packages.json</code> to that URL by itself — which is why this
-            page exists rather than a 404, and why the address above has no filename on it.
+            Composer appends <code>/packages.json</code> itself, so the address above has no
+            filename on it.
         </p>
 
         <h2>What it serves, exactly</h2>
         <p>
-            Metadata and nothing else. Every <code>dist</code> points at the maintainer's own
-            release archive or GitHub's zipball for the tag, so downloads come from the source and
-            never from us — extdir stores no code. Read it directly:
-            <a href="{{ path('repo_root') }}">packages.json</a>, or one package at a time at
-            <code>/repo/p2/vendor/name.json</code>.
+            Metadata only. Every <code>dist</code> points at the maintainer's release archive or
+            GitHub's zipball for the tag, so downloads come from the source. extdir stores no code.
+            Read it at <a href="{{ path('repo_root') }}">packages.json</a>, or one package at a time
+            at <code>/repo/p2/vendor/name.json</code>.
         </p>
         <p>
-            Versions are read from the repository's git tags. Where a
-            <code>composer.json</code> carries a stale hardcoded <code>version</code>, the tag wins
-            — the same rule Packagist applies, and the reason a release here can be labelled more
-            accurately than the same tag read straight from the source.
+            Versions come from git tags. Where <code>composer.json</code> carries a stale
+            hardcoded <code>version</code>, the tag wins, which is the rule Packagist applies.
         </p>
 
         <h2>After installing</h2>
@@ -47,16 +43,15 @@ composer require vendor/plugin-name</code></pre>
 bin/console plugin:install --activate YourPluginName</code></pre>
         <p class="small subtle">
             The technical name is the class in <code>extra.shopware-plugin-class</code>, not the
-            Composer package name. Every extension page shows it under <em>Plugin name</em>.
+            package name. Every extension page shows it under <em>Plugin name</em>.
         </p>
 
         <h2>No lock-in</h2>
         <p>
-            Nothing here is exclusive. Every extension page also shows how to point Composer
-            straight at the source repository, with extdir out of the path entirely. This exists
-            because one <code>repositories</code> entry beats one per extension, not because we
-            want to be in the way.
-            The platform is <a href="https://github.com/extdir/extdir">open source</a>.
+            Every extension page also shows how to point Composer straight at the source
+            repository, with extdir out of the path. This exists because one
+            <code>repositories</code> entry beats one per extension. The platform is
+            <a href="https://github.com/extdir/extdir">open source</a>.
         </p>
     </div>
 </div>

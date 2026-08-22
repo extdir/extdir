@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * A maintainer who has signed in with GitHub.
  *
  * Stores an identity and nothing more. There is no password, because there is no
- * registration — the only way in is GitHub, which already knows who owns which
+ * registration, the only way in is GitHub, which already knows who owns which
  * repository.
  *
  * Notably absent: the user's access token. Verification needs it for exactly one
@@ -44,7 +44,7 @@ class User implements UserInterface
 
     /**
      * Set by hand for the few people who moderate. Deliberately not derivable from
-     * anything GitHub says — being popular on GitHub does not make someone a
+     * anything GitHub says, being popular on GitHub does not make someone a
      * moderator here.
      */
     #[ORM\Column(options: ['default' => false])]

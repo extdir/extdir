@@ -12,7 +12,7 @@ namespace App\Taxonomy;
  * decisions and edge closer to the trademark caution.
  *
  * Assignment is deterministic keyword matching, not classification by model. The
- * same principle that governs ranking (the conflict-of-interest rule — the algorithm is public) applies
+ * same principle that governs ranking (the conflict-of-interest rule, the algorithm is public) applies
  * here: a maintainer who disagrees with their category should be able to read the
  * rule, see exactly which term matched, and send a one-line pull request. That is
  * not possible with a probabilistic classifier, and category disputes are support
@@ -29,7 +29,7 @@ final class CategoryDefinition
      *
      * The two term lists differ only in how much weight one match carries when it is
      * found nowhere but the description. A **strong** term is a proper noun that means
-     * exactly one thing — `klarna`, `dhl`, `datev`, `turnstile`. A description that
+     * exactly one thing, `klarna`, `dhl`, `datev`, `turnstile`. A description that
      * names one of those is about that subject. A **generic** term is an ordinary word
      * that is merely indicative: `payment`, `content`, `monitor`. One of those in a
      * description proves nothing, because "works alongside your payment provider" is

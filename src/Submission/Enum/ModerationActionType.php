@@ -10,7 +10,7 @@ namespace App\Submission\Enum;
  * The audit log exists because the legal obligations requires a takedown procedure that
  * can be shown to have been followed, and the conflict-of-interest rule requires that no vendor gets
  * treatment another vendor could not. Both of those are claims about history, and
- * a claim about history needs a record — one that is written by the same code path
+ * a claim about history needs a record, one that is written by the same code path
  * for everyone, including the maintainer of this directory.
  */
 enum ModerationActionType: string
@@ -18,7 +18,7 @@ enum ModerationActionType: string
     case OwnershipVerified = 'ownership_verified';
     case OwnershipRevoked = 'ownership_revoked';
 
-    /** Removed from the index — by its maintainer, or after a rights complaint. */
+    /** Removed from the index, by its maintainer, or after a rights complaint. */
     case Delisted = 'delisted';
 
     /** Restored after a delisting was withdrawn or found unfounded. */

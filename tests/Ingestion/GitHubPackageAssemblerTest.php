@@ -56,7 +56,7 @@ final class GitHubPackageAssemblerTest extends TestCase
      *
      * From the live catalogue: a plugin tagged v1.0.1 whose manifest still said
      * 1.0.0. The release was listed as 1.0.0, directly above the real 1.0.0 with a
-     * different date — indistinguishable from a duplicate, and simply wrong.
+     * different date, indistinguishable from a duplicate, and simply wrong.
      * Packagist ignores that field for VCS packages for the same reason.
      */
     public function testAStaleVersionInTheManifestLosesToTheTag(): void
@@ -78,7 +78,7 @@ final class GitHubPackageAssemblerTest extends TestCase
 
     /**
      * Everything the manifest says that we do not derive ourselves still comes
-     * through — the tag wins on identity, not on content.
+     * through, the tag wins on identity, not on content.
      */
     public function testTheRestOfTheManifestSurvives(): void
     {

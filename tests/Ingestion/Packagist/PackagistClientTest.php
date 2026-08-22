@@ -20,7 +20,7 @@ final class PackagistClientTest extends TestCase
      * Packagist's p2 documents are minified: only the first entry is complete, and
      * every later entry lists just what changed. For shopware/core, 122 of 209
      * entries carry no `require` key at all. A reader that skips expansion produces
-     * a directory where most versions appear to declare no Shopware constraint —
+     * a directory where most versions appear to declare no Shopware constraint,
      * and it fails silently, rendering an empty compatibility matrix while every
      * request returns HTTP 200. This test exists to make that failure loud.
      */
@@ -57,7 +57,7 @@ final class PackagistClientTest extends TestCase
         self::assertCount(3, $versions);
 
         // The inheriting entry must end up with the predecessor's constraint,
-        // license and type — not with nothing.
+        // license and type, not with nothing.
         self::assertSame('1.9.0.0', $versions[1]['version_normalized']);
         self::assertSame(['shopware/core' => '~6.6.0'], $versions[1]['require']);
         self::assertSame(['MIT'], $versions[1]['license']);

@@ -89,7 +89,7 @@ final class ComplaintTest extends TestCase
     {
         $complaint = $this->complaint($kind);
 
-        // createdAt is set in the constructor and has no setter, which is correct —
+        // createdAt is set in the constructor and has no setter, which is correct,
         // nothing in the application may backdate a complaint.
         $property = new \ReflectionProperty($complaint, 'createdAt');
         $property->setValue($complaint, new \DateTimeImmutable(\sprintf('-%d days', $days)));

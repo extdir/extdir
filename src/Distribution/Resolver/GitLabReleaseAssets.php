@@ -49,7 +49,7 @@ final class GitLabReleaseAssets implements ReleaseAssetSource
         [$base, $projectPath] = $target;
 
         // GitLab identifies a project either by numeric id or by its full path
-        // URL-encoded — including the slashes, which is why rawurlencode is applied
+        // URL-encoded, including the slashes, which is why rawurlencode is applied
         // to the whole path rather than per segment. Groups nest arbitrarily deep
         // ("fyrst/shopware/OrderStates"), so splitting on the first slash is wrong.
         $url = \sprintf('%s/api/v4/projects/%s/releases', $base, rawurlencode($projectPath));
@@ -97,7 +97,7 @@ final class GitLabReleaseAssets implements ReleaseAssetSource
 
             // `assets.links` are what a maintainer deliberately attached.
             // `assets.sources` are the archives GitLab generates from the tag, which
-            // are equivalent to what Packagist already gives us — so only links are
+            // are equivalent to what Packagist already gives us, so only links are
             // treated as a maintainer-built artifact.
             $links = $release['assets']['links'] ?? null;
             if (!\is_array($links)) {

@@ -18,7 +18,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * three: one REST call, a flat `assets` array with `browser_download_url`. Forgejo
  * is a Gitea fork and answers the same routes, so both are handled here.
  *
- * Unauthenticated, for the same reason as GitLab — these are public repositories
+ * Unauthenticated, for the same reason as GitLab, these are public repositories
  * and the request volume is tiny.
  */
 final class GiteaReleaseAssets implements ReleaseAssetSource

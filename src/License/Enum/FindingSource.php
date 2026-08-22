@@ -30,7 +30,7 @@ enum FindingSource: string
 
     /**
      * Whether a finding from this source is allowed to authorise a build.
-     * Deliberately narrow — see the class docblock.
+     * Deliberately narrow, see the class docblock.
      */
     public function isAuthoritative(): bool
     {

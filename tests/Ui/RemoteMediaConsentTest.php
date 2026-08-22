@@ -22,7 +22,7 @@ use Twig\Environment;
  *
  * The partial is rendered directly with extensions built in memory rather than
  * requested through the catalogue, because the test database holds no extensions on
- * purpose — a test that only passes once somebody has seeded data is a test that
+ * purpose, a test that only passes once somebody has seeded data is a test that
  * fails on a clean clone. Rendering the template is also the stricter check: it
  * exercises the gate on every forge, including the ones the local corpus barely has.
  *
@@ -51,7 +51,7 @@ final class RemoteMediaConsentTest extends KernelTestCase
 
         self::assertStringNotContainsString('<img', $html, 'The markup ships an <img>, so the request happens before anyone is asked.');
 
-        // …but the URL must still be there, parked, or this would pass equally well
+        // ...but the URL must still be there, parked, or this would pass equally well
         // on a page that had simply lost the feature.
         self::assertStringContainsString('data-remote-media-url="https://'.$expectedHost, $html);
     }
@@ -59,7 +59,7 @@ final class RemoteMediaConsentTest extends KernelTestCase
     /**
      * The monogram is what makes refusing cost nothing. If it stopped rendering
      * server-side, declining would leave a page full of holes and the "no" would
-     * carry a penalty — which is how consent stops being freely given.
+     * carry a penalty, which is how consent stops being freely given.
      */
     #[DataProvider('extensionsAcrossForges')]
     public function testAMarkRendersWithoutConsent(string $repositoryUrl, string $expectedHost): void
@@ -73,7 +73,7 @@ final class RemoteMediaConsentTest extends KernelTestCase
 
     /**
      * An extension with no icon in its composer.json must produce no slot to reveal
-     * at all — not an empty one that would resolve to a 404 on the forge.
+     * at all, not an empty one that would resolve to a 404 on the forge.
      */
     public function testAnExtensionWithoutAnIconExposesNothingToLoad(): void
     {
@@ -98,7 +98,7 @@ final class RemoteMediaConsentTest extends KernelTestCase
         self::assertNull((new IconUrl())->forExtension($extension));
         self::assertStringNotContainsString('data-remote-media-url', $this->renderIcon($extension));
 
-        // …and it still shows a mark, so the row does not go blank.
+        // ...and it still shows a mark, so the row does not go blank.
         self::assertStringContainsString('ext-icon-slot', $this->renderIcon($extension));
     }
 
@@ -145,7 +145,7 @@ final class RemoteMediaConsentTest extends KernelTestCase
 
         $html = $this->renderGallery($extension);
 
-        // The lightbox ships an <img> with no src — inert, since a source-less image
+        // The lightbox ships an <img> with no src, inert, since a source-less image
         // makes no request. What must never appear is an img the browser would fetch,
         // so the assertion is about the attribute rather than the tag.
         self::assertDoesNotMatchRegularExpression('/<img[^>]+\bsrc\s*=/i', $html);
@@ -168,7 +168,7 @@ final class RemoteMediaConsentTest extends KernelTestCase
     /**
      * The lightbox is an enhancement, not the mechanism. Each thumbnail stays a real
      * link to the original, so middle-click, "open in new tab" and a browser with no
-     * JavaScript all keep working — the controller intercepts the plain click only.
+     * JavaScript all keep working, the controller intercepts the plain click only.
      */
     public function testThumbnailsRemainRealLinks(): void
     {

@@ -11,7 +11,7 @@ use Doctrine\Migrations\AbstractMigration;
  * Screenshot URLs for the extension gallery.
  *
  * NOT NULL with a default of an empty array, so every existing row reads as "no
- * screenshots known yet" rather than null — the difference matters because the
+ * screenshots known yet" rather than null, the difference matters because the
  * template hides the gallery on an empty list, and a null would be a third state
  * meaning the same thing.
  *

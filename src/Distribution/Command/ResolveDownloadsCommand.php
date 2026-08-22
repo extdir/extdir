@@ -53,12 +53,12 @@ final class ResolveDownloadsCommand extends Command
         // other forges are read unauthenticated, so a missing token degrades the
         // result rather than preventing the command from running.
         if (!$this->github->isAuthorised()) {
-            $io->warning('GitHub is not authorised — GitHub release archives will be skipped. Run app:github:authorize to include them.');
+            $io->warning('GitHub is not authorised, GitHub release archives will be skipped. Run app:github:authorize to include them.');
         }
 
         // Only ids are held across the loop. The entity manager is cleared
         // periodically to keep memory flat over a few hundred extensions, and a
-        // cleared manager detaches everything it had loaded — so keeping entity
+        // cleared manager detaches everything it had loaded, so keeping entity
         // references here would leave the resolver writing through objects
         // Doctrine no longer tracks, which surfaces as "a new entity was found
         // through the relationship" rather than as anything resembling the cause.
@@ -68,7 +68,7 @@ final class ResolveDownloadsCommand extends Command
             $ids = null === $extension ? [] : [(int) $extension->getId()];
         } else {
             // Every host is processed, not just GitHub. Even where no release-asset
-            // source exists for a forge, Packagist still supplies a source archive —
+            // source exists for a forge, Packagist still supplies a source archive,
             // filtering by host previously left 310 perfectly resolvable releases
             // with no download at all.
             $ids = array_map(
@@ -128,7 +128,7 @@ final class ResolveDownloadsCommand extends Command
             $rows[] = [
                 $source,
                 $count,
-                $resolved > 0 ? \sprintf('%.1f%%', $count / $resolved * 100) : '—',
+                $resolved > 0 ? \sprintf('%.1f%%', $count / $resolved * 100) : '-',
             ];
         }
         $io->table(['Source', 'Releases', 'Share'], $rows);
@@ -141,7 +141,7 @@ final class ResolveDownloadsCommand extends Command
         ));
 
         if ([] !== $withoutAnyLink && $output->isVerbose()) {
-            $io->section('No downloadable release — build candidates');
+            $io->section('No downloadable release, build candidates');
             $io->listing(\array_slice($withoutAnyLink, 0, 40));
         }
 

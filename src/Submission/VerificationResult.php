@@ -35,7 +35,7 @@ final readonly class VerificationResult
     }
 
     /**
-     * The check could not be performed — GitHub was unreachable, or the forge has
+     * The check could not be performed, GitHub was unreachable, or the forge has
      * no API we can ask. Not a judgement about the person, and the caller should
      * offer the proof-file route rather than turning them away.
      */

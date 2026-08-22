@@ -8,7 +8,7 @@ framework:
 
         scoped_clients:
             # Package metadata. This host serves the static p2 documents and is
-            # explicitly built for high-volume automated access — it is the correct
+            # explicitly built for high-volume automated access, it is the correct
             # endpoint to hammer, and the one that carries every version's full
             # require block in a single request.
             packagist.repo:

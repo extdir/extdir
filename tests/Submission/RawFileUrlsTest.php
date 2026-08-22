@@ -96,7 +96,7 @@ final class RawFileUrlsTest extends TestCase
 
     /**
      * A repository URL recorded as http is stale metadata, not an instruction to
-     * fetch over plaintext — and SafeFetcher would refuse it anyway.
+     * fetch over plaintext, and SafeFetcher would refuse it anyway.
      */
     public function testFetchingIsAlwaysUpgradedToHttps(): void
     {

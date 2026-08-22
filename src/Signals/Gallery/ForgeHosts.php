@@ -13,7 +13,7 @@ use App\Signals\Forge\ForgeUrl;
  *
  * This is the list the reader's consent actually covers. The footer says icons load
  * "from their forges" and the privacy policy names raw.githubusercontent.com,
- * gitlab.com, bitbucket.org and self-hosted instances — so anything not derived from
+ * gitlab.com, bitbucket.org and self-hosted instances, so anything not derived from
  * the repository's own host has no business being in it, however convenient.
  *
  * GitHub needs three entries rather than one because it serves repository files, drag
@@ -45,7 +45,7 @@ final class ForgeHosts
         }
 
         // Every other forge serves raw files from the same host as the repository,
-        // including self-hosted GitLab and Gitea instances — which is the case this
+        // including self-hosted GitLab and Gitea instances, which is the case this
         // has to keep working, since a hardcoded list would exclude them.
         return '' === $forgeHost ? [] : [$forgeHost];
     }

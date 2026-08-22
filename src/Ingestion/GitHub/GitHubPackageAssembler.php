@@ -12,8 +12,8 @@ use Psr\Log\LoggerInterface;
  * Builds Packagist-shaped version data for a repository that is not on Packagist.
  *
  * The output deliberately matches the structure of a p2 metadata document, so
- * PackageIngestor consumes it unchanged and every downstream stage — constraint
- * parsing, licence classification, taxonomy, signals, download resolution — works
+ * PackageIngestor consumes it unchanged and every downstream stage, constraint
+ * parsing, licence classification, taxonomy, signals, download resolution, works
  * without knowing where the data came from. Teaching the ingestor about a second
  * source shape would have meant duplicating all of that.
  *
@@ -101,7 +101,7 @@ final class GitHubPackageAssembler
 
         if ([] === $versions) {
             // No usable tag. Rather than invent a release from an untagged default
-            // branch — which no merchant can install a specific version of — the
+            // branch, which no merchant can install a specific version of, the
             // repository is skipped.
             return null;
         }
@@ -143,7 +143,7 @@ final class GitHubPackageAssembler
             // Two tags can normalise to one version: `v1.0.0` and `1.0.0` are the same
             // release spelled twice, and repositories that switched convention carry
             // both. Emitting both violates the unique index on (extension, version)
-            // and — because a failed insert closes the EntityManager — took the rest
+            // and, because a failed insert closes the EntityManager, took the rest
             // of the sweep down with it when it was first hit.
             //
             // Tags arrive newest first, so the first spelling of a version wins.
@@ -158,7 +158,7 @@ final class GitHubPackageAssembler
             //
             // Our fields are on the LEFT of the + on purpose: `+` keeps the left
             // operand's keys, and composer.json is allowed to carry a hardcoded
-            // `version`. When it does, it is almost always stale — one plugin tagged
+            // `version`. When it does, it is almost always stale, one plugin tagged
             // v1.0.1 while its manifest still said 1.0.0, so the release listed the
             // wrong version and appeared to be a duplicate of the release before it.
             // Packagist ignores that field for VCS packages for the same reason: the

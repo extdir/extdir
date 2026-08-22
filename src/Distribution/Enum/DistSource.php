@@ -22,7 +22,7 @@ enum DistSource: string
     /** A ZIP the maintainer attached to a GitHub release. Best case: correct and free. */
     case ReleaseAsset = 'release_asset';
 
-    /** GitHub's generated zipball for a tag. Source only — no built assets. */
+    /** GitHub's generated zipball for a tag. Source only, no built assets. */
     case TagZipball = 'tag_zipball';
 
     /** Built by extdir because neither of the above existed. Always labelled unofficial. */
@@ -37,7 +37,7 @@ enum DistSource: string
      * Whether the archive can be installed into a shop as-is.
      *
      * A tag zipball usually cannot, for extensions that ship admin or storefront
-     * code — which is most of them. Saying so plainly is more useful than offering
+     * code, which is most of them. Saying so plainly is more useful than offering
      * a download that fails after the merchant has already unzipped it.
      */
     public function isInstallableAsIs(): bool

@@ -15,13 +15,13 @@ use App\Catalog\Repository\ExtensionRepository;
  * Composer over untrusted third-party package metadata on the host that holds the
  * database and the credentials, which is the thing the no-untrusted-builds rule exists to
  * prevent. The output format is a documented JSON contract, and we already store
- * every release's full composer.json — so generating it is a serialisation problem,
+ * every release's full composer.json, so generating it is a serialisation problem,
  * not a reason to run someone else's resolver.
  *
  * What this repository is *for* is worth stating, because it would be pointless
  * otherwise: 62 of the indexed extensions are published to GitHub and never
  * submitted to Packagist. A merchant cannot `composer require` those today at all.
- * Packages that are already on Packagist are excluded — mirroring them would add a
+ * Packages that are already on Packagist are excluded, mirroring them would add a
  * slower, staler copy of something that already works, and would put us in the
  * dependency path of installs that do not need us there.
  */
@@ -31,7 +31,7 @@ final class ComposerRepository
      * Packages Composer may be told about at all.
      *
      * The licence gate applies here in its strongest form. Publishing a package in
-     * a Composer repository is telling a machine to download and install it — so
+     * a Composer repository is telling a machine to download and install it, so
      * anything without a detected open-source licence is excluded outright, not
      * merely badged. The licence gate draws the line at redistribution, and pointing an
      * automated installer at code is squarely on the far side of it.
@@ -65,8 +65,8 @@ final class ComposerRepository
      * Per-package metadata document.
      *
      * Served unminified. The delta encoding Packagist uses saves bandwidth at the
-     * cost of correctness risk — reading it wrong is the bug that would have
-     * emptied our own compatibility matrix — and at this size the saving does not
+     * cost of correctness risk, reading it wrong is the bug that would have
+     * emptied our own compatibility matrix, and at this size the saving does not
      * justify handing every consumer the same trap.
      *
      * @return array<string, mixed>|null
@@ -143,7 +143,7 @@ final class ComposerRepository
      */
     private function isPublishable(Extension $extension): bool
     {
-        // The licence gate — no detected licence, no distribution. Strictest application:
+        // The licence gate, no detected licence, no distribution. Strictest application:
         // excluded entirely rather than listed with a warning, because a Composer
         // client does not read warnings.
         if (!$extension->getLicenseStatus()->isRedistributable()) {
@@ -155,7 +155,7 @@ final class ComposerRepository
             return false;
         }
 
-        // Already installable from Packagist — mirroring adds a staler copy and
+        // Already installable from Packagist, mirroring adds a staler copy and
         // inserts us into an install path that works fine without us.
         return !$this->isOnPackagist($extension);
     }

@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Impressum / Imprint — extdir{% endblock %}
+{% block title %}Impressum / Imprint - extdir{% endblock %}
 {% block canonical %}<link rel="canonical" href="{{ url('imprint') }}">{% endblock %}
 {% block meta_description %}Impressum gemäß § 5 DDG für extdir. Legal notice for extdir.{% endblock %}
 
@@ -10,14 +10,14 @@
         <h1>Impressum</h1>
         <p>
             Angaben gemäß § 5 DDG (Digitale-Dienste-Gesetz).
-            <a href="#english">English translation below</a> — im Zweifel gilt die deutsche Fassung.
+            <a href="#english">English translation below</a>. Im Zweifel gilt die deutsche Fassung.
         </p>
     </div>
 
     <div class="prose">
         {# German first and marked authoritative. The site is written in English for
            an international developer audience, but it is operated from Germany and
-           § 5 DDG is a German obligation — so the operative text is German, with the
+           § 5 DDG is a German obligation, so the operative text is German, with the
            translation offered as a courtesy. #}
 
         <h2>Diensteanbieter</h2>
@@ -48,9 +48,9 @@
             E-Mail: <a href="mailto:{{ operator.email }}">{{ operator.email }}</a>
         </p>
         <p class="small">
-            Eine Telefonnummer wird nicht veröffentlicht. § 5 Abs. 1 Nr. 2 DDG verlangt Angaben,
-            die eine schnelle elektronische Kontaktaufnahme und unmittelbare Kommunikation
-            ermöglichen; die angegebene E-Mail-Adresse wird regelmäßig gelesen und beantwortet.
+            Eine Telefonnummer wird nicht veröffentlicht. § 5 Abs. 1 Nr. 2 DDG verlangt eine
+            schnelle elektronische Kontaktaufnahme; die angegebene E-Mail-Adresse wird gelesen und
+            beantwortet.
         </p>
 
         <h2>Redaktionell verantwortlich (§ 18 Abs. 2 MStV)</h2>
@@ -59,11 +59,10 @@
         <h2>Rechtsform und weitere Angaben</h2>
         <p>
             extdir wird von einer Privatperson als nicht-kommerzielles Gemeinschaftsprojekt
-            betrieben. Es werden keine Waren oder Dienstleistungen angeboten, es gibt keine
-            Werbung und keine Einnahmen.
+            betrieben. Keine Waren, keine Dienstleistungen, keine Werbung, keine Einnahmen.
         </p>
         <ul>
-            <li><strong>Handelsregister:</strong> nicht eingetragen — es besteht keine eintragungspflichtige Gesellschaft.</li>
+            <li><strong>Handelsregister:</strong> nicht eingetragen, da keine eintragungspflichtige Gesellschaft besteht.</li>
             <li><strong>Umsatzsteuer-Identifikationsnummer:</strong> nicht vorhanden (§ 5 Abs. 1 Nr. 6 DDG gilt nur, soweit vorhanden).</li>
             <li><strong>Aufsichtsbehörde / Kammer / Berufsbezeichnung:</strong> nicht einschlägig; Softwareentwicklung ist kein reglementierter Beruf.</li>
         </ul>
@@ -71,10 +70,9 @@
         <h2>Keine Verbindung zur Shopware AG</h2>
         <p>
             extdir ist ein unabhängiges Gemeinschaftsprojekt und steht in keiner Verbindung zur
-            Shopware AG. Es besteht keine Partnerschaft, keine Empfehlung und keine sonstige
-            Beziehung. Die Bezeichnung „Shopware“ wird ausschließlich beschreibend verwendet, um
-            anzugeben, für welche Software die aufgeführten Erweiterungen bestimmt sind. Alle
-            Marken sind Eigentum ihrer jeweiligen Inhaber.
+            Shopware AG. Die Bezeichnung "Shopware" wird ausschließlich beschreibend verwendet, um
+            anzugeben, für welche Software die Erweiterungen bestimmt sind. Alle Marken sind
+            Eigentum ihrer jeweiligen Inhaber.
         </p>
 
         <h2>Haftung für Inhalte</h2>
@@ -90,9 +88,9 @@
             wir diese Inhalte umgehend entfernen.
         </p>
         <p>
-            Die Einträge zu einzelnen Erweiterungen werden automatisiert aus öffentlich
-            veröffentlichten Paket-Metadaten erzeugt. Sie beschreiben Software Dritter, die wir
-            weder erstellt haben noch kontrollieren.
+            Einträge zu Erweiterungen werden automatisiert aus öffentlichen Paket-Metadaten
+            erzeugt und beschreiben Software Dritter, die wir weder erstellt haben noch
+            kontrollieren.
         </p>
 
         <h2>Haftung für Links</h2>
@@ -165,23 +163,23 @@
         <h3>Legal status</h3>
         <p>
             extdir is operated by a private individual as a non-commercial community project.
-            Nothing is sold, there is no advertising and there is no revenue. There is no commercial
+            Nothing is sold, and there is no advertising or revenue. There is no commercial
             register entry, because there is no company to register, and no VAT identification
-            number has been issued — both are required only where they exist.
+            number has been issued; both are required only where they exist.
         </p>
 
         <h3>Not affiliated with Shopware AG</h3>
         <p>
-            extdir is an independent community project with no connection to Shopware AG: no
-            partnership, no endorsement, no other relationship. “Shopware” is used descriptively, to
-            identify the software these extensions are written for. All trademarks belong to their
+            extdir is an independent community project with no connection to Shopware AG.
+            "Shopware" is used descriptively, to identify the software these extensions are
+            written for. All trademarks belong to their
             respective owners.
         </p>
 
         <h3>Liability for content and links</h3>
         <p>
             We are responsible for our own content under general law (§ 7 Abs. 1 DDG), but under
-            §§ 8–10 DDG we are not obliged to monitor third-party information or to investigate
+            §§ 8-10 DDG we are not obliged to monitor third-party information or to investigate
             circumstances indicating unlawful activity. Extension entries are generated
             automatically from publicly published package metadata and describe third-party software
             we neither wrote nor control. This site links extensively to external repositories whose

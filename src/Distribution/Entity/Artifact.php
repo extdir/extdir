@@ -13,12 +13,12 @@ use Doctrine\ORM\Mapping as ORM;
  * The provenance record for one downloadable archive.
  *
  * The verifiable-build rule requires that every artifact we host publishes its source commit,
- * build log, SHA-256, the shopware-cli version used and an SBOM — so that a third
+ * build log, SHA-256, the shopware-cli version used and an SBOM, so that a third
  * party can rebuild the ZIP and get the same bytes. This row *is* that publication:
  * if a field here is empty, the corresponding claim cannot be made on the site.
  *
  * Rows also exist for archives we merely link to. Those carry no build metadata,
- * and that difference is the point — it makes "we built this" and "the maintainer
+ * and that difference is the point, it makes "we built this" and "the maintainer
  * built this" structurally distinguishable rather than a matter of wording.
  */
 #[ORM\Entity(repositoryClass: ArtifactRepository::class)]
@@ -58,7 +58,7 @@ class Artifact
     #[ORM\Column(length: 512, nullable: true)]
     private ?string $sbomUrl = null;
 
-    /** Pinned per the shopware-cli notes — an unpinned CLI makes the build unreproducible by definition. */
+    /** Pinned per the shopware-cli notes, an unpinned CLI makes the build unreproducible by definition. */
     #[ORM\Column(length: 32, nullable: true)]
     private ?string $shopwareCliVersion = null;
 

@@ -34,7 +34,7 @@ final class LicenseResolverTest extends TestCase
      * The single most consequential rule in this class.
      *
      * Three packages in the corpus declare AGPL-3.0 in composer.json while
-     * shipping an MIT licence file. Believing the file would publish them as MIT —
+     * shipping an MIT licence file. Believing the file would publish them as MIT,
      * and unlike most mistakes here, that one has a victim who is not us: a
      * merchant who deploys a modified copy in a hosted shop believing they owe
      * nothing. The licence gate requires copyleft to be classified separately rather than
@@ -74,7 +74,7 @@ final class LicenseResolverTest extends TestCase
 
     /**
      * Copyleft found in the file where the manifest claimed permissive must also
-     * take effect — the rule is "the stricter of the two", not "the manifest is
+     * take effect, the rule is "the stricter of the two", not "the manifest is
      * always wrong".
      */
     public function testCopyleftInTheFileOverridesAPermissiveManifest(): void
@@ -89,7 +89,7 @@ final class LicenseResolverTest extends TestCase
     }
 
     /**
-     * GitHub answers NOASSERTION when it finds a licence file it cannot identify —
+     * GitHub answers NOASSERTION when it finds a licence file it cannot identify,
      * usually a modified or custom licence. That is evidence of a file, not of a
      * grant we can act on.
      */

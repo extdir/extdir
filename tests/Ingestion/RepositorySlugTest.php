@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
  *
  * This exists to skip work, never to decide correctness: an unrecognised shape costs
  * one redundant fetch that the package-name dedupe then catches. So the bar is that it
- * must never produce a *wrong* slug — a false match would silently skip a real
+ * must never produce a *wrong* slug, a false match would silently skip a real
  * extension, which is the one failure that would not show up as a slower run.
  */
 final class RepositorySlugTest extends TestCase

@@ -7,8 +7,8 @@ import { Controller } from '@hotwired/stimulus';
  * The thumbnails are real links to the original on the maintainer's forge, and they
  * stay that way: without JavaScript, or on a middle-click, they behave exactly as a
  * link should. This intercepts the plain left-click only, which is the case where
- * being thrown into a new tab showing a bare PNG — no caption, no way back except the
- * browser's own — is worse than staying put.
+ * being thrown into a new tab showing a bare PNG, no caption, no way back except the
+ * browser's own, is worse than staying put.
  *
  * The dialog is the native one, so focus trapping, Escape, and returning focus to the
  * thumbnail afterwards are the browser's job rather than a pile of listeners that
@@ -26,7 +26,7 @@ export default class extends Controller {
         this.index = 0;
 
         // Clicking the backdrop is the gesture people try first, and <dialog> gives
-        // no event for it — the click lands on the dialog itself, outside its box.
+        // no event for it, the click lands on the dialog itself, outside its box.
         this.onBackdrop = (event) => {
             if (event.target === this.dialogTarget) this.dialogTarget.close();
         };

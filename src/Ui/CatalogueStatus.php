@@ -11,7 +11,7 @@ use Doctrine\DBAL\Connection;
  *
  * A directory asks people to trust data about software it did not write. The first
  * question a sceptical reader has is not "how many" but "how old", and answering it
- * unprompted — in the chrome, on every page that shows catalogue data — is a larger
+ * unprompted, in the chrome, on every page that shows catalogue data, is a larger
  * part of the trust argument than any amount of visual polish.
  *
  * Deliberately not a Twig global. A global would be evaluated on the 404 page too,

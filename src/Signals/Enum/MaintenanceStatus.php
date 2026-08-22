@@ -10,7 +10,7 @@ namespace App\Signals\Enum;
  *
  * The ranking guidance proposes an "abandoned" badge after 18 months of inactivity. That
  * rule misfires in this ecosystem: a small, single-purpose plugin can be finished
- * and sit untouched for two years while working perfectly — right up until a major
+ * and sit untouched for two years while working perfectly, right up until a major
  * core release changes something under it. Time-since-commit alone would badge
  * healthy extensions as dead, and every false positive is an angry maintainer email
  * and a moderation ticket (the legal obligations calls moderation "weekly labour"; this is how that

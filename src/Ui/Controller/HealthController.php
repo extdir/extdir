@@ -71,7 +71,7 @@ final class HealthController extends AbstractController
 
         // An operational endpoint, and one that reports degradation in plain words.
         // Nothing links to it, but the monitor watching it is a public status page,
-        // so it is discoverable — and "extdir degraded" is not a search result the
+        // so it is discoverable, and "extdir degraded" is not a search result the
         // project should own. JSON cannot carry a meta tag, so it goes in a header.
         $response->headers->set('X-Robots-Tag', 'noindex, nofollow');
 
@@ -84,13 +84,13 @@ final class HealthController extends AbstractController
      * Exists because the answer /health gives is deliberately slow: it tolerates 48
      * hours, which is right for "is this data still trustworthy" and a poor way to
      * learn that a job died last night. This asks the tighter question on its own URL,
-     * so an ordinary HTTP monitor can watch it — no heartbeat feature, no plan tier,
+     * so an ordinary HTTP monitor can watch it, no heartbeat feature, no plan tier,
      * no second service.
      *
      * Pull rather than push, and better for it. A heartbeat proves a command exited;
      * this proves the catalogue actually got fresher, which is the thing anyone
      * cares about. A crawl that ran, failed, and exited 0 would satisfy a heartbeat
-     * and fail here — correctly.
+     * and fail here, correctly.
      */
     #[Route('/health/crawl', name: 'health_crawl', methods: ['GET'])]
     public function crawl(): JsonResponse
@@ -163,7 +163,7 @@ final class HealthController extends AbstractController
 
     /**
      * Without the Shopware release timeline there is no compatibility matrix and
-     * no maintenance status — the site would render, and every answer on it would
+     * no maintenance status, the site would render, and every answer on it would
      * be wrong.
      *
      * @return array{ok: bool, detail: string}
@@ -176,7 +176,7 @@ final class HealthController extends AbstractController
             'ok' => null !== $current,
             'detail' => null !== $current
                 ? 'current Shopware '.$current->getMajorMinor()
-                : 'no current Shopware version set — run app:shopware:sync-versions',
+                : 'no current Shopware version set, run app:shopware:sync-versions',
         ];
     }
 }

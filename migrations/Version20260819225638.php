@@ -12,7 +12,7 @@ use Doctrine\Migrations\AbstractMigration;
  *
  * No backfill: the value is a claim about a remote file, and the only honest way to
  * obtain it is to ask. `app:verify-icons` fills it in on the next crawl, and until
- * then every extension shows its generated monogram — which is what an unverified
+ * then every extension shows its generated monogram, which is what an unverified
  * icon should look like anyway.
  */
 final class Version20260819225638 extends AbstractMigration

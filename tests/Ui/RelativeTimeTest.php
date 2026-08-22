@@ -12,7 +12,7 @@ use Symfony\Component\Clock\MockClock;
 /**
  * Relative dates, in two registers.
  *
- * `ago` is terse because it lives in a table column that is read by scanning — "2 d"
+ * `ago` is terse because it lives in a table column that is read by scanning, "2 d"
  * against forty rows, where "2 days ago" would be noise. `ago_phrase` is the same
  * span in a sentence, and exists because appending " ago" to the terse form produced
  * "crawled today ago" on every extension page crawled that day.
@@ -65,7 +65,7 @@ final class RelativeTimeTest extends TestCase
      */
     public function testTheTerseFormStillUsesADashForNothing(): void
     {
-        self::assertSame('—', $this->extension()->ago(null));
+        self::assertSame('-', $this->extension()->ago(null));
     }
 
     private function extension(): RelativeTimeExtension

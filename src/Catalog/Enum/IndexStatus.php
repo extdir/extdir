@@ -22,7 +22,7 @@ enum IndexStatus: string
     case Listed = 'listed';
 
     /**
-     * Listed with an external link and a visible "License unknown — not
+     * Listed with an external link and a visible "License unknown, not
      * redistributable" badge. No ZIP, no Satis entry, no mirroring (the licence gate).
      */
     case IndexOnly = 'index_only';

@@ -42,8 +42,8 @@ final readonly class GitLabClient implements ForgeClient
         [$base, $path] = $target;
 
         // The project path is URL-encoded whole, slashes included. Groups nest
-        // arbitrarily deep — "fyrst/shopware/OrderStates" is one project, not a
-        // project inside a project — so splitting on the first slash builds a URL
+        // arbitrarily deep, "fyrst/shopware/OrderStates" is one project, not a
+        // project inside a project, so splitting on the first slash builds a URL
         // for something that does not exist.
         $body = $this->fetcher->fetch(\sprintf('%s/api/v4/projects/%s', $base, rawurlencode($path)));
 

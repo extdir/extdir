@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Datenschutzerklärung / Privacy — extdir{% endblock %}
+{% block title %}Datenschutzerklärung / Privacy - extdir{% endblock %}
 {% block canonical %}<link rel="canonical" href="{{ url('privacy') }}">{% endblock %}
 {% block meta_description %}Datenschutzerklärung für extdir. Keine Cookies, kein Tracking, keine Analyse-Dienste.{% endblock %}
 
@@ -10,7 +10,7 @@
         <h1>Datenschutzerklärung</h1>
         <p>
             Informationen nach Art. 13 DSGVO.
-            <a href="#english">English summary below</a> — im Zweifel gilt die deutsche Fassung.
+            <a href="#english">English summary below</a>. Im Zweifel gilt die deutsche Fassung.
         </p>
     </div>
 
@@ -18,51 +18,41 @@
         {# Structured along the lines the common German generators produce, because
            that structure is what readers and, if it ever comes to it, an
            Abmahnanwalt expect to find. Every statement below is checked against what
-           the application actually does — a policy describing cookies we do not set
+           the application actually does, a policy describing cookies we do not set
            or a consent banner we do not have would be worse than none. #}
 
         <h2>1. Datenschutz auf einen Blick</h2>
         <p>
-            Diese Website setzt <strong>keine Cookies</strong>, verwendet <strong>keine
-            Analyse- oder Tracking-Dienste</strong>, bindet <strong>keine Inhalte Dritter</strong>
-            ein und bietet <strong>keine Benutzerkonten</strong>. Es werden keine Schriftarten,
-            Skripte oder Bilder von externen Servern nachgeladen. Beim Aufruf dieser Seiten wird
-            Ihre IP-Adresse deshalb an keinen Dritten übermittelt.
-        </p>
-        <p>
-            Aus diesem Grund gibt es auch kein Cookie-Banner: es besteht nichts, worin eingewilligt
-            werden müsste, um diese Seite zu nutzen.
+            Diese Website setzt <strong>keine Cookies</strong>, verwendet <strong>keine Analyse-
+            oder Tracking-Dienste</strong> und bindet <strong>keine Inhalte Dritter</strong> ein.
+            Schriftarten, Skripte und Bilder werden nicht von externen Servern nachgeladen, Ihre
+            IP-Adresse wird also an keinen Dritten übermittelt. Ein Cookie-Banner gibt es deshalb
+            nicht.
         </p>
 
         <h3>Bilder von Erweiterungen (opt-in)</h3>
         <p>
-            Jede Erweiterung wird standardmäßig mit einem <strong>lokal erzeugten Kürzel</strong>
-            dargestellt; dabei wird nichts nachgeladen. Sie können im Fußbereich
-            <em>„Show images“</em> wählen, um stattdessen die echten Symbole sowie — sofern
-            vorhanden — die Screenshots aus dem jeweiligen Quell-Repository anzuzeigen. Je nach
-            Erweiterung etwa von <code>raw.githubusercontent.com</code>, <code>gitlab.com</code>,
+            Jede Erweiterung wird standardmäßig mit einem lokal erzeugten Kürzel dargestellt;
+            dabei wird nichts nachgeladen. Über <em>"Show images"</em> im Fußbereich laden Sie die
+            echten Symbole und Screenshots aus dem Quell-Repository, etwa von
+            <code>raw.githubusercontent.com</code>, <code>gitlab.com</code>,
             <code>bitbucket.org</code> oder einer selbst betriebenen Instanz.
         </p>
         <p>
-            Ausschließlich von dort: Bilder, die eine Erweiterung in ihrer README von anderen
-            Diensten einbindet — etwa imgur, giphy, Cloudinary oder dem eigenen Webserver des
-            Herstellers — werden bewusst <strong>nicht</strong> geladen. Ihre Einwilligung gilt
-            dem Quell-Repository, nicht beliebigen Dritten.
+            Ausschließlich von dort. Bilder, die eine README von anderen Diensten einbindet
+            (imgur, giphy, Cloudinary, eigene Webserver), werden <strong>nicht</strong> geladen.
+            Ihre Einwilligung gilt dem Quell-Repository, nicht beliebigen Dritten.
         </p>
         <p>
-            Erst ab diesem Zeitpunkt erhält der jeweilige Anbieter beim Laden eines Symbols
-            technisch bedingt Ihre IP-Adresse, Ihren Browsertyp und die aufgerufene Seite. Vorher
-            wird keine einzige Anfrage an diese Anbieter gestellt. Wir übermitteln selbst nichts,
-            speichern keine Symbole und werten nichts aus.
+            Erst ab diesem Zeitpunkt erhält der jeweilige Anbieter technisch bedingt Ihre IP-
+            Adresse, Ihren Browsertyp und die aufgerufene Seite. Vorher wird keine Anfrage dorthin
+            gestellt. Wir speichern keine Symbole und werten nichts aus.
         </p>
         <p>
-            Ihre Auswahl wird unter dem Schlüssel <code>extdir-remote-media</code> im localStorage
-            Ihres Browsers gespeichert, damit Sie nicht auf jeder Seite erneut gefragt werden.
-            Rechtsgrundlage für das Nachladen ist Ihre Einwilligung nach Art. 6 Abs. 1 lit. a
-            DSGVO und § 25 Abs. 1 TTDSG. Sie können sie jederzeit mit einem Klick widerrufen:
-            im Fußbereich steht dann <em>„Stop loading images“</em>, und danach wird wieder nichts
-            nachgeladen. Ohne Einwilligung ist die Seite vollständig nutzbar — es fehlen lediglich
-            die Herstellersymbole.
+            Ihre Auswahl wird unter <code>extdir-remote-media</code> im localStorage gespeichert.
+            Rechtsgrundlage ist Ihre Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1
+            TTDSG. Sie können sie jederzeit über <em>"Stop loading images"</em> widerrufen. Ohne
+            Einwilligung ist die Seite vollständig nutzbar.
         </p>
 
         {# Local storage has to be disclosed even though it needs no consent, because a
@@ -71,20 +61,16 @@
            processing agreement is behind a flag rather than simply asserted. #}
         <h3>Farbschema (localStorage)</h3>
         <p>
-            Wenn Sie das Farbschema oben umschalten, wird Ihre Auswahl unter dem Schlüssel
-            <code>extdir-theme</code> im <strong>localStorage</strong> Ihres Browsers gespeichert —
-            der Wert <code>light</code> oder <code>dark</code>, sonst nichts. Diese Angabe wird
-            nicht an den Server übertragen, nicht ausgewertet und nicht mit anderen Daten
-            zusammengeführt.
+            Schalten Sie das Farbschema um, wird Ihre Auswahl unter <code>extdir-theme</code> im
+            <strong>localStorage</strong> gespeichert: der Wert <code>light</code> oder
+            <code>dark</code>, sonst nichts. Er wird nicht an den Server übertragen und nicht
+            ausgewertet.
         </p>
         <p>
-            Es handelt sich nicht um ein Cookie und nicht um eine Einwilligungsfrage: die
-            Speicherung ist gemäß § 25 Abs. 2 Nr. 2 TTDSG unbedingt erforderlich, um genau den
-            Dienst bereitzustellen, den Sie mit dem Klick ausdrücklich angefordert haben — nämlich
-            sich Ihre Auswahl zu merken. Solange Sie nichts umschalten, wird nichts gespeichert;
-            die Voreinstellung <em>Auto</em> folgt allein der Einstellung Ihres Betriebssystems.
-            Sie können den Eintrag jederzeit über die Browsereinstellungen löschen oder auf
-            <em>Auto</em> zurückschalten, was ihn ebenfalls entfernt.
+            Kein Cookie und keine Einwilligungsfrage: die Speicherung ist nach § 25 Abs. 2 Nr. 2
+            TTDSG unbedingt erforderlich, um den mit dem Klick angeforderten Dienst zu erbringen.
+            Solange Sie nichts umschalten, wird nichts gespeichert. Ein Wechsel zurück auf
+            <em>Auto</em> entfernt den Eintrag.
         </p>
 
         <h2>2. Verantwortliche Stelle</h2>
@@ -102,11 +88,6 @@
         <p class="small">
             Die vollständige Postanschrift finden Sie im <a href="{{ path('imprint') }}">Impressum</a>.
         </p>
-        <p class="small">
-            Verantwortliche Stelle ist die natürliche oder juristische Person, die allein oder
-            gemeinsam mit anderen über die Zwecke und Mittel der Verarbeitung von personenbezogenen
-            Daten entscheidet.
-        </p>
 
         <h2>3. Hosting</h2>
         <p>
@@ -116,9 +97,8 @@
             Kontaktanfragen, Metadaten und die in Abschnitt 4 beschriebenen Zugriffsdaten.
         </p>
         <p>
-            Der Einsatz des Hosters erfolgt im Interesse einer sicheren, schnellen und effizienten
-            Bereitstellung unseres Angebots durch einen professionellen Anbieter
-            (Art. 6 Abs. 1 lit. f DSGVO).
+            Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO, das berechtigte Interesse an einer
+            sicheren und effizienten Bereitstellung des Angebots.
         </p>
         {# Only claimed when it is true. See LegalController::HOSTING_DPA_CONCLUDED. #}
         {% if hostingDpaConcluded %}
@@ -144,38 +124,32 @@
             <li>IP-Adresse</li>
         </ul>
         <p>
-            Eine Zusammenführung dieser Daten mit anderen Datenquellen wird nicht vorgenommen. Die
-            Erfassung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Der Websitebetreiber hat
-            ein berechtigtes Interesse an der technisch fehlerfreien Darstellung und der Optimierung
-            seiner Website — hierzu müssen die Server-Log-Dateien erfasst werden.
+            Eine Zusammenführung mit anderen Datenquellen findet nicht statt. Rechtsgrundlage ist
+            Art. 6 Abs. 1 lit. f DSGVO, das berechtigte Interesse an der technisch fehlerfreien
+            Bereitstellung der Website.
         </p>
         <p><strong>Speicherdauer:</strong> Die Log-Dateien werden nach 7 Tagen gelöscht, sofern sie
             nicht zur Aufklärung eines konkreten Sicherheitsvorfalls benötigt werden.</p>
 
         <h3>Anfrage per E-Mail</h3>
         <p>
-            Wenn Sie uns per E-Mail kontaktieren, wird Ihre Anfrage inklusive aller daraus
-            hervorgehenden personenbezogenen Daten zum Zwecke der Bearbeitung Ihres Anliegens bei
-            uns gespeichert und verarbeitet. Diese Daten geben wir nicht ohne Ihre Einwilligung
-            weiter.
+            Kontaktieren Sie uns per E-Mail, werden Ihre Anfrage und die darin enthaltenen
+            personenbezogenen Daten zur Bearbeitung gespeichert. Ohne Ihre Einwilligung geben wir
+            sie nicht weiter.
         </p>
         <p>
-            Die Verarbeitung dieser Daten erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO,
-            sofern Ihre Anfrage mit der Erfüllung eines Vertrags zusammenhängt oder zur Durchführung
-            vorvertraglicher Maßnahmen erforderlich ist. In allen übrigen Fällen beruht die
-            Verarbeitung auf unserem berechtigten Interesse an der effektiven Bearbeitung der an uns
-            gerichteten Anfragen (Art. 6 Abs. 1 lit. f DSGVO).
+            Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, sofern die Anfrage mit einem Vertrag
+            oder vorvertraglichen Maßnahmen zusammenhängt, sonst Art. 6 Abs. 1 lit. f DSGVO, das
+            berechtigte Interesse an der Bearbeitung von Anfragen.
         </p>
         <p>
-            Die von Ihnen an uns per E-Mail übersandten Daten verbleiben bei uns, bis Sie uns zur
-            Löschung auffordern oder der Zweck für die Datenspeicherung entfällt.
+            Die Daten verbleiben bei uns, bis Sie zur Löschung auffordern oder der Zweck entfällt.
         </p>
 
         <h3>Suchanfragen</h3>
         <p>
-            Suchbegriffe werden ausschließlich verarbeitet, um die Ergebnisse auf der Seite zu
-            erzeugen. Sie werden nicht dauerhaft gespeichert, nicht ausgewertet und über den in
-            Abschnitt 4 beschriebenen Server-Log-Eintrag hinaus keiner Person zugeordnet.
+            Suchbegriffe werden nur verarbeitet, um die Ergebnisse zu erzeugen. Sie werden nicht
+            dauerhaft gespeichert und über den Server-Log-Eintrag hinaus keiner Person zugeordnet.
         </p>
 
         <h2>5. Daten über Erweiterungen und deren Betreuer</h2>
@@ -186,11 +160,10 @@
             (insbesondere Packagist, GitHub, GitLab).
         </p>
         <p>
-            Soweit diese Metadaten personenbezogene Daten enthalten — etwa den Namen oder die
-            Kontaktadresse eines Betreuers —, erfolgt die Verarbeitung auf Grundlage von
-            Art. 6 Abs. 1 lit. f DSGVO. Das berechtigte Interesse besteht im Betrieb eines
-            Verzeichnisses quelloffener Software unter Verwendung von Angaben, die die Betreuer
-            gerade zu diesem Zweck selbst veröffentlicht haben.
+            Enthalten diese Metadaten personenbezogene Daten, etwa Name oder Kontaktadresse eines
+            Betreuers, erfolgt die Verarbeitung nach Art. 6 Abs. 1 lit. f DSGVO. Das berechtigte
+            Interesse besteht im Betrieb eines Verzeichnisses quelloffener Software anhand von
+            Angaben, die die Betreuer selbst zu diesem Zweck veröffentlicht haben.
         </p>
         <p>
             <strong>Betreuer können die Entfernung ihrer Erweiterung jederzeit und ohne Angabe von
@@ -231,15 +204,14 @@
         <p>
             Diese Seite nutzt aus Sicherheitsgründen eine SSL- bzw. TLS-Verschlüsselung. Eine
             verschlüsselte Verbindung erkennen Sie daran, dass die Adresszeile des Browsers von
-            „http://“ auf „https://“ wechselt. Bei aktivierter Verschlüsselung können die Daten, die
+            "http://" auf "https://" wechselt. Bei aktivierter Verschlüsselung können die Daten, die
             Sie an uns übermitteln, nicht von Dritten mitgelesen werden.
         </p>
 
         <h2>8. Änderungen dieser Erklärung</h2>
         <p>
             Ändert sich diese Erklärung, ändert sich das unten angegebene Datum mit. Eine
-            Versionshistorie wird nicht geführt, solange die Antwort auf die meisten Fragen
-            „das erheben wir nicht“ lautet.
+            Versionshistorie wird nicht geführt.
         </p>
 
         <hr class="rule">
@@ -250,34 +222,29 @@
             authoritative.
         </p>
         <p>
-            This site sets no cookies, runs no analytics, embeds nothing from third parties and has
-            no user accounts. Nothing is loaded from an external CDN, so browsing does not disclose
-            your IP address to anyone but the server hosting this site. There is no consent banner
-            because there is nothing to consent to.
+            No cookies, no analytics, nothing embedded from third parties, no user accounts.
+            Nothing loads from an external CDN, so browsing discloses your IP address only to the
+            server hosting this site. There is no consent banner because there is nothing to
+            consent to.
         </p>
         <p>
-            One exception, stated because it is storage even though it is not a cookie: if you use
-            the colour-theme switch, your choice is kept in your browser's localStorage under
-            <code>extdir-theme</code> — the single word <code>light</code> or <code>dark</code>. It
-            is never sent to the server. No consent is required because it is strictly necessary to
-            provide the thing you explicitly asked for by clicking, but it is disclosed rather than
-            passed over. Choosing <em>Auto</em> deletes it again.
+            If you use the colour-theme switch, your choice is kept in localStorage under
+            <code>extdir-theme</code>: the word <code>light</code> or <code>dark</code>. It is
+            never sent to the server. No consent is required because it is strictly necessary for
+            what you asked for by clicking. Choosing <em>Auto</em> deletes it.
         </p>
         <p>
-            Extension icons and screenshots are the one place this site can make a third-party
-            request, and it does not do so unless you ask. By default each extension shows a mark
-            generated here from its package name, and no screenshots at all. Choosing
-            <em>Show images</em> in the footer loads the real ones from wherever the extension is
-            hosted — raw.githubusercontent.com, gitlab.com, bitbucket.org or somebody's own
-            instance — and from that point those hosts can see your IP address, browser and the
-            page you are on. Your choice is remembered under <code>extdir-remote-media</code>, and
-            the same footer control takes it back again. Everything on the site works without it.
+            Extension icons and screenshots are the one place this site makes a third-party
+            request, and only if you ask. By default each extension shows a mark generated here
+            from its package name. Choosing <em>Show images</em> in the footer loads the real ones
+            from wherever the extension is hosted, and those hosts can then see your IP address,
+            browser and current page. The choice is remembered under
+            <code>extdir-remote-media</code>, and the same control takes it back.
         </p>
         <p>
-            That permission covers the extension's own forge and nothing else. Where a README
-            embeds pictures from imgur, giphy, Cloudinary or a vendor's own web server, those are
-            dropped when the catalogue is built rather than loaded — saying yes to the forge is not
-            saying yes to whoever else a maintainer happened to link.
+            That permission covers the extension's own forge and nothing else. Pictures a README
+            embeds from imgur, giphy, Cloudinary or a vendor's own server are dropped when the
+            catalogue is built.
         </p>
         <p>
             The hosting provider records standard server logs (IP address, timestamp, requested URL,
@@ -287,14 +254,15 @@
         </p>
         <p>
             The directory stores metadata about publicly published software packages, including
-            maintainer names and links, under Art. 6(1)(f) GDPR — the legitimate interest in running
-            a directory of open-source software using information maintainers published for exactly
-            that purpose. <strong>Maintainers can have their extension removed at any time without
-            giving a reason</strong>; see the <a href="{{ path('takedown') }}">takedown policy</a>.
+            maintainer names and links, under Art. 6(1)(f) GDPR: the legitimate interest in
+            running a directory of open-source software using information maintainers published
+            for that purpose. <strong>Maintainers can have their extension removed at any time
+            without giving a reason</strong>; see the <a href="{{ path('takedown') }}">takedown
+            policy</a>.
         </p>
         <p>
             You have the rights of access, rectification, erasure, restriction, portability and
-            objection under Art. 15–21 GDPR, and the right to complain to a supervisory authority.
+            objection under Art. 15-21 GDPR, and the right to complain to a supervisory authority.
             Write to the address above.
         </p>
 

@@ -13,7 +13,7 @@ namespace App\Ui\Badge;
  * else a log of who reads which Shopware repository. It also means the badge cannot
  * break because an external service changed its API.
  *
- * Text width is estimated rather than measured — there is no font metric library
+ * Text width is estimated rather than measured, there is no font metric library
  * here, and adding one for two short strings would be absurd. The estimate feeds
  * `textLength`, which makes the renderer fit the text to the box we reserved, so a
  * slightly wrong guess produces very slightly tighter or looser letter spacing

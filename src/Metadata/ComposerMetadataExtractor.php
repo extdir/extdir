@@ -21,7 +21,7 @@ final class ComposerMetadataExtractor
     /**
      * Locale preference for the single displayed string.
      *
-     * English first because the site is English, then German — the Shopware
+     * English first because the site is English, then German, the Shopware
      * ecosystem is heavily German and many plugins ship German-only metadata, so
      * falling back to it is the difference between a description and a blank.
      *
@@ -113,7 +113,7 @@ final class ComposerMetadataExtractor
      * The canonical repository URL.
      *
      * `source.url` is preferred over `homepage` because it is the actual VCS
-     * location — homepage frequently points at a marketing page, which is useless
+     * location, homepage frequently points at a marketing page, which is useless
      * for enrichment and wrong for the "view source" link.
      *
      * @param array<string, mixed> $composerJson

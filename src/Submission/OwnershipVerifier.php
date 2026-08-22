@@ -23,7 +23,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * Decides whether a signed-in person controls an extension's repository.
  *
  * The question is deliberately not "who are you?" but "can you write to this
- * repository?" — because the second has an external, checkable answer and the
+ * repository?", because the second has an external, checkable answer and the
  * first would require us to adjudicate identity. GitHub already knows who has
  * push access; asking it is both more reliable than anything we could build and
  * impossible to quietly bend.
@@ -91,7 +91,7 @@ final class OwnershipVerifier
         $admin = true === ($permissions['admin'] ?? false);
         $push = true === ($permissions['push'] ?? false);
 
-        // Read access proves nothing — every public repository grants it to
+        // Read access proves nothing, every public repository grants it to
         // everyone. Only write access distinguishes a maintainer from a visitor.
         if (!$admin && !$push) {
             return VerificationResult::denied(
@@ -230,7 +230,7 @@ final class OwnershipVerifier
      * Whether this user may act on this extension right now.
      *
      * Moderators are included because someone has to be able to act on a rights
-     * complaint from a person who is not the maintainer — but they are included by
+     * complaint from a person who is not the maintainer, but they are included by
      * role, which is recorded in the log like everything else.
      */
     public function mayActOn(User $user, Extension $extension): bool

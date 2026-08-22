@@ -11,7 +11,7 @@ namespace App\License\Enum;
  * file is "all rights reserved", not open source. Public readability on GitHub does
  * not grant anyone the right to redistribute. Anything that is not positively
  * identified as an accepted SPDX license is `Unknown`, and `Unknown` never gets
- * built, mirrored or hosted — only linked.
+ * built, mirrored or hosted, only linked.
  */
 enum LicenseStatus: string
 {
@@ -51,7 +51,7 @@ enum LicenseStatus: string
             self::Permissive => 'Open source',
             self::Copyleft => 'Copyleft',
             self::Rejected => 'Not open source',
-            self::Unknown => 'License unknown — not redistributable',
+            self::Unknown => 'License unknown, not redistributable',
         };
     }
 }

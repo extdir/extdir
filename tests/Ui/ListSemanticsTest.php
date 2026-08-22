@@ -19,7 +19,7 @@ use Twig\Environment;
  * practical cost is that the row announced as one indivisible choice while the links
  * inside it were not reliably reachable.
  *
- * A row is a record in a list. The selection is still not focus — it is a class, and
+ * A row is a record in a list. The selection is still not focus, it is a class, and
  * the row's name goes to a live region the shortcuts controller owns.
  */
 final class ListSemanticsTest extends KernelTestCase

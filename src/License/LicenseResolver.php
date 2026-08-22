@@ -23,7 +23,7 @@ use Doctrine\ORM\EntityManagerInterface;
  * to change it.
  *
  * Treating the manifest as the last word therefore denied redistribution rights to
- * people who had granted them — a false negative, and the kind that quietly makes
+ * people who had granted them, a false negative, and the kind that quietly makes
  * the directory less useful while looking cautious.
  *
  * So the LICENSE file wins over the manifest when the two disagree. That is not a
@@ -48,7 +48,7 @@ final class LicenseResolver
     public function applyDetectorResult(Extension $extension, ?string $detectedSpdx, string $detector): void
     {
         // GitHub answers NOASSERTION when it finds a licence file it cannot
-        // identify — a modified or custom licence. That is evidence of a file, not
+        // identify, a modified or custom licence. That is evidence of a file, not
         // evidence of a grant we can act on, so it stays unknown.
         if (null === $detectedSpdx || 'NOASSERTION' === $detectedSpdx) {
             return;
@@ -79,7 +79,7 @@ final class LicenseResolver
      *
      * Deciding from the accumulated evidence rather than from whichever source
      * wrote last makes the outcome independent of crawl order, and it repairs
-     * conclusions reached before a rule existed — the three packages downgraded
+     * conclusions reached before a rule existed, the three packages downgraded
      * from AGPL to MIT before the copyleft guard was written correct themselves on
      * the next pass instead of needing a migration.
      */

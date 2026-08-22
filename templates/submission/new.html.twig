@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Submit an extension — extdir{% endblock %}
+{% block title %}Submit an extension - extdir{% endblock %}
 {% block canonical %}<link rel="canonical" href="{{ url('submission_new') }}">{% endblock %}
 {% block meta_description %}Point extdir at an open-source Shopware 6 extension the crawlers have not found.{% endblock %}
 
@@ -16,10 +16,9 @@
            spot, and a maintainer who hits one should be told which, not left guessing
            whether they were rejected. #}
         <p class="lead">
-            The directory finds extensions three ways: from Packagist, from GitHub topics
-            like <code>shopware6</code>, and by searching repositories. An extension that
-            is on none of Packagist, carries no topics, and falls outside those searches
-            is invisible to all three. If you know of one, this is the way in.
+            Extensions are found on Packagist, through GitHub topics like
+            <code>shopware6</code>, and by repository search. One that misses all three is
+            invisible. If you know of one, this is the way in.
         </p>
 
         <form method="post" action="{{ path('submission_submit') }}" class="report-form">
@@ -31,8 +30,7 @@
                        inputmode="url" autocomplete="off" spellcheck="false"
                        placeholder="https://github.com/vendor/plugin">
                 <span class="small subtle">
-                    GitHub only for now — that is where the release and manifest data are read from.
-                    Other forges are indexed, but not yet submittable.
+                    GitHub only for now. Other forges are indexed but not yet submittable.
                 </span>
             </p>
 
@@ -43,30 +41,22 @@
 
         <h2>What happens next</h2>
         <p>
-            The repository's <code>composer.json</code> is read straight away. It is accepted if
-            its type is <code>shopware-platform-plugin</code> and it has at least one tagged
-            release — the same test every crawled extension passes, with no exceptions and
-            nothing waiting on a human. If it qualifies you will land on its page within a few
-            seconds.
+            The repository's <code>composer.json</code> is read straight away, and accepted if
+            its type is <code>shopware-platform-plugin</code> and it has a tagged release. That is
+            the same test every crawled extension passes. Nothing waits on a human.
         </p>
-        <p>
-            Compatibility, licence and maintenance signals fill in from there. Some arrive
-            immediately, the rest at the next crawl.
-        </p>
+        <p>Compatibility, licence and maintenance signals fill in at the next crawl.</p>
 
         <h2>This is not a claim of ownership</h2>
         <p>
-            Anyone may point at a public repository; doing so asserts nothing about who holds
-            the rights. If the extension is <em>yours</em> and you want to correct it, remove it,
-            or have it marked as maintained by you, that is
-            <a href="{{ path('my_extensions') }}">ownership verification</a>, which does need a
+            Pointing at a public repository asserts nothing about who holds the rights. To
+            correct or remove an extension that is <em>yours</em>, use
+            <a href="{{ path('my_extensions') }}">ownership verification</a>, which needs a
             sign-in and proof.
         </p>
         <p>
-            Nothing is copied here. extdir indexes and links; the code, the releases and the
-            images stay on your forge. See the
-            <a href="{{ path('takedown') }}">takedown and correction policy</a> for how to have
-            an entry removed.
+            Nothing is copied. The code, releases and images stay on your forge. The
+            <a href="{{ path('takedown') }}">takedown and correction policy</a> covers removal.
         </p>
     </div>
 </div>

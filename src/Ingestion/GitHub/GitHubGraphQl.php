@@ -9,7 +9,7 @@ namespace App\Ingestion\GitHub;
  *
  * Extracted for the same reason HostResolver was extracted from SafeFetcher. The
  * concrete client needs an HTTP stack, a database-backed token and a client secret, so
- * anything depending on it directly can only be tested against the live API — and a
+ * anything depending on it directly can only be tested against the live API, and a
  * test that needs a network and a token is a test that fails on a train and is
  * therefore not run.
  *

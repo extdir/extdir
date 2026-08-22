@@ -20,7 +20,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * It is bound to the user as well as the extension on purpose: a file containing one
  * maintainer's token does not verify a different account, so a token left behind in a
  * public repository cannot be replayed by whoever reads it next. Publishing a token
- * is in any case not the secret being protected — using it still requires write
+ * is in any case not the secret being protected, using it still requires write
  * access to the repository, which is the whole thing being proven.
  *
  * The derivation depends on APP_SECRET, so rotating that secret invalidates every

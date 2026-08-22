@@ -27,8 +27,8 @@ final class RepositoryController extends AbstractController
     /**
      * What a person sees when they paste the repository URL into a browser.
      *
-     * Composer never requests this path — given a `composer` repository it appends
-     * `/packages.json` itself — so nothing was ever served here and the address
+     * Composer never requests this path, given a `composer` repository it appends
+     * `/packages.json` itself, so nothing was ever served here and the address
      * answered with the generic 404. That is precisely the wrong answer: checking the
      * URL before adding a stranger's repository to a project is the careful thing to
      * do, and the reward was a page saying the site was broken.

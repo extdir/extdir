@@ -16,7 +16,7 @@ use App\Http\SafeFetcher;
  * missed the majority.
  *
  * SourceHost has no Bitbucket case, so these are classified as Other. Matching on
- * the host here rather than adding an enum case keeps the classification honest —
+ * the host here rather than adding an enum case keeps the classification honest,
  * Other really does mean "a forge we have no special knowledge of", and the two
  * unidentified self-hosted instances in the corpus share that case legitimately.
  */

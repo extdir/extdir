@@ -36,7 +36,7 @@ final class GitHubRepositoryDiscovery
      *
      * `fork:false` is load-bearing rather than tidiness. A fork of SwagPayPal carries
      * an identical composer.json and an identical package name, so it passes the type
-     * gate and is caught only by the package-name dedupe — every sweep, forever.
+     * gate and is caught only by the package-name dedupe, every sweep, forever.
      * Excluding forks at the source is cheaper than rejecting them repeatedly.
      *
      * `pushed:` excludes repositories untouched for years. An extension abandoned

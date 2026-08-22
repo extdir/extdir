@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Report {{ extension.label }} — extdir{% endblock %}
+{% block title %}Report {{ extension.label }} - extdir{% endblock %}
 {% block canonical %}<meta name="robots" content="noindex, nofollow">{% endblock %}
 
 {% block body %}
@@ -27,7 +27,7 @@
                 <label class="label" for="kind">What is wrong</label>
                 <select class="select" id="kind" name="kind" required>
                     {% for kind in kinds %}
-                        <option value="{{ kind.value }}">{{ kind.label }}{{ kind.isUrgent ? ' — answered within 7 days' : '' }}</option>
+                        <option value="{{ kind.value }}">{{ kind.label }}{{ kind.isUrgent ? ' (answered within 7 days)' : '' }}</option>
                     {% endfor %}
                 </select>
             </p>
@@ -50,15 +50,13 @@
 
         <h2>What happens next</h2>
         <p class="small">
-            Reports are read by a person, and every removal or refusal is recorded with a
-            reason. If you would rather write directly, <a href="mailto:legal@extdir.com">legal@extdir.com</a>
-            reaches the same place. The full procedure is in the
-            <a href="{{ path('takedown') }}">takedown policy</a>.
+            Reports are read by a person, and every removal or refusal is recorded with a reason.
+            <a href="mailto:legal@extdir.com">legal@extdir.com</a> reaches the same place. The
+            full procedure is in the <a href="{{ path('takedown') }}">takedown policy</a>.
         </p>
         <p class="small subtle">
-            Maintainers: if this is your extension, you can
-            <a href="{{ path('extension_detail', {slug: extension.slug}) }}">verify ownership</a>
-            and remove it yourself, without waiting on anyone.
+            Maintainers can <a href="{{ path('extension_detail', {slug: extension.slug})
+            }}">verify ownership</a> and remove an extension themselves.
         </p>
     </div>
 </div>

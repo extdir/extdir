@@ -1,13 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Not permitted — extdir{% endblock %}
+{% block title %}Not permitted - extdir{% endblock %}
 {% block canonical %}<meta name="robots" content="noindex, nofollow">{% endblock %}
 
 {#
     A 403 is not a fault.
 
     The generic error page told anyone who hit this that the server had broken, that
-    it had been logged, and that someone would look at it — none of which is true when
+    it had been logged, and that someone would look at it, none of which is true when
     a visitor simply lacks a permission. Worse, it invites a bug report for an
     incident that never happened. A refusal should say what is being refused and what
     would change it.
@@ -28,8 +28,8 @@
                 moderator role.
             </p>
             <p class="small subtle error-note">
-                Moderation is granted by hand and deliberately cannot be earned — verifying
-                ownership of an extension gives you control of that extension, and nothing else.
+                Moderation is granted by hand. Verifying ownership of an extension gives you
+                control of that extension only.
             </p>
         {% else %}
             <h1>This page needs an identity</h1>

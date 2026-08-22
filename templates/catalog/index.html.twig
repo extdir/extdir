@@ -13,11 +13,11 @@
 
 {% block title %}
     {%- if criteria.query -%}
-        {{ criteria.query }} — extdir
+        {{ criteria.query }} - extdir
     {%- elseif criteria.shopwareVersion -%}
-        Shopware {{ criteria.shopwareVersion }} extensions — extdir
+        Shopware {{ criteria.shopwareVersion }} extensions - extdir
     {%- else -%}
-        Open-source Shopware 6 extensions — extdir
+        Open-source Shopware 6 extensions - extdir
     {%- endif -%}
 {% endblock %}
 
@@ -41,7 +41,7 @@
 
 {% block structured_data %}
     {{ parent() }}
-    {# The results as an ItemList. Only what is on this page — describing 423 items
+    {# The results as an ItemList. Only what is on this page, describing 423 items
        on a page showing 24 would be a misrepresentation, and the position numbers
        account for pagination so page two does not claim to start at one. #}
     <script type="application/ld+json">{{ {
@@ -64,9 +64,9 @@
     <div class="page-head">
         <h1>Open-source Shopware 6 extensions</h1>
         <p>
-            {{ result.total }} extensions indexed from Packagist. Every entry shows the Shopware
-            versions its maintainer <em>declares</em> support for, when the repository was last
-            touched, and whether its licence actually permits reuse.
+            {{ result.total }} extensions. Each shows the Shopware versions its maintainer
+            <em>declares</em> support for, when the repository was last touched, and what its
+            licence permits.
         </p>
     </div>
 
@@ -88,7 +88,7 @@
 
                 {# Closed here, during parsing, rather than by the controller after
                    hydration. Collapsing it later moved the results column up by 590px
-                   *after* first paint — a layout shift of 0.26 on its own, which is
+                   *after* first paint, a layout shift of 0.26 on its own, which is
                    most of a failing CLS score, and exactly the kind of jump that makes
                    a page feel broken on a phone.
 
@@ -115,8 +115,8 @@
             {% endif %}
 
             {# Each block is rendered only when it has options with results. A facet
-               heading with nothing under it — which "Maintenance" was, before
-               enrichment ran — reads as a broken page. #}
+               heading with nothing under it, which "Maintenance" was, before
+               enrichment ran, reads as a broken page. #}
             {% set versionOptions = [] %}
             {% for version in shopwareVersions|reverse %}
                 {% set count = result.facet('shopware')[version.majorMinor] ?? 0 %}
@@ -168,8 +168,8 @@
 
             {% set licenceOptions = [] %}
             {% for state, label in {
-                'permissive': 'Permissive (MIT, Apache…)',
-                'copyleft': 'Copyleft (GPL, MPL…)',
+                'permissive': 'Permissive (MIT, Apache)',
+                'copyleft': 'Copyleft (GPL, MPL)',
                 'rejected': 'Not open source',
                 'unknown': 'No licence found'
             } %}
@@ -306,16 +306,16 @@
                 <div class="empty">
                     <p><strong>Nothing matched those filters.</strong></p>
                     <p class="small">
-                        Search terms shorter than three characters are ignored — the database index
-                        does not store them.
+                        Search terms shorter than three characters are ignored; the index does not
+                        store them.
                     </p>
                     {# Someone staring at an empty result is the one person who knows
                        about an extension we do not. Asking here costs nothing and is
                        the only moment they are certain of the gap. #}
                     <p class="small">
-                        Know an extension that should be listed?
-                        <a href="{{ path('submission_new') }}">Submit it</a> — it is added
-                        straight away if its composer.json says it is a Shopware 6 plugin.
+                        Know one that is missing? <a href="{{ path('submission_new') }}">Submit
+                        it</a>. It is added straight away if its composer.json says it is a
+                        Shopware 6 plugin.
                     </p>
                     <p><a class="link-arrow" href="{{ path('home') }}">Clear filters</a></p>
                 </div>

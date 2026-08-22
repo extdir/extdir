@@ -9,8 +9,8 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 /**
  * The Composer repository, from both sides of the contract.
  *
- * Composer itself never requests /repo — given a `composer` repository it appends
- * /packages.json — so that address went unserved and answered with the generic 404.
+ * Composer itself never requests /repo, given a `composer` repository it appends
+ * /packages.json, so that address went unserved and answered with the generic 404.
  * The instruction was correct and the site looked broken to anyone who checked it,
  * which is the one thing a person should be encouraged to do before adding a
  * stranger's repository to their project.

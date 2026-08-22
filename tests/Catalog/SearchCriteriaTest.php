@@ -102,7 +102,7 @@ final class SearchCriteriaTest extends TestCase
 
     /**
      * Default values are omitted from the URL so one result set has one canonical
-     * address — which matters for both sharing and indexing.
+     * address, which matters for both sharing and indexing.
      */
     public function testDefaultsAreOmittedFromTheUrl(): void
     {

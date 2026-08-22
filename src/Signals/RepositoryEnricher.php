@@ -156,7 +156,7 @@ final class RepositoryEnricher
 
             # Screenshots. Both sources ride along on the query that was already
             # being made, so the gallery costs no extra requests and no extra
-            # rate-limit budget — which is the only reason it is worth collecting
+            # rate-limit budget, which is the only reason it is worth collecting
             # for a feature that ends up populated for a minority of extensions.
             storeImages: object(expression: "HEAD:src/Resources/store/images") {
                 ... on Tree { entries { name type } }
@@ -202,7 +202,7 @@ final class RepositoryEnricher
 
         $this->applyGallery($extension, $repo);
 
-        // GitHub runs licensee over the repository's licence file — the detector
+        // GitHub runs licensee over the repository's licence file, the detector
         // The licence gate asks for, already paid for by this query. It was being
         // fetched and thrown away, which left 13 openly licensed extensions
         // classified from a stale composer.json default instead.
@@ -242,7 +242,7 @@ final class RepositoryEnricher
             }
 
             // GitHub returns tree entries in repository order, which for `1.png`,
-            // `2.png` … `10.png` is not the order a person numbered them in.
+            // `2.png` ... `10.png` is not the order a person numbered them in.
             natsort($storePaths);
             $storePaths = array_values($storePaths);
         }

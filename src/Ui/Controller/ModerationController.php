@@ -113,7 +113,7 @@ final class ModerationController extends AbstractController
             'success',
             $kind->isUrgent()
                 ? 'Received. Rights and security reports are answered within seven days.'
-                : 'Received. Thank you — corrections are usually applied at the next crawl.',
+                : 'Received. Thank you, corrections are usually applied at the next crawl.',
         );
 
         return $this->redirectToRoute('extension_detail', ['slug' => $slug]);

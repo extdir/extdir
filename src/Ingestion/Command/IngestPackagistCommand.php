@@ -20,7 +20,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * Discovers Shopware plugins on Packagist and ingests their metadata.
  *
  * Runs synchronously. At 455 packages and one HTTP request each, a full crawl is a
- * few minutes of work — small enough that the queue would add moving parts without
+ * few minutes of work, small enough that the queue would add moving parts without
  * buying anything. When ingestion grows to cover GitLab and Gitea namespaces this
  * becomes a producer that dispatches per-package messages instead.
  */
@@ -128,7 +128,7 @@ final class IngestPackagistCommand extends Command
      * That fact drives the Composer repository: publishing a package Packagist
      * already serves would insert us into an install path that works without us,
      * and failing to publish one it does not serve leaves it uninstallable. Deriving
-     * it from the crawl keeps it self-correcting — a package that later appears on
+     * it from the crawl keeps it self-correcting, a package that later appears on
      * Packagist stops being published here on the next run.
      *
      * @param list<string> $packagistPackages
@@ -159,7 +159,7 @@ final class IngestPackagistCommand extends Command
             // Not on Packagist. This pass knows that much and no more: topic, search
             // and submitted are all equally "not on Packagist", and it cannot tell
             // which one found the extension. So it corrects a stale Packagist claim
-            // and otherwise leaves the recorded channel alone — rewriting them all to
+            // and otherwise leaves the recorded channel alone, rewriting them all to
             // GitHubTopic, as it used to, erased the provenance of every extension
             // found any other way.
             if ($current->isOnPackagist()) {
@@ -195,10 +195,10 @@ final class IngestPackagistCommand extends Command
             ['Package' => $extension->getPackageName()],
             ['Label' => $extension->getLabel()],
             ['Slug' => $extension->getSlug()],
-            ['License' => ($extension->getLicenseSpdx() ?? '—').' ('.$extension->getLicenseStatus()->value.')'],
+            ['License' => ($extension->getLicenseSpdx() ?? '-').' ('.$extension->getLicenseStatus()->value.')'],
             ['Index status' => $extension->getIndexStatus()->value],
-            ['Technical name' => $extension->getTechnicalName() ?? '—'],
-            ['Repository' => $extension->getRepositoryUrl() ?? '—'],
+            ['Technical name' => $extension->getTechnicalName() ?? '-'],
+            ['Repository' => $extension->getRepositoryUrl() ?? '-'],
             ['Releases' => (string) $extension->getReleases()->count()],
         );
 

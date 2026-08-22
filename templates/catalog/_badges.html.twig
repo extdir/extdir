@@ -14,7 +14,7 @@
 {% set licence = extension.licenseStatus %}
 <span class="badge {{ licence.value == 'unknown' or licence.value == 'rejected' ? 'badge--danger' : 'badge--ok' }}"
       title="{{ licence.value == 'unknown'
-          ? 'No licence detected. Public code is not the same as open source, so this is indexed and linked only — never mirrored or rebuilt.'
+          ? 'No licence detected. Public code is not the same as open source, so this is indexed and linked only, never mirrored or rebuilt.'
           : (licence.value == 'rejected'
               ? 'The declared licence is not an accepted open-source licence, so this is indexed and linked only.'
               : 'Detected from composer.json. Verified against the repository files before anything is ever redistributed.') }}">

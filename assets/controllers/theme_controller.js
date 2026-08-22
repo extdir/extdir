@@ -5,7 +5,7 @@ import { Controller } from '@hotwired/stimulus';
  * The colour theme control.
  *
  * Three states, and the third one matters: "Auto" follows the operating system and is
- * the default. A two-state toggle traps anyone who tries it — once a value is stored
+ * the default. A two-state toggle traps anyone who tries it, once a value is stored
  * there is no way back to following the machine, so a laptop that switches to dark in
  * the evening would stay light forever because of one curious click months earlier.
  *
@@ -30,8 +30,8 @@ export default class extends Controller {
     connect() {
         this.render(this.stored() ?? 'system');
 
-        // A machine whose appearance changes during the visit — most do, on a
-        // schedule — should be followed while "Auto" is selected.
+        // A machine whose appearance changes during the visit, most do, on a
+        // schedule, should be followed while "Auto" is selected.
         this._media = window.matchMedia('(prefers-color-scheme: dark)');
         this._onSystemChange = () => {
             if ((this.stored() ?? 'system') === 'system') this.apply('system');
@@ -54,7 +54,7 @@ export default class extends Controller {
 
     /**
      * "system" removes the attribute rather than computing a value, which hands the
-     * decision back to the CSS media query — one source of truth instead of two that
+     * decision back to the CSS media query, one source of truth instead of two that
      * can disagree.
      */
     apply(choice) {

@@ -15,7 +15,7 @@ use App\Signals\Enum\MaintenanceStatus;
  * that promise is kept literally rather than aspirationally: the /ranking page
  * renders these same constants, so the published explanation cannot drift from the
  * code that ranks. There is no manual boosting, no featured slot and no editorial
- * override anywhere in the pipeline — and, per the conflict-of-interest rule, no vendor is consulted here at
+ * override anywhere in the pipeline, and, per the conflict-of-interest rule, no vendor is consulted here at
  * all, including the maintainer's own.
  *
  * **Stars and forks are deliberately absent.** the ranking guidance is blunt that they mislead in this
@@ -23,7 +23,7 @@ use App\Signals\Enum\MaintenanceStatus;
  * while an abandoned toy has hundreds. Ranking on popularity would systematically
  * bury exactly the agency-built extensions merchants most need to find. Sorting the
  * corpus by stars is still offered in the UI, because a visitor may genuinely want
- * it — it just is not the default and does not feed the score.
+ * it, it just is not the default and does not feed the score.
  */
 final class RankingScore
 {
@@ -49,7 +49,7 @@ final class RankingScore
      * Continuous decay on time since the last commit.
      *
      * Exists to break ties. Every other component is categorical, so a healthy
-     * extension saturates them all and lands on exactly 100 — the first scoring run
+     * extension saturates them all and lands on exactly 100, the first scoring run
      * produced ten extensions tied at the top, which means the most valuable
      * position in the directory was being ordered by row id. A tie-break has to
      * come from somewhere, and resolving it by insertion order is not a public
@@ -79,7 +79,7 @@ final class RankingScore
 
     /**
      * Used when a repository has no issues at all, so no ratio can be computed.
-     * Neutral by design — a young extension should be neither rewarded nor
+     * Neutral by design, a young extension should be neither rewarded nor
      * punished for having no issue history.
      */
     public const NEUTRAL_RESPONSIVENESS = 0.5;
@@ -148,7 +148,7 @@ final class RankingScore
      * Exponential decay on days since the last commit, in [0, 1].
      *
      * Never negative and never above 1, so a repository with a commit dated in the
-     * future — clock skew and rewritten history both produce these — cannot buy
+     * future, clock skew and rewritten history both produce these, cannot buy
      * itself a higher score than one committed today.
      */
     private function recency(?\DateTimeImmutable $lastCommit, ?\DateTimeImmutable $now): float
@@ -177,34 +177,32 @@ final class RankingScore
         return [
             'Compatibility with current Shopware' => [
                 self::WEIGHT_COMPATIBILITY,
-                'Whether any stable release declares support for the newest Shopware minor. '
-                .'Half credit for supporting the one before it.',
+                'Whether a stable release declares support for the newest Shopware minor. '
+                .'Half credit for the one before it.',
             ],
             'Maintenance' => [
                 self::WEIGHT_MAINTENANCE,
-                'Measured against Shopware release dates, not the calendar: has the repository '
+                'Measured against Shopware release dates, not the calendar. Has the repository '
                 .'been touched since the current Shopware shipped?',
             ],
             'Quality of the compatibility claim' => [
                 self::WEIGHT_CONSTRAINT_QUALITY,
-                'A bounded constraint such as ~6.6.0 is a deliberate statement. An open one such '
-                .'as ^6.5 claims every future minor without having tested them, and scores lower.',
+                'A bounded constraint such as ~6.6.0 states which versions were considered. An '
+                .'open one such as ^6.5 claims every future minor, and scores lower.',
             ],
             'Licence clarity' => [
                 self::WEIGHT_LICENCE,
-                'An extension with no detectable licence cannot legally be redistributed, so it '
-                .'is less useful regardless of its code.',
+                'An extension with no detectable licence cannot be redistributed, whatever its '
+                .'code is like.',
             ],
             'Responsiveness' => [
                 self::WEIGHT_RESPONSIVENESS,
-                'The share of issues that have been closed. Repositories with no issues score '
-                .'neutrally rather than being punished.',
+                'The share of issues closed. Repositories with no issues score neutrally.',
             ],
             'Recency' => [
                 self::WEIGHT_RECENCY,
-                'How long ago the last commit landed, decaying smoothly over about a year. This '
-                .'is the tie-breaker: without it every healthy extension scores identically and '
-                .'the top of the list would be ordered arbitrarily.',
+                'How long ago the last commit landed, decaying over about a year. The tie-breaker: '
+                .'without it every healthy extension scores the same.',
             ],
         ];
     }

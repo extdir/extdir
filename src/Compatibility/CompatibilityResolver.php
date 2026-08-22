@@ -14,8 +14,8 @@ use Composer\Semver\VersionParser;
  * The test is *interval intersection*, not "does a representative version match".
  * That choice is load-bearing. Testing `>=6.6.5` against a stand-in "6.6.0.0" would
  * report the extension as incompatible with 6.6, when in truth it supports 6.6 from
- * patch 5 onward. Every plugin that raises its floor mid-minor — which is common
- * after a core bugfix — would be wrongly marked unsupported, and the errors would
+ * patch 5 onward. Every plugin that raises its floor mid-minor, which is common
+ * after a core bugfix, would be wrongly marked unsupported, and the errors would
  * cluster precisely on the actively maintained extensions.
  *
  * The question we are answering is therefore "does this constraint overlap the

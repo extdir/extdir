@@ -72,7 +72,7 @@ final class SafeFetcherTest extends TestCase
 
     /**
      * A name answering with one public and one private address is not a misconfigured
-     * host to be worked around — it is the shape of an attack, so the whole name is
+     * host to be worked around, it is the shape of an attack, so the whole name is
      * refused rather than the good address being picked out.
      */
     public function testAHostResolvingToBothPublicAndPrivateIsRefusedEntirely(): void

@@ -55,7 +55,7 @@ final class AccessControlTest extends WebTestCase
      * handed an empty 401.
      *
      * The proof-file page tells people they will be asked to sign in first, and
-     * before the firewall had an entry point that promise was simply false — the
+     * before the firewall had an entry point that promise was simply false, the
      * link produced a blank 401 body.
      */
     public function testAProtectedPageSendsAnonymousVisitorsToSignIn(): void
@@ -97,7 +97,7 @@ final class AccessControlTest extends WebTestCase
         $client = static::createClient();
         $client->request('GET', '/report/does-not-exist');
 
-        // 404 because the extension does not exist, not 401/403 — the route itself
+        // 404 because the extension does not exist, not 401/403, the route itself
         // is public.
         self::assertResponseStatusCodeSame(404);
     }

@@ -57,7 +57,7 @@ final class RemoteMediaDisclosureTest extends WebTestCase
         self::assertStringContainsString('are not loaded', $status);
 
         // The permission covers screenshots as well as icons, so the control has to
-        // say so — consent to one is not consent to the other.
+        // say so, consent to one is not consent to the other.
         self::assertStringContainsString('screenshots', $status);
     }
 }

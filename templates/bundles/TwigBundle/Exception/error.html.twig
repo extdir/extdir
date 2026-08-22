@@ -5,7 +5,7 @@
     A 500 is very often *caused* by the thing an error page would normally rely on.
     The database is unreachable, the container failed to compile, an environment
     variable is missing. If this template extended base.html.twig it would pull in the
-    asset manifest, the route generator and app.user — and any one of those failing
+    asset manifest, the route generator and app.user, and any one of those failing
     while rendering the error produces a blank white page instead of a message. The
     user then sees nothing at all, which is the one outcome worse than a 500.
 
@@ -20,7 +20,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Something went wrong — extdir</title>
+    <title>Something went wrong - extdir</title>
     <meta name="robots" content="noindex">
     <style>
         :root {
@@ -63,15 +63,13 @@
     {% if status_code >= 500 %}
         <h1>Something went wrong at our end</h1>
         <p>
-            This is a fault on the server, not anything you did. It has been logged and someone
-            will look at it.
+            A fault on the server, not anything you did. It has been logged.
         </p>
         <p>Nothing you submitted was lost, and no data was affected.</p>
     {% else %}
         <h1>That request was refused</h1>
         <p>
-            The address may need a permission you do not have, or the request was not one this
-            page accepts.
+            The address may need a permission you do not have.
         </p>
     {% endif %}
     <a href="/">Back to the directory</a>

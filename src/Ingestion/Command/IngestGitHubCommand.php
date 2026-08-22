@@ -33,7 +33,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * Two channels feed it. Topics find maintainers who labelled their work; repository
  * search finds the ones who did not. The second exists because a maintainer asked why
  * their plugin was absent and the answer was that it had neither a Packagist entry nor
- * a single topic — invisible to everything we had.
+ * a single topic, invisible to everything we had.
  *
  * Packagist stays the source of truth where both exist: a package already indexed from
  * there is skipped rather than overwritten, because Packagist's metadata is complete
@@ -126,7 +126,7 @@ final class IngestGitHubCommand extends Command
 
         if ($skippedKnown > 0) {
             $io->writeln(\sprintf(
-                ' %d already indexed from Packagist and refreshed there — not re-fetched.',
+                ' %d already indexed from Packagist and refreshed there, not re-fetched.',
                 $skippedKnown,
             ));
         }
@@ -183,8 +183,8 @@ final class IngestGitHubCommand extends Command
      *
      * Not a blanket "skip if known". An extension that came from Packagist has its
      * releases refreshed nightly from there, so re-reading its tags here is pure waste.
-     * One found on GitHub has no other refresh path — this command is the only thing
-     * that ever picks up its new tags — so it is deliberately re-assembled.
+     * One found on GitHub has no other refresh path, this command is the only thing
+     * that ever picks up its new tags, so it is deliberately re-assembled.
      *
      * @param array<string, DiscoverySource> $candidates
      *
@@ -272,7 +272,7 @@ final class IngestGitHubCommand extends Command
                     // Known but not on Packagist: this command is the only thing that
                     // will ever add its new tags. It used to assemble those and throw
                     // the result away, which froze every GitHub-discovered extension
-                    // at the releases it had on the day it was found — and the
+                    // at the releases it had on the day it was found, and the
                     // compatibility matrix is built from exactly that list.
                     if (!$dryRun) {
                         $this->ingestor->ingest($assembled['package'], $assembled['versions'], $source);
@@ -293,7 +293,7 @@ final class IngestGitHubCommand extends Command
                 $failed[$fullName] = $e->getMessage();
 
                 // Doctrine closes the EntityManager on any failed query, and every
-                // later write then throws "The EntityManager is closed" — so a single
+                // later write then throws "The EntityManager is closed", so a single
                 // bad package silently took out the remaining 95 of a sweep the first
                 // time this was run for real. Catching per candidate is not enough on
                 // its own; the manager has to be replaced before continuing.
@@ -336,7 +336,7 @@ final class IngestGitHubCommand extends Command
                 $io->listing($ingested);
             } else {
                 $io->listing(\array_slice($ingested, 0, 40));
-                $io->writeln(\sprintf(' … and %d more. Re-run with -v to list them all.', \count($ingested) - 40));
+                $io->writeln(\sprintf(' ... and %d more. Re-run with -v to list them all.', \count($ingested) - 40));
             }
         }
 

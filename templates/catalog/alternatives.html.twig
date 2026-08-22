@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Alternatives to {{ extension.label }} — extdir{% endblock %}
+{% block title %}Alternatives to {{ extension.label }} - extdir{% endblock %}
 {% block meta_description %}Open-source Shopware 6 extensions that do what {{ extension.label }} does, with the Shopware versions each one declares and how recently it was touched.{% endblock %}
 
 {% block canonical %}
@@ -30,9 +30,9 @@
         <p class="eyebrow">Alternatives</p>
         <h1>Instead of {{ extension.label }}</h1>
         <p>
-            Ranked by shared category, how much of the same Shopware compatibility they
-            declare, and whether anyone still maintains them. The
-            <a href="{{ path('ranking') }}">formula is public</a> and applies to every vendor.
+            Ranked by shared category, overlapping Shopware compatibility, and whether anyone
+            still maintains them. The <a href="{{ path('ranking') }}">formula is public</a> and
+            applies to every vendor.
         </p>
     </div>
 
@@ -45,7 +45,6 @@
                    keywords in composer.json, which leaves nothing to match on. #}
                 This extension publishes no categories or keywords in its
                 <code>composer.json</code>, so there is nothing to compare it against.
-                That is a gap in the metadata rather than a statement about the extension.
             </p>
             <p><a class="link-arrow" href="{{ path('home') }}">Browse everything</a></p>
         </div>
@@ -54,8 +53,8 @@
 
         <p class="small subtle page-note">
             {# The licence rule, stated where it applies. #}
-            An extension you may not redistribute is never offered as a replacement for
-            one you may — so this list can be shorter than it looks like it should be.
+            An extension you may not redistribute is never offered as a replacement for one you
+            may, so this list can be short.
         </p>
     {% endif %}
 

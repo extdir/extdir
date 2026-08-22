@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Verify {{ extension.label }} — extdir{% endblock %}
+{% block title %}Verify {{ extension.label }} - extdir{% endblock %}
 
 {# Not indexable. The page is meaningless without a session and carries a token
    belonging to one account. #}
@@ -27,9 +27,9 @@
 
     <div class="prose">
         <p class="lede">
-            This extension is hosted on {{ extension.sourceHost.value == 'other' ? 'a forge' : extension.sourceHost.value|capitalize }}
-            rather than GitHub, so we cannot ask an API whether you have write access. Instead,
-            publish a file only someone with write access could publish.
+            Hosted on {{ extension.sourceHost.value == 'other' ? 'a forge' :
+            extension.sourceHost.value|capitalize }} rather than GitHub, so there is no API to ask
+            about write access. Publish a file only someone with write access could publish.
         </p>
 
         <ol class="steps">
@@ -38,9 +38,8 @@
                 <p class="small muted">With exactly this content:</p>
                 <pre class="code" tabindex="0" id="proof">{{ contents }}</pre>
                 <p class="small subtle">
-                    The token is tied to your account and this extension. It is not a secret —
-                    publishing it proves nothing on its own, because using it still requires the
-                    write access we are checking for.
+                    The token is tied to your account and this extension. It is not a secret:
+                    using it still requires the write access being checked.
                 </p>
             </li>
 
@@ -56,7 +55,7 @@
                 <h2>Push, then check</h2>
                 <p class="small muted">
                     Forges take a moment to serve a newly pushed raw file. If the first attempt
-                    fails, wait half a minute rather than re-committing.
+                    fails, wait half a minute.
                 </p>
 
                 <form method="post" action="{{ path('ownership_verify_file_check', {slug: extension.slug}) }}">
@@ -68,13 +67,13 @@
 
         <h2>Afterwards</h2>
         <p>
-            Once verified you can remove this entry yourself, without waiting on anyone. You are
-            free to delete the file — the claim is recorded, not re-checked on every page load.
+            Once verified you can remove this entry yourself. You may delete the file afterwards;
+            the claim is recorded, not re-checked.
         </p>
         <p class="small subtle">
-            Anything else — a wrong category, an outdated description, a rights complaint — is
-            covered by the <a href="{{ path('takedown') }}">takedown and correction policy</a>,
-            which does not require any of this.
+            A wrong category, an outdated description or a rights complaint is covered by the <a
+            href="{{ path('takedown') }}">takedown and correction policy</a>, which needs none of
+            this.
         </p>
     </div>
 </div>

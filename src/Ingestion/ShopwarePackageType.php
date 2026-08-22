@@ -13,7 +13,7 @@ namespace App\Ingestion;
  *
  * It lives in its own class because it was previously a private method on the
  * assembler, and a second channel needed the same rule. Two copies of a string like
- * this do not fail loudly — they drift, and the cheaper copy quietly starts admitting
+ * this do not fail loudly, they drift, and the cheaper copy quietly starts admitting
  * themes, libraries and Shopware 5 plugins that the other one rejects.
  *
  * Deliberately exact rather than a prefix match. `shopware-platform-plugin` is the

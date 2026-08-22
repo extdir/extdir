@@ -21,7 +21,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *
  * The font is resolved from a list of candidates because the same DejaVu Sans lives
  * at a different path on the development machine and on the server. A missing font
- * degrades to a text-free card rather than a 500 — a social preview is never worth
+ * degrades to a text-free card rather than a 500, a social preview is never worth
  * an error page.
  */
 final class SocialCard
@@ -107,7 +107,7 @@ final class SocialCard
 
         // Measured rather than estimated. The first version guessed a character
         // width, and "Open-source Shopware 6 extensions" ran off the right edge of
-        // the canvas — on the card that represents the whole site.
+        // the canvas, on the card that represents the whole site.
         $y = 200;
         foreach ($this->fit($image, $font, $title, 60) as $line) {
             $this->text($image, $font, $line, self::MARGIN, $y, $this->titleSize, '#f2f2f3');

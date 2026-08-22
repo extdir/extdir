@@ -106,7 +106,7 @@ class VendorRepository extends ServiceEntityRepository
     /**
      * One vendor board.
      *
-     * The three differ only in what they measure, so they share everything else — most
+     * The three differ only in what they measure, so they share everything else, most
      * importantly the visibility rule. Boards must show exactly what the catalogue
      * shows: an extension not public enough to be listed is not public enough to win
      * anything.

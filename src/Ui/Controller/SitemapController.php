@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  * robots.txt and the sitemap.
  *
  * For a directory this is not housekeeping, it is the distribution plan. The
- * content is scraped, so the cold-start problem is not filling the index — it is
+ * content is scraped, so the cold-start problem is not filling the index, it is
  * being found at all. Nobody types "extdir"; they type "shopware 6 abandoned cart
  * extension", and every extension page and every facet landing page is a chance to
  * be the answer.
@@ -45,7 +45,7 @@ final class SitemapController extends AbstractController
             User-agent: *
             Allow: /
 
-            # Same results, different order — nothing new to index.
+            # Same results, different order, nothing new to index.
             Disallow: /*?*sort=
             Disallow: /*&sort=
 
@@ -67,7 +67,7 @@ final class SitemapController extends AbstractController
         // one is the way in for an extension no crawler found, the other explains
         // how to point Composer at the directory. Both were reachable and neither
         // was listed, which for the submission page in particular is the wrong way
-        // round — it exists precisely for maintainers who arrive from a search.
+        // round, it exists precisely for maintainers who arrive from a search.
         foreach ([
             'home', 'about', 'boards', 'ranking', 'vendors', 'submission_new', 'repo_landing',
             'imprint', 'privacy', 'terms', 'takedown',
@@ -76,7 +76,7 @@ final class SitemapController extends AbstractController
         }
 
         // Facet landing pages. Each one answers a question somebody actually types
-        // — "shopware 6.7 extensions", "shopware payment plugins" — and each is a
+        //, "shopware 6.7 extensions", "shopware payment plugins", and each is a
         // real page rather than a redirect, so they are worth submitting.
         foreach ($this->shopwareVersions->findShownInMatrix() as $version) {
             $urls[] = ['loc' => $this->generateUrl(
@@ -110,7 +110,7 @@ final class SitemapController extends AbstractController
                     UrlGeneratorInterface::ABSOLUTE_URL,
                 ),
                 // Reflects when the extension itself last changed, not when we last
-                // looked at it — a crawl that found nothing new is not a reason to
+                // looked at it, a crawl that found nothing new is not a reason to
                 // ask a search engine to re-read the page.
                 'lastmod' => ($extension->getLastCommitAt() ?? $extension->getLastReleaseAt())?->format('Y-m-d'),
             ];

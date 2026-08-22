@@ -2,7 +2,7 @@
 
 {% set technicalName = extension.technicalName %}
 
-{% block title %}{{ extension.label }} ({{ extension.packageName }}) — extdir{% endblock %}
+{% block title %}{{ extension.label }} ({{ extension.packageName }}) - extdir{% endblock %}
 {% block meta_description %}{{ extension.description|default(extension.label)|slice(0, 155) }}{% endblock %}
 
 {% block canonical %}
@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block og_type %}article{% endblock %}
-{% block og_title %}{{ extension.label }} — Shopware 6 extension{% endblock %}
+{% block og_title %}{{ extension.label }} - Shopware 6 extension{% endblock %}
 {% block og_description %}{{ extension.description|default(extension.packageName)|slice(0, 180) }}{% endblock %}
 {% block og_image %}{{ url('og_extension', {slug: extension.slug}) }}{% endblock %}
 
@@ -18,7 +18,7 @@
     {{ parent() }}
     {# SoftwareApplication, deliberately not Product. Product triggers Google's
        Merchant Listings parser, which then demands price, availability, shipping and
-       returns fields — none of which a directory of free extensions has or should
+       returns fields, none of which a directory of free extensions has or should
        invent. The offer is stated as zero-price because that is true and because
        omitting it invites the parser to guess.
 
@@ -56,8 +56,8 @@
 {% block body %}
 <div class="wrap page">
 
-    {# A spec sheet. Everything needed to decide — compatibility, licence,
-       maintenance, install — resolves without scrolling, and each value says where it
+    {# A spec sheet. Everything needed to decide, compatibility, licence,
+       maintenance, install, resolves without scrolling, and each value says where it
        came from. This is the page an agency developer arrives at from a search
        engine, usually to answer one question and leave. #}
     <header class="detail-head">
@@ -111,7 +111,7 @@
                    maintainer can see it. #}
                 <span class="spec-note">
                     {%- if licence.value == 'unknown' -%}
-                        no licence file or declaration found — not redistributable
+                        no licence file or declaration found, not redistributable
                     {%- elseif licence.value == 'rejected' and extension.declaredLicenseRaw -%}
                         declared <code>{{ extension.declaredLicenseRaw }}</code> in composer.json
                     {%- elseif extension.licenseEvidence.value == 'detector' -%}
@@ -181,17 +181,16 @@
             <section class="panel">
                 <h2>About that compatibility</h2>
                 <p class="small muted">
-                    These are the versions the maintainer <strong>declares</strong> support for in
-                    <code>composer.json</code>, not versions extdir has tested. A dashed chip marked
-                    <code>˚</code> means the constraint is open-ended — for example <code>^6.5</code>,
-                    which claims every later
-                    6.x release including ones published after the extension was last touched.
+                    Versions the maintainer <strong>declares</strong> support for in
+                    <code>composer.json</code>, not versions extdir has tested. A dashed chip
+                    marked <code>˚</code> means the constraint is open-ended, like
+                    <code>^6.5</code>.
                 </p>
             </section>
 
             {# After compatibility, before releases. What a plugin looks like is a
                real question, but it is not the question this directory exists to
-               answer — the version matrix stays first. #}
+               answer, the version matrix stays first. #}
             {{ include('catalog/_gallery.html.twig') }}
 
             {% if releases|length %}
@@ -213,10 +212,10 @@
                         {% for release in releases %}
                             <tr>
                                 <td class="num">{{ release.versionRaw }}</td>
-                                <td><code>{{ release.shopwareConstraint ?? '—' }}</code></td>
+                                <td><code>{{ release.shopwareConstraint ?? '-' }}</code></td>
                                 <td class="small muted">{{ release.constraintSource.value|replace({'shopware/': ''}) }}</td>
                                 <td class="small">{{ release.constraintTier.value }}</td>
-                                <td class="small muted num">{{ release.releasedAt ? release.releasedAt|date('Y-m-d') : '—' }}</td>
+                                <td class="small muted num">{{ release.releasedAt ? release.releasedAt|date('Y-m-d') : '-' }}</td>
                                 <td class="small">
                                     {% if release.distUrl %}
                                         {# The distinction matters: a maintainer's release ZIP was packaged
@@ -230,12 +229,12 @@
                                             </a>
                                         {% else %}
                                             <a class="subtle" href="{{ release.distUrl }}" rel="noopener nofollow"
-                                               title="Source archive from the git tag. Contains no built administration or storefront assets, so it is not installable as-is — use Composer instead.">
+                                               title="Source archive from the git tag. Contains no built administration or storefront assets, so it is not installable as-is. Use Composer instead.">
                                                 source
                                             </a>
                                         {% endif %}
                                     {% else %}
-                                        <span class="subtle">—</span>
+                                        <span class="subtle">-</span>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -244,8 +243,7 @@
                     </table>
                 </div>
                 <p class="small muted stack-sm">
-                    The constraint column shows the maintainer's own text, verbatim. If our reading of
-                    it looks wrong, this is the value to check it against.
+                    The constraint column is the maintainer's own text, verbatim.
                 </p>
             </section>
             {% endif %}
@@ -262,9 +260,7 @@
                            "could not be found in any version". The Composer surface plan asks for both paths;
                            printing only the first would be actively misleading. #}
                         <p class="small muted">
-                            This extension is <strong>not published on Packagist</strong>, so
-                            <code>composer require</code> alone cannot find it. Add extdir as a
-                            repository once:
+                            <strong>Not on Packagist</strong>. Add extdir as a repository once:
                         </p>
                         {# Generated from the route rather than typed, so the address in the
                            instruction and the address that answers can never drift apart. #}
@@ -274,20 +270,18 @@ composer require {{ extension.packageName }}</pre>
                             <a href="{{ path('repo_landing') }}">What that repository is and what it serves</a>
                         </p>
                         <p class="small subtle">
-                            Or point Composer straight at the source, with no third party involved:
+                            Or point Composer straight at the source:
                         </p>
                         <pre class="code" tabindex="0">composer config repositories.{{ extension.slug }} vcs {{ extension.repositoryUrl }}
 composer require {{ extension.packageName }}</pre>
                     {% endif %}
                 {% else %}
                     {# the licence gate: an extension with no usable licence is linked, never
-                       redistributed — so no install snippet is offered that would
+                       redistributed, so no install snippet is offered that would
                        route a merchant through infrastructure we host. #}
                     <p class="small text-danger">
-                        No open-source licence was detected for this repository, so extdir does not
-                        publish install instructions or host anything for it. Public code is not the
-                        same as code you are licensed to redistribute. Contact the maintainer if you
-                        need clarity on the terms.
+                        No open-source licence detected, so extdir publishes no install
+                        instructions and hosts nothing for it. Ask the maintainer about the terms.
                     </p>
                 {% endif %}
 
@@ -296,8 +290,8 @@ composer require {{ extension.packageName }}</pre>
                     <pre class="code" tabindex="0">bin/console plugin:refresh
 bin/console plugin:install --activate {{ technicalName }}</pre>
                     <p class="small subtle">
-                        The technical name comes from <code>extra.shopware-plugin-class</code> in the
-                        package, so this is the actual name to type — not a placeholder.
+                        From <code>extra.shopware-plugin-class</code>, so this is the name to
+                        type.
                     </p>
                 {% endif %}
             </section>
@@ -386,9 +380,8 @@ bin/console plugin:install --activate {{ technicalName }}</pre>
             <h2>Do you maintain this?</h2>
             {% if extension.sourceHost.value == 'github' %}
                 <p class="small muted">
-                Verify with GitHub and you can remove this entry yourself, without waiting on
-                anyone. We check whether your account has write access to the repository — your
-                access token is used for that one check and never stored.
+                Verify with GitHub and you can remove this entry yourself. We check your write
+                access; the token is used once and never stored.
                 </p>
                 <p class="small">
                 <a class="link-arrow" href="{{ path('auth_github', {extension: extension.slug}) }}">Verify ownership</a>
@@ -398,23 +391,21 @@ bin/console plugin:install --activate {{ technicalName }}</pre>
                    maintainer publishes a file only someone with write access could
                    publish, and that stands in for the permission check. #}
                 <p class="small muted">
-                This repository is not on GitHub, so we cannot check write access through an
-                API. Instead you publish a small file in the repository — something only
-                someone with write access can do — and we fetch it once.
+                Not on GitHub, so write access cannot be checked through an API. Publish a small
+                file in the repository instead.
                 </p>
                 <p class="small">
                 <a class="link-arrow" href="{{ path('ownership_verify_file', {slug: extension.slug}) }}">Verify with a file</a>
                 </p>
                 <p class="small subtle">
-                You will be asked to sign in first, so the verification belongs to an account.
+                You will be asked to sign in, so the verification belongs to an account.
                 </p>
             {% endif %}
             <p class="small subtle">
-                Not the maintainer? A wrong category, an outdated description or a rights
-                complaint can be
-                <a href="{{ path('complaint_new', {slug: extension.slug}) }}">reported here</a> —
-                no account needed. The <a href="{{ path('takedown') }}">takedown and correction
-                policy</a> explains what happens next.
+                Not the maintainer? Report a wrong category, an outdated description or a rights
+                complaint <a href="{{ path('complaint_new', {slug: extension.slug}) }}">here</a>.
+                No account needed, and the <a href="{{ path('takedown') }}">takedown policy</a>
+                covers what happens next.
             </p>
         </section>
         {# Offered to everyone rather than only to verified maintainers: the badge
@@ -437,7 +428,7 @@ bin/console plugin:install --activate {{ technicalName }}</pre>
                 </button>
             </div>
             <p class="small subtle">
-                Updates itself when the declared compatibility changes. Cached for an hour.
+                Updates when the declared compatibility changes.
             </p>
         </section>
     </div>

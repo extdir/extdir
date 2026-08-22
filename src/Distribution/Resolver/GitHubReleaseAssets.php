@@ -30,7 +30,7 @@ final class GitHubReleaseAssets implements ReleaseAssetSource
      *
      * Both numbers are load-bearing in opposite directions. Dropping releases to
      * 50 to dodge a timeout silently cost coverage: extensions with a long history
-     * — frosh/tools has 108 tagged releases — lost the maintainer archives for
+     *, frosh/tools has 108 tagged releases, lost the maintainer archives for
      * everything older, and 281 releases quietly downgraded to source zipballs
      * with nothing in the output to show it.
      *
@@ -83,7 +83,7 @@ final class GitHubReleaseAssets implements ReleaseAssetSource
         $data = $this->github->graphql(self::QUERY, ['owner' => $repo[0], 'name' => $repo[1]]);
 
         if (null === $data) {
-            // Transport error or rate limit — not evidence that there are no
+            // Transport error or rate limit, not evidence that there are no
             // archives, so the caller must leave existing ones alone.
             return null;
         }
@@ -127,7 +127,7 @@ final class GitHubReleaseAssets implements ReleaseAssetSource
     /**
      * Picks the plugin archive from a release's attachments.
      *
-     * Releases routinely carry things that are not the plugin — checksum files,
+     * Releases routinely carry things that are not the plugin, checksum files,
      * signatures, changelogs, source archives GitHub generates automatically.
      * Handing a merchant a `.zip.sha256` because it sorted first would be worse
      * than offering nothing.

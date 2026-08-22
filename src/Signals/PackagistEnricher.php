@@ -14,7 +14,7 @@ use Psr\Log\LoggerInterface;
  * Fills in Packagist install counts, politely.
  *
  * There is no bulk endpoint. `list.json` accepts a `fields[]` parameter and quietly
- * ignores `downloads` — it answers with `repository` whatever you ask for — so counts
+ * ignores `downloads`, it answers with `repository` whatever you ask for, so counts
  * cost one request per package, and they come from packagist.org rather than the p2
  * host that exists to be hammered.
  *
@@ -22,7 +22,7 @@ use Psr\Log\LoggerInterface;
  *
  * The listing is fetched once and intersected with what we hold, so not a single
  * request is spent discovering that a GitHub-only extension is not on Packagist. That
- * is 170 of 595 — nearly a third of the sweep, avoided by one call.
+ * is 170 of 595, nearly a third of the sweep, avoided by one call.
  *
  * And the sweep throttles, then stops dead on a 429. A rate limit is not a per-package
  * failure to log and step over; it means every remaining request will fail too. Missing
@@ -36,7 +36,7 @@ final class PackagistEnricher
      *
      * Roughly two per second against an endpoint whose own client configuration is
      * annotated "rate limited far more tightly". At 425 packages the whole sweep takes
-     * about three and a half minutes, once a week, in the small hours — small enough
+     * about three and a half minutes, once a week, in the small hours, small enough
      * that being any faster would buy nothing worth the risk.
      */
     private const int DELAY_MICROSECONDS = 500_000;

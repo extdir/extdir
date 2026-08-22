@@ -12,7 +12,7 @@ use App\Signals\Forge\ForgeUrl;
  * Where an extension's icon lives on its own forge.
  *
  * We never fetch, store or serve these. The URL is handed to the browser and only
- * requested if the reader has asked for remote media — see the remote-media
+ * requested if the reader has asked for remote media, see the remote-media
  * controller and the privacy policy.
  *
  * That distinction is what keeps this permissible. Hosting the file would be
@@ -27,7 +27,7 @@ final class IconUrl
      *
      * Guessing was measured against the corpus before this was written: `main` alone
      * found the icon for 23 of 40 sampled GitHub repositories, and adding `master`
-     * brought it to 34. That is why the stored branch is preferred — the catalogue
+     * brought it to 34. That is why the stored branch is preferred, the catalogue
      * also contains `develop`, `trunk`, `stable` and `main_65`, which no guess
      * reaches. This is the last resort for a repository crawled before the branch
      * was recorded, and the browser falls back to the monogram when it is wrong.
@@ -46,7 +46,7 @@ final class IconUrl
     }
 
     /**
-     * Where the icon would be if it exists — the URL before anyone has confirmed it.
+     * Where the icon would be if it exists, the URL before anyone has confirmed it.
      *
      * Only `app:ui:verify-icons` has any business calling this: it is what does the
      * confirming, so it necessarily needs the URL first. Everything that renders a
@@ -68,7 +68,7 @@ final class IconUrl
         $branch = rawurlencode($extension->getDefaultBranch() ?? self::FALLBACK_BRANCH);
 
         return match ($extension->getSourceHost()) {
-            // raw.githubusercontent.com directly rather than github.com/…/raw/…,
+            // raw.githubusercontent.com directly rather than github.com/.../raw/...,
             // which answers a redirect. One request instead of two, on an image that
             // appears once per row.
             SourceHost::GitHub => \sprintf(

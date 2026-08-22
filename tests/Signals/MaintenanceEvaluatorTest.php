@@ -19,7 +19,7 @@ final class MaintenanceEvaluatorTest extends TestCase
 
     protected function setUp(): void
     {
-        // evaluateAgainst() is pure and never touches the repository — every test
+        // evaluateAgainst() is pure and never touches the repository, every test
         // here passes the version timeline in directly. A stub rather than a mock,
         // because there is no interaction to verify.
         $this->evaluator = new MaintenanceEvaluator(
@@ -76,7 +76,7 @@ final class MaintenanceEvaluatorTest extends TestCase
     /**
      * The absolute floor exists because Shopware minors have shipped as little as
      * five months apart. Without it, a burst of quick releases would sweep healthy
-     * extensions into Dormant purely because two version numbers went by — the
+     * extensions into Dormant purely because two version numbers went by, the
      * ecosystem moving fast is not evidence that a plugin was abandoned.
      */
     public function testRapidReleasesDoNotStrandAnActiveExtension(): void
@@ -87,7 +87,7 @@ final class MaintenanceEvaluatorTest extends TestCase
             new ShopwareVersion('6.7', '6.7.0.0', '6.8.0.0', new \DateTimeImmutable('2026-01-01'), 0),
         ];
 
-        // Silent across 6.8 and 6.9, but only ~7 months — well inside the floor.
+        // Silent across 6.8 and 6.9, but only ~7 months, well inside the floor.
         $status = $this->evaluator->evaluateAgainst(
             new \DateTimeImmutable('2026-02-01'),
             false,

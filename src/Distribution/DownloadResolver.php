@@ -18,14 +18,14 @@ use Doctrine\ORM\EntityManagerInterface;
  *
  * The link-first rule in code. The order is:
  *
- *   1. A ZIP the maintainer attached to a GitHub release — costs nothing and is
+ *   1. A ZIP the maintainer attached to a GitHub release, costs nothing and is
  *      the only form that reliably installs, because it was packaged with
  *      shopware-cli and therefore contains built administration and storefront
  *      assets.
- *   2. The tag zipball Packagist already points Composer at — also free, but
+ *   2. The tag zipball Packagist already points Composer at, also free, but
  *      source-only, so it is offered to Composer and labelled honestly on the site
  *      rather than presented as an installable archive.
- *   3. Building it ourselves — the fallback, gated on licence, always labelled
+ *   3. Building it ourselves, the fallback, gated on licence, always labelled
  *      unofficial, and the only branch that consumes storage or CI minutes.
  *
  * Almost every release resolves at step 1 or 2, which is exactly why the storage
@@ -57,7 +57,7 @@ final class DownloadResolver
         // A failed lookup is not evidence that the maintainer publishes no
         // archives. Treating it as such overwrites a real release archive with a
         // source zipball, and the data gets quietly worse every time the forge has
-        // a bad minute — which is exactly what a run of 66 API timeouts did to
+        // a bad minute, which is exactly what a run of 66 API timeouts did to
         // 378 releases before this distinction existed.
         $lookupFailed = null === $assets;
         $assets ??= [];

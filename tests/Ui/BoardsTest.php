@@ -131,7 +131,7 @@ final class BoardsTest extends WebTestCase
      * Depth is the sum of the published per-extension score, and nothing else.
      *
      * Stated as an arithmetic check rather than trusted, because this is the one
-     * board that makes a claim about quality — and the only reason it is allowed to
+     * board that makes a claim about quality, and the only reason it is allowed to
      * is that it introduces no formula of its own.
      */
     public function testDepthIsTheSumOfThePublishedScore(): void

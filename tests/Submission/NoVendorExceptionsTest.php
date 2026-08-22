@@ -23,7 +23,7 @@ use PHPUnit\Framework\TestCase;
  * So this test reads the source of every file on the ranking and verification
  * paths and fails if a vendor name appears in it. It is a blunt instrument on
  * purpose: the failure mode it guards against is not a subtle bias in a weight,
- * it is somebody one day writing `if ($vendor === '…')` for a reason that felt
+ * it is somebody one day writing `if ($vendor === '...')` for a reason that felt
  * good at the time.
  */
 final class NoVendorExceptionsTest extends TestCase
@@ -77,7 +77,7 @@ final class NoVendorExceptionsTest extends TestCase
         $source = (string) file_get_contents($path);
 
         // Comments are stripped first. These files discuss the conflict-of-interest
-        // rule at length, and prose about `runio` is exactly what we want to keep —
+        // rule at length, and prose about `runio` is exactly what we want to keep,
         // it is executable references that are forbidden.
         $code = $this->stripComments($source);
 
@@ -96,7 +96,7 @@ final class NoVendorExceptionsTest extends TestCase
     }
 
     /**
-     * The disclosure flag is allowed to exist — the conflict-of-interest rule requires the badge — but it
+     * The disclosure flag is allowed to exist, the conflict-of-interest rule requires the badge, but it
      * must be inert. Two extensions identical apart from the vendor flag must
      * score identically.
      */
@@ -110,7 +110,7 @@ final class NoVendorExceptionsTest extends TestCase
             LicenseStatus::Permissive, 1.0, $now, $now,
         ];
 
-        // The scorer takes no vendor and no extension — it cannot see who published
+        // The scorer takes no vendor and no extension, it cannot see who published
         // the thing it is scoring, which is the strongest form this guarantee can
         // take. If that signature ever grows a vendor argument, this test is the
         // place the reason should be argued.
@@ -150,7 +150,7 @@ final class NoVendorExceptionsTest extends TestCase
                     self::assertStringNotContainsString(
                         $forbidden,
                         $name,
-                        \sprintf('RankingScore::%s() accepts "%s" — popularity must not be scored.', $method, $name),
+                        \sprintf('RankingScore::%s() accepts "%s", popularity must not be scored.', $method, $name),
                     );
                 }
             }

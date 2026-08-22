@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # =============================================================================
-# deploy.sh — ship extdir to Uberspace.
+# deploy.sh, ship extdir to Uberspace.
 #
 # One idempotent script. The first run generates .env.local from the server's
 # own MariaDB credentials; later runs sync code, migrate, refresh caches and
 # restart the workers.
 #
 # Nothing here builds untrusted code. Composer resolves extdir's own
-# composer.lock and nothing else — the rule against building third-party
+# composer.lock and nothing else, the rule against building third-party
 # extension code on this host is about the extensions we index, not our
 # lockfile.
 #
@@ -26,7 +26,7 @@ APP_DOMAIN="extdir.com"
 # DocumentRoot, so the directory name is load-bearing rather than cosmetic.
 REMOTE_PATH="${EXTDIR_PATH:-/home/amer/websites/extdir.com}"
 DB_NAME="${EXTDIR_DB:-amer_extdir}"
-# Uberspace 7 spells it php83 — no dot, no hyphen. Bare `php` may be an older
+# Uberspace 7 spells it php83, no dot, no hyphen. Bare `php` may be an older
 # default and the resulting failure is confusing.
 PHP_BIN="/usr/bin/php83"
 TRUSTED_HOSTS='^(localhost|extdir\.com|www\.extdir\.com)$'
@@ -51,7 +51,7 @@ fail() { printf "${RED}✗ %s${RESET}\n" "$1" >&2; exit 1; }
 # ---------- Pre-flight ------------------------------------------------------
 step "SSH to $REMOTE"
 ssh -o BatchMode=yes -o ConnectTimeout=8 "$REMOTE" 'echo ok' >/dev/null 2>&1 \
-    || fail "cannot reach '$REMOTE' — add it to ~/.ssh/config"
+    || fail "cannot reach '$REMOTE', add it to ~/.ssh/config"
 ok
 
 if [ "$ALLOW_DIRTY" -eq 0 ]; then
@@ -113,11 +113,11 @@ set -euo pipefail
 cd "$REMOTE_PATH"
 
 # First run only: build .env.local from the server's own credentials. The
-# MariaDB password lives in ~/.my.cnf, which Uberspace generates — reading it
+# MariaDB password lives in ~/.my.cnf, which Uberspace generates, reading it
 # here means the password is never typed, never copied and never sits in a file
 # on a laptop.
 if [ ! -f .env.local ]; then
-    [ -f "$HOME/.my.cnf" ] || { echo "~/.my.cnf not found — cannot derive DB credentials" >&2; exit 1; }
+    [ -f "$HOME/.my.cnf" ] || { echo "~/.my.cnf not found, cannot derive DB credentials" >&2; exit 1; }
     DB_USER=$(awk -F'=' '/^user/{gsub(/[ "]/,"",$2); print $2; exit}' "$HOME/.my.cnf")
     DB_PASS=$(awk -F'=' '/^password/{gsub(/[ "]/,"",$2); print $2; exit}' "$HOME/.my.cnf")
     # URL-encode: generated passwords routinely contain characters that would
@@ -144,7 +144,7 @@ if [ ! -f .env.local ]; then
         echo "GITHUB_APP_CLIENT_ID="
         echo "GITHUB_APP_CLIENT_SECRET="
     } > .env.local
-    echo "  generated .env.local — add the operator address and GitHub App credentials, then re-run"
+    echo "  generated .env.local, add the operator address and GitHub App credentials, then re-run"
 fi
 
 composer install --no-dev --optimize-autoloader --classmap-authoritative --no-interaction --no-progress
@@ -175,5 +175,5 @@ step "Health check"
 if curl -fsS --max-time 20 "https://$APP_DOMAIN/health" | grep -q '"status":"ok"'; then
     ok "deployed"
 else
-    fail "deployed, but https://$APP_DOMAIN/health is not ok — check before walking away"
+    fail "deployed, but https://$APP_DOMAIN/health is not ok, check before walking away"
 fi

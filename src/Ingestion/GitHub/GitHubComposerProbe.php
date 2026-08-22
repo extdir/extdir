@@ -13,7 +13,7 @@ use Psr\Log\LoggerInterface;
  * Repository search is a wide net: a query for `shopware` returns themes, SDKs,
  * Docker setups, Magento bridges, agency boilerplate and abandoned experiments. Around
  * nine in ten candidates are not extensions, and finding that out through the full
- * assembler would cost two GraphQL round trips each — roughly two thousand requests to
+ * assembler would cost two GraphQL round trips each, roughly two thousand requests to
  * discard eighteen hundred repositories.
  *
  * So this reads one blob per repository, twenty-five repositories per query, using the
@@ -21,8 +21,8 @@ use Psr\Log\LoggerInterface;
  * candidates cost forty requests instead of two thousand, and only the survivors reach
  * the assembler.
  *
- * It answers one question and returns no data. Everything about the extension — the
- * per-tag constraints that make up the compatibility matrix — is still read by the
+ * It answers one question and returns no data. Everything about the extension, the
+ * per-tag constraints that make up the compatibility matrix, is still read by the
  * assembler afterwards, because HEAD's composer.json describes HEAD and nothing else.
  */
 final class GitHubComposerProbe

@@ -68,8 +68,8 @@ final class CompatibilityResolverTest extends TestCase
      * The reason compatibility is tested by interval intersection rather than by
      * matching a representative version.
      *
-     * A plugin that raises its floor to a mid-minor patch — common after a core
-     * bugfix — still supports that minor. Checking `>=6.6.5` against a stand-in
+     * A plugin that raises its floor to a mid-minor patch, common after a core
+     * bugfix, still supports that minor. Checking `>=6.6.5` against a stand-in
      * "6.6.0.0" would answer "no", and the resulting false negatives would land
      * disproportionately on the extensions that are most actively maintained.
      */

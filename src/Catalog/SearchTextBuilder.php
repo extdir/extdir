@@ -10,7 +10,7 @@ use App\Catalog\Entity\Extension;
  * Builds the denormalised text that the FULLTEXT index actually searches.
  *
  * The index originally covered `label` and `description`, which are the
- * English-preferred strings. That silently made every other locale unsearchable —
+ * English-preferred strings. That silently made every other locale unsearchable,
  * an extension whose German label is "Versandkostenrechner" could not be found by
  * searching "Versandkosten" unless it also happened to say so in English. In an
  * ecosystem where a large share of plugins ship German-only metadata, that is not

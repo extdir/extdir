@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Your extensions — extdir{% endblock %}
+{% block title %}Your extensions - extdir{% endblock %}
 {% block canonical %}<meta name="robots" content="noindex, nofollow">{% endblock %}
 
 {% block body %}
@@ -8,15 +8,15 @@
     <div class="page-head">
         <h1>Your extensions</h1>
         <p>
-            Extensions whose repository you have write access to. Verification is checked against
-            GitHub each time you sign in — we never store your access token.
+            Extensions whose repository you have write access to. Checked against GitHub at each
+            sign-in. Your access token is never stored.
         </p>
     </div>
 
     <div class="prose">
         {% if claims is empty %}
             {# A real first-run state rather than a sentence. There are two routes now,
-               and which one applies depends on where the code is hosted — something
+               and which one applies depends on where the code is hosted, something
                the reader knows and we cannot guess from this page. #}
             <div class="empty">
                 <p><strong>Nothing verified yet.</strong></p>
@@ -35,8 +35,8 @@
                 <dt>Anywhere else</dt>
                 <dd>
                     GitLab, Gitea, Bitbucket and self-hosted forges have no API we can ask, so you
-                    publish a small file in the repository instead — something only someone with
-                    write access can do — and we fetch it once.
+                    publish a small file in the repository instead. Only someone with write access
+            can do that, and we fetch it once.
                 </dd>
             </dl>
         {% else %}
@@ -45,7 +45,7 @@
                     <thead>
                     {# The last column holds the remove button. An empty <th> leaves a screen
                        reader announcing the cell with no idea what it is for, so the label is
-                       present and only visually hidden — the column heading would be noise
+                       present and only visually hidden, the column heading would be noise
                        above a single button. #}
                     <tr>
                         <th>Extension</th>
@@ -90,10 +90,9 @@
 
         <h2>Something else wrong?</h2>
         <p>
-            Categories, descriptions and compatibility are read from your
-            <code>composer.json</code>, so correcting them there fixes them here on the next crawl.
-            For anything else, see the <a href="{{ path('takedown') }}">takedown and correction
-            policy</a>.
+            Categories, descriptions and compatibility come from your <code>composer.json</code>,
+            so fixing them there fixes them here at the next crawl. For anything else, see the <a
+            href="{{ path('takedown') }}">takedown and correction policy</a>.
         </p>
     </div>
 </div>

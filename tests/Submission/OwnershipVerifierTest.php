@@ -27,7 +27,7 @@ final class OwnershipVerifierTest extends TestCase
 {
     /**
      * The whole point of the check. Every public repository grants read access to
-     * everyone, so `pull` proves only that the repository is public — granting
+     * everyone, so `pull` proves only that the repository is public, granting
      * control on the strength of it would let any GitHub account delist any
      * extension in the directory.
      */
@@ -82,7 +82,7 @@ final class OwnershipVerifierTest extends TestCase
 
     /**
      * GitLab, Gitea and self-hosted forges have no equivalent permission API, so
-     * the automatic route is unavailable rather than failed — and the caller is
+     * the automatic route is unavailable rather than failed, and the caller is
      * expected to offer the proof-file method instead of turning the person away.
      */
     public function testANonGitHubExtensionReportsUnavailableRatherThanDenied(): void
@@ -100,7 +100,7 @@ final class OwnershipVerifierTest extends TestCase
 
     /**
      * A repository the account cannot see returns 404 from GitHub rather than a
-     * permissions block — which is a denial, not an error.
+     * permissions block, which is a denial, not an error.
      */
     public function testAnInaccessibleRepositoryIsDenied(): void
     {
@@ -117,8 +117,8 @@ final class OwnershipVerifierTest extends TestCase
     }
 
     /**
-     * Moderators can act without a claim — someone has to handle a rights
-     * complaint from a person who is not the maintainer — but only moderators.
+     * Moderators can act without a claim, someone has to handle a rights
+     * complaint from a person who is not the maintainer, but only moderators.
      */
     public function testOnlyVerifiedMaintainersAndModeratorsMayAct(): void
     {

@@ -63,7 +63,7 @@ final class ComposerMetadataExtractorTest extends TestCase
 
     /**
      * Roughly a third of sampled packages omit supportLink, many omit description,
-     * and some omit the extra block entirely. None of that may stop ingestion — an
+     * and some omit the extra block entirely. None of that may stop ingestion, an
      * extractor that throws on the first non-conforming package indexes nothing.
      */
     public function testAnEmptyComposerJsonStillYieldsUsableMetadata(): void
@@ -133,7 +133,7 @@ final class ComposerMetadataExtractorTest extends TestCase
 
     /**
      * Falls back to composer.json's own description when the Shopware extra block
-     * has none — common in packages that predate the convention.
+     * has none, common in packages that predate the convention.
      */
     public function testTopLevelDescriptionIsUsedWhenExtraHasNone(): void
     {

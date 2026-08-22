@@ -154,7 +154,7 @@ final class RankingScoreTest extends TestCase
             LicenseStatus::Permissive, 1.0, $this->now, $this->now,
         );
 
-        // Not a claim that compatibility alone wins — it should not — but that it
+        // Not a claim that compatibility alone wins, it should not, but that it
         // is worth more than any single other factor.
         self::assertGreaterThan(
             RankingScore::WEIGHT_MAINTENANCE * 100,
@@ -181,7 +181,7 @@ final class RankingScoreTest extends TestCase
 
     /**
      * An unlicensed extension cannot legally be redistributed, so it must rank
-     * below an otherwise identical licensed one — the licence gate expressed as ordering.
+     * below an otherwise identical licensed one, the licence gate expressed as ordering.
      */
     public function testUnlicensedRanksBelowLicensed(): void
     {

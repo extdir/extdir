@@ -16,7 +16,7 @@ use Twig\TwigFilter;
  * on an extension is a question about elapsed time, not about the calendar.
  *
  * Deliberately coarse, and deliberately not "about 3 months ago". The unit alone is
- * the signal — days good, months worth a look, years a warning — and a column of
+ * the signal, days good, months worth a look, years a warning, and a column of
  * short tokens can be scanned at a glance where a column of sentences cannot. The
  * exact date stays in the title attribute and the datetime attribute for anyone who
  * needs it.
@@ -38,8 +38,8 @@ final class RelativeTimeExtension extends AbstractExtension
     /**
      * The same span as a sentence rather than a column value.
      *
-     * `ago` is deliberately terse — "2 d" scans in a table where "2 days ago" would
-     * not — but appending " ago" to it in prose produces "crawled today ago". The
+     * `ago` is deliberately terse, "2 d" scans in a table where "2 days ago" would
+     * not, but appending " ago" to it in prose produces "crawled today ago". The
      * masthead already carried a conditional to work around that; the detail page
      * carried the naive version and shipped the broken sentence. One filter, so the
      * two cannot disagree again.
@@ -49,7 +49,7 @@ final class RelativeTimeExtension extends AbstractExtension
         $relative = $this->ago($moment);
 
         return match ($relative) {
-            '—' => 'never',
+            '-' => 'never',
             'today' => 'today',
             default => $relative.' ago',
         };
@@ -58,7 +58,7 @@ final class RelativeTimeExtension extends AbstractExtension
     public function ago(?\DateTimeInterface $moment): string
     {
         if (null === $moment) {
-            return '—';
+            return '-';
         }
 
         $days = (int) $this->clock->now()->diff($moment)->days;

@@ -12,8 +12,8 @@ use Psr\Log\LoggerInterface;
  * This is the second discovery source in the discovery plan, and it is what makes the
  * directory more than a re-skin of Packagist. Every package indexed so far came
  * from Packagist by construction, so `composer require` already worked for all of
- * them. The extensions that are genuinely hard to find — published to GitHub with
- * a topic and never submitted to Packagist — only appear through this path.
+ * them. The extensions that are genuinely hard to find, published to GitHub with
+ * a topic and never submitted to Packagist, only appear through this path.
  *
  * Measured before building: the three topics below return 461 distinct
  * repositories, 338 of which are not in the index. Not all are Shopware 6
@@ -21,7 +21,7 @@ use Psr\Log\LoggerInterface;
  *
  * Topic search is used rather than code search deliberately. GitHub's code search
  * requires the repository to be indexed for it and returns nothing useful for
- * `shopware-platform-plugin in:file` — it answered zero when tried.
+ * `shopware-platform-plugin in:file`, it answered zero when tried.
  */
 final class GitHubTopicDiscovery
 {

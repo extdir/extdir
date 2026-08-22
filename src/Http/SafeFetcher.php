@@ -30,7 +30,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  *   endpoint on essentially every provider.
  * - **Pinned resolution.** The address is resolved once and then pinned for the
  *   request. Checking DNS and then letting the client resolve again independently is
- *   a rebinding hole — the name can answer with a public address for the check and a
+ *   a rebinding hole, the name can answer with a public address for the check and a
  *   private one microseconds later.
  * - **No redirects.** A redirect is precisely how a public host launders a request
  *   into a private one, and following it would bypass every check above.
@@ -58,12 +58,12 @@ final readonly class SafeFetcher
      * Used to check that an extension's icon actually exists before its URL is
      * offered to a reader's browser. Most icon paths in the catalogue are a
      * convention (`src/Resources/config/plugin.png`) filled in when composer.json
-     * declares none, so roughly a third of them point at nothing — measured, not
+     * declares none, so roughly a third of them point at nothing, measured, not
      * assumed. Publishing those unverified would make every reader who allows remote
      * media issue a few hundred requests to GitHub that can only 404, which is the
      * exact privacy cost they agreed to, spent on nothing.
      *
-     * Runs from the nightly crawl, never from a request, so it is not an oracle —
+     * Runs from the nightly crawl, never from a request, so it is not an oracle,
      * but it goes through the same guard as everything else here, because the host
      * still comes from Packagist.
      */
@@ -140,7 +140,7 @@ final readonly class SafeFetcher
             return substr($body, 0, self::MAX_BYTES);
         } catch (HttpExceptionInterface $e) {
             // A missing file, a self-hosted forge that is down, a certificate that
-            // expired — all routine, none worth an error-level log for a check the
+            // expired, all routine, none worth an error-level log for a check the
             // user is about to see the result of anyway.
             $this->logger->info('Proof-file fetch failed', ['url' => $url, 'error' => $e->getMessage()]);
 

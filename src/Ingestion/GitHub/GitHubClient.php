@@ -183,8 +183,8 @@ final class GitHubClient implements GitHubGraphQl
             // the 423 indexed extensions are in that state right now.
             //
             // Logging that at error level every night is worse than not logging it.
-            // It buries genuine failures — an expired token, a rate limit, a broken
-            // query — under noise, and once an alert fires on every run people stop
+            // It buries genuine failures, an expired token, a rate limit, a broken
+            // query, under noise, and once an alert fires on every run people stop
             // reading it. Separated so the two can be told apart at a glance and
             // alerted on differently.
             $gone = array_values(array_filter(

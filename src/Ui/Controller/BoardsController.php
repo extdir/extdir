@@ -19,7 +19,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * and both are asked before anyone adopts an extension.
  *
  * Everything here is bound by the conflict-of-interest rule, which forbids editorial
- * placement outright — so a leaderboard has to be built as a published rule rather
+ * placement outright, so a leaderboard has to be built as a published rule rather
  * than as a choice. Three things follow, and none of them is optional:
  *
  * Every board prints the expression that produced it. There is no curated list, no
@@ -27,7 +27,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * the only way onto a board is to satisfy a rule a reader can check.
  *
  * The vendors are ranked three ways rather than one. "Most contributing" has at least
- * three defensible meanings and they produce genuinely different winners — the vendor
+ * three defensible meanings and they produce genuinely different winners, the vendor
  * leading on releases maintains a third as many extensions as the vendor leading on
  * breadth. Picking one and calling it the answer would be the editorial judgement the
  * rule forbids, so all three are shown side by side and none is called the winner.
@@ -37,8 +37,8 @@ use Symfony\Component\Routing\Attribute\Route;
  * disclosure chip it wears on the vendor listing.
  *
  * Popularity is displayed and never scored. The download counts below feed no ranking
- * — RankingScore does not take them as an argument and cannot be given them without
- * changing its signature — because the ranking guidance is blunt that stars and installs
+ *, RankingScore does not take them as an argument and cannot be given them without
+ * changing its signature, because the ranking guidance is blunt that stars and installs
  * mislead in this ecosystem. Showing them on a page whose whole subject is popularity
  * is honest; letting them decide what a merchant sees first is not.
  */
@@ -49,7 +49,7 @@ final class BoardsController extends AbstractController
      *
      * Ten rather than three. A top three is a podium and invites reading the winner as
      * an endorsement; ten reads as a distribution, and shows how quickly the numbers
-     * fall away — which for this catalogue is the more honest picture.
+     * fall away, which for this catalogue is the more honest picture.
      */
     private const int ROWS = 10;
 
@@ -94,7 +94,7 @@ final class BoardsController extends AbstractController
             $this->vendorBoard(
                 'Depth',
                 'Who maintains the most extensions well?',
-                'SUM(ranking score) ÷ 100 — the same score shown on every extension page',
+                'SUM(ranking score) ÷ 100, the same score shown on every extension page',
                 'score',
                 $this->vendors->topByAggregateScore(self::ROWS),
                 1,
@@ -102,7 +102,7 @@ final class BoardsController extends AbstractController
             $this->vendorBoard(
                 'Activity',
                 'Who ships the most?',
-                'COUNT(tagged releases) across the vendor’s listed extensions',
+                'COUNT(tagged releases) across the vendor\'s listed extensions',
                 'releases',
                 $this->vendors->topByReleaseCount(self::ROWS),
                 0,
@@ -135,7 +135,7 @@ final class BoardsController extends AbstractController
             $this->extensionBoard(
                 'Starred',
                 'What has been starred most?',
-                'Stars on the extension’s own forge',
+                'Stars on the extension\'s own forge',
                 'stars',
                 $this->extensions->topByStars(self::ROWS),
                 static fn (Extension $e): float => (float) $e->getStars(),
@@ -222,7 +222,7 @@ final class BoardsController extends AbstractController
      * This row's value as a fraction of the board's largest, for the bar.
      *
      * Scaled against the top of its own board rather than a global maximum, because the
-     * boards measure incomparable things — a release count and a ranking score share no
+     * boards measure incomparable things, a release count and a ranking score share no
      * unit, and drawing them on one scale would say something untrue about both.
      *
      * @param list<float> $values

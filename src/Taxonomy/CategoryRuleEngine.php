@@ -15,7 +15,7 @@ namespace App\Taxonomy;
  * are the same token and rules need only one spelling.
  *
  * **Longer terms match as substrings, short ones only as whole words.** German
- * builds compounds — "Versandkostenrechner" must match "versandkosten" — so
+ * builds compounds, "Versandkostenrechner" must match "versandkosten", so
  * substring matching is required, not sloppy. But applying it to short terms is how
  * "abo" starts matching "about", so anything under five characters is held to a
  * word boundary.
@@ -25,7 +25,7 @@ namespace App\Taxonomy;
  */
 final class CategoryRuleEngine
 {
-    /** Weight of a match found in composer.json `keywords` — the most deliberate signal. */
+    /** Weight of a match found in composer.json `keywords`, the most deliberate signal. */
     private const WEIGHT_KEYWORD = 3;
 
     /** Weight of a match in the plugin label. */
@@ -34,7 +34,7 @@ final class CategoryRuleEngine
     /**
      * Weight of a match in the package name.
      *
-     * Weighted like the label because it is equally deliberate — nobody names a
+     * Weighted like the label because it is equally deliberate, nobody names a
      * package `shopware-queue-monitor` by accident. This turned out to matter far
      * more than expected: 360 of the 422 indexed extensions declare no composer
      * keywords at all, so for most of the corpus the name and label are the only
@@ -42,7 +42,7 @@ final class CategoryRuleEngine
      */
     private const WEIGHT_PACKAGE_NAME = 2;
 
-    /** Weight of a match in the description — the noisiest source. */
+    /** Weight of a match in the description, the noisiest source. */
     private const WEIGHT_DESCRIPTION = 1;
 
     /**
@@ -51,8 +51,8 @@ final class CategoryRuleEngine
      * constantly ("works alongside your payment provider"), and a wrong category is a
      * support email.
      *
-     * What changed is that a description naming an unambiguous term — `klarna`,
-     * `turnstile`, `datev` — is not mentioning a neighbouring concept, it is stating
+     * What changed is that a description naming an unambiguous term, `klarna`,
+     * `turnstile`, `datev`, is not mentioning a neighbouring concept, it is stating
      * its subject. Those reach the bar; generic words still do not, however many of
      * them appear.
      *
@@ -111,7 +111,7 @@ final class CategoryRuleEngine
 
         arsort($scores);
 
-        // Below the bar, nothing is assigned — deliberately, with no "best guess"
+        // Below the bar, nothing is assigned, deliberately, with no "best guess"
         // fallback. A description-only hit carries no signal that separates "Adds a
         // sitemap for better indexing" (genuinely SEO) from "Compatible with any
         // payment provider you already use" (not a payment extension at all). Since
@@ -131,7 +131,7 @@ final class CategoryRuleEngine
      * Reports the terms themselves rather than a count, and says which source found
      * them and whether they were strong. A category assigned on the strength of one
      * word in a description is exactly the case worth reviewing before it ships, and a
-     * number cannot tell you that; "payment — description: klarna, alipay" can.
+     * number cannot tell you that; "payment, description: klarna, alipay" can.
      *
      * @param list<string>          $keywords
      * @param array<string, string> $labels
@@ -195,8 +195,8 @@ final class CategoryRuleEngine
      *
      * Counting two generic terms as corroboration was tried and measured against the
      * corpus first. It was wrong, and wrong in a way worth recording: the term lists
-     * carry English and German side by side, so `customer` and `kunde` — or `delivery`
-     * and `lieferung`, or `payment` and `zahlung` — are the same concept written twice,
+     * carry English and German side by side, so `customer` and `kunde`, or `delivery`
+     * and `lieferung`, or `payment` and `zahlung`, are the same concept written twice,
      * not two independent signals. A CDN plugin was filed under Shipping on "delivery,
      * lieferung" and a search-suggest plugin under Customers on "customer, kunde".
      * Roughly a third of the new assignments were wrong that way.
@@ -228,7 +228,7 @@ final class CategoryRuleEngine
      * Only the part after the slash.
      *
      * Vendor names are excluded because they are company names, not descriptions of
-     * function — a vendor called "shipping-gmbh" would otherwise file its entire
+     * function, a vendor called "shipping-gmbh" would otherwise file its entire
      * catalogue under Shipping regardless of what the plugins actually do.
      */
     private function packageSegment(string $packageName): string

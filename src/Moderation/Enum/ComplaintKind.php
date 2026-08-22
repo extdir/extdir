@@ -20,7 +20,7 @@ enum ComplaintKind: string
      */
     case Rights = 'rights';
 
-    /** The recorded licence is wrong — the most common correctable error. */
+    /** The recorded licence is wrong, the most common correctable error. */
     case Licence = 'licence';
 
     /** Malware, credential harvesting, or anything unsafe to install. */

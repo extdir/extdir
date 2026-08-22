@@ -10,7 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 /**
  * Every page actually renders.
  *
- * lint:twig proves a template parses, not that it runs — a missing variable, a filter
+ * lint:twig proves a template parses, not that it runs, a missing variable, a filter
  * on null, or a route that moved all pass the linter and fail at request time. After
  * a redesign that touched every template, that gap is exactly where breakage hides.
  */
@@ -47,7 +47,7 @@ final class RenderSmokeTest extends WebTestCase
 
     /**
      * debug must be off, or Symfony serves its own exception page and the custom
-     * template is never exercised — which is also why this went unnoticed until the
+     * template is never exercised, which is also why this went unnoticed until the
      * template existed to be tested.
      */
     /**
@@ -55,7 +55,7 @@ final class RenderSmokeTest extends WebTestCase
      * page and carried by every link that changes a filter.
      *
      * Asserted against the control rather than the rows, because the test database
-     * holds no extensions — there is nothing to render rows from, and a test that
+     * holds no extensions, there is nothing to render rows from, and a test that
      * only passes when someone has seeded data is a test that fails on a clean clone.
      */
     public function testTheCompactViewIsReflectedInTheControls(): void
@@ -99,7 +99,7 @@ final class RenderSmokeTest extends WebTestCase
      * The restore must be synchronous and in the head.
      *
      * If it ever becomes a deferred module the page paints light first and corrects
-     * itself, which is a white flash on every navigation for anyone who chose dark —
+     * itself, which is a white flash on every navigation for anyone who chose dark,
      * the precise failure the inline script exists to prevent, and one that is easy
      * to reintroduce while tidying scripts out of templates.
      */
@@ -138,7 +138,7 @@ final class RenderSmokeTest extends WebTestCase
     /**
      * A refusal is not a fault.
      *
-     * The generic error page claimed "something went wrong at our end… it has been
+     * The generic error page claimed "something went wrong at our end... it has been
      * logged" for every status including 403, which invites a bug report for an
      * incident that never happened and tells the visitor the one thing that is
      * certainly untrue: that it was not about them.
@@ -153,7 +153,7 @@ final class RenderSmokeTest extends WebTestCase
 
         if (403 !== $status) {
             // Anonymous requests are redirected to sign in instead, which is also
-            // correct — there is nothing to assert about a 302 body.
+            // correct, there is nothing to assert about a 302 body.
             self::assertContains($status, [302, 401]);
 
             return;
@@ -168,7 +168,7 @@ final class RenderSmokeTest extends WebTestCase
     /**
      * The rail must not be a carousel.
      *
-     * Everything in it has to be in the DOM and reachable without JavaScript — a
+     * Everything in it has to be in the DOM and reachable without JavaScript, a
      * scroll container with snap points, not a widget that reveals cards on click.
      * A carousel hiding two thirds of its contents is an annoyance on a shop and a
      * real obstacle when somebody is choosing which payment plugin goes into

@@ -32,8 +32,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * bundle because it is about sixty lines and this is the one place where knowing
  * exactly what happens to a user's token is worth more than the convenience.
  *
- * The token is used twice — once to learn who the user is, once to check write
- * access to the repository they are claiming — and then dropped. It is never
+ * The token is used twice, once to learn who the user is, once to check write
+ * access to the repository they are claiming, and then dropped. It is never
  * written to the database or the session. A token that can push to every
  * repository its owner can push to is not something a directory should be storing,
  * and the only way to be sure it never leaks is to never keep it.
@@ -116,7 +116,7 @@ final class GitHubAuthenticator extends AbstractAuthenticator implements Authent
      *
      * Without this the firewall answers 401 with an empty body, which is what the
      * proof-file page did to anyone who followed "Verify with a file" while signed
-     * out — a dead end on the exact link that promises to ask them to sign in.
+     * out, a dead end on the exact link that promises to ask them to sign in.
      *
      * The path they wanted is remembered, so they land back on it rather than on a
      * generic dashboard.

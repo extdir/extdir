@@ -4,7 +4,7 @@ import { Controller } from '@hotwired/stimulus';
 /*
  * Collapses the filter column on narrow screens.
  *
- * The column is long — around forty links — and on a phone it stacks above the
+ * The column is long, around forty links, and on a phone it stacks above the
  * results, so the first extension started more than a screen and a half down. On a
  * directory whose whole purpose is browsing extensions, that is the wrong thing to
  * put first.
@@ -15,7 +15,7 @@ import { Controller } from '@hotwired/stimulus';
  * until somebody opens it.
  *
  * Once a reader touches the toggle their choice stands for the rest of the page,
- * including across a rotation — a filter panel that reopened or slammed shut on
+ * including across a rotation, a filter panel that reopened or slammed shut on
  * every resize would be worse than either state.
  */
 export default class extends Controller {
@@ -32,7 +32,7 @@ export default class extends Controller {
             if (!this.touched) this.drawerTarget.open = !this.query.matches;
         };
 
-        // The initial state is set by an inline script during parsing — doing it
+        // The initial state is set by an inline script during parsing, doing it
         // here instead moved the results 590px after first paint, which was most of
         // a failing CLS score. This controller only handles what happens afterwards:
         // a rotation, or a window being resized across the breakpoint.

@@ -7,7 +7,7 @@ namespace App\Catalog\Enum;
 /**
  * How an extension entered the index.
  *
- * This is not bookkeeping — it decides whether the extension appears in our
+ * This is not bookkeeping, it decides whether the extension appears in our
  * Composer repository. Packagist discovery filters on the
  * `shopware-platform-plugin` type, so anything that arrived that way is on
  * Packagist by definition and `composer require` already works for it. Publishing
@@ -26,7 +26,7 @@ enum DiscoverySource: string
     /**
      * Found by searching repositories rather than by a topic the maintainer set.
      *
-     * Same standing as GitHubTopic — not on Packagist, so it is exactly what the
+     * Same standing as GitHubTopic, not on Packagist, so it is exactly what the
      * Composer repository is for. Recorded separately only so the channel's yield and
      * its noise can be measured rather than guessed at.
      */

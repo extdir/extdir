@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
  * The crawler's GitHub user access token, with its refresh token.
  *
  * Stored in the database rather than in an environment variable because it is not
- * configuration — it rotates. Access tokens last 8 hours and refresh tokens 6
+ * configuration, it rotates. Access tokens last 8 hours and refresh tokens 6
  * months, so whichever worker refreshes first must be able to publish the new pair
  * to all the others. An env var cannot do that without a redeploy every 8 hours.
  *

@@ -12,7 +12,7 @@ use Doctrine\Migrations\AbstractMigration;
  *
  * The branch is needed to build raw-file URLs for extension icons. It was already
  * being crawled into repository_snapshot and thrown away for this purpose, so the
- * column is backfilled from the newest snapshot rather than waiting a crawl cycle —
+ * column is backfilled from the newest snapshot rather than waiting a crawl cycle,
  * 435 of the extensions already have the answer stored.
  *
  * Guessing was measured first, on the assumption that `main` with a `master`

@@ -7,7 +7,7 @@ import { Controller } from '@hotwired/stimulus';
  * An enhancement, never the mechanism. The rail is a native scroll container, so it
  * already works with a trackpad, shift+wheel, touch, and the keyboard by tabbing
  * through the cards inside it. This adds pointer affordances for people who have
- * none of those to hand — and removes them again when the rail is not overflowing,
+ * none of those to hand, and removes them again when the rail is not overflowing,
  * because an arrow that scrolls nothing is worse than no arrow.
  */
 export default class extends Controller {
@@ -40,7 +40,7 @@ export default class extends Controller {
 
     scrollBy(direction) {
         // Roughly one screen of cards, minus a sliver so the card at the edge stays
-        // partly visible — that overlap is what tells a reader the rail continues.
+        // partly visible, that overlap is what tells a reader the rail continues.
         const step = Math.max(240, this.trackTarget.clientWidth * 0.8);
 
         this.trackTarget.scrollBy({
@@ -55,7 +55,7 @@ export default class extends Controller {
         // exact maximum, which would leave the next arrow enabled at the end forever.
         //
         // The start needs more than a pixel. The track carries left padding so focus
-        // rings are not clipped, and the first item's snap point sits after it — a
+        // rings are not clipped, and the first item's snap point sits after it, a
         // rail scrolled fully left reports that padding, measured here as 4, never 0.
         // Reading the computed value beats hardcoding it, since the padding comes
         // from the spacing scale and moves with it.

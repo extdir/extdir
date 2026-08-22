@@ -20,7 +20,7 @@ use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * "You have missed one" — a way in for extensions the crawlers cannot see.
+ * "You have missed one", a way in for extensions the crawlers cannot see.
  *
  * Three channels feed the catalogue and each has a blind spot. Packagist misses
  * anything never published there; topics miss anyone who did not label their
@@ -34,7 +34,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * login, at /my/verify/{slug}.
  *
  * No account, matching the report form: the point is to remove friction from someone
- * doing us a favour. What keeps it safe is not a login but the gate — a submission is
+ * doing us a favour. What keeps it safe is not a login but the gate, a submission is
  * only accepted if the repository's own composer.json declares
  * `shopware-platform-plugin`, which is the same test every crawled candidate passes
  * and is not something a spammer can satisfy with an arbitrary URL.
@@ -63,7 +63,7 @@ final class SubmissionController extends AbstractController
         RateLimiterFactoryInterface $limiter,
     ): Response {
         // Deliberately not an AccessDeniedException. For an anonymous visitor Symfony
-        // answers that by starting authentication — so a stale token on a form that
+        // answers that by starting authentication, so a stale token on a form that
         // advertises "no account needed" would bounce them to a GitHub sign-in they
         // never asked for. A tab left open overnight is the usual cause, and the fix
         // is to submit again, not to log in.
@@ -116,9 +116,9 @@ final class SubmissionController extends AbstractController
         $existing = $this->extensions->findOneByPackageName($assembled['package']);
 
         if (null !== $existing) {
-            // Already indexed — usually under a package name that does not resemble the
+            // Already indexed, usually under a package name that does not resemble the
             // repository name. Sending them to it beats telling them they were wrong.
-            $this->addFlash('success', 'Already in the directory — here it is.');
+            $this->addFlash('success', 'Already in the directory, here it is.');
 
             return $this->redirectToRoute('extension_detail', ['slug' => $existing->getSlug()]);
         }
@@ -136,7 +136,7 @@ final class SubmissionController extends AbstractController
         }
 
         // Without this the page would show no licence, no maintenance signal and no
-        // compatibility matrix until the nightly crawl — an empty page as the reward
+        // compatibility matrix until the nightly crawl, an empty page as the reward
         // for helping. One extension is a single batched query.
         try {
             $this->enricher->enrich([$extension]);
@@ -152,7 +152,7 @@ final class SubmissionController extends AbstractController
         ));
         $this->em->flush();
 
-        $this->addFlash('success', 'Added. Thank you — the compatibility data fills in as it is crawled.');
+        $this->addFlash('success', 'Added. Thank you, the compatibility data fills in as it is crawled.');
 
         return $this->redirectToRoute('extension_detail', ['slug' => $extension->getSlug()]);
     }
@@ -170,7 +170,7 @@ final class SubmissionController extends AbstractController
             return null;
         }
 
-        // Accept a bare "owner/repo" too — it is what people paste from a README.
+        // Accept a bare "owner/repo" too, it is what people paste from a README.
         if (!str_contains($url, '://') && preg_match('~^[\w.-]+/[\w.-]+$~', $url)) {
             return rtrim($url, '/');
         }
@@ -190,7 +190,7 @@ final class SubmissionController extends AbstractController
         $path = preg_replace('/\.git$/i', '', trim($parts['path'], '/')) ?? '';
         $segments = explode('/', $path);
 
-        // Tolerate a deep link — /tree/main, /blob/... — because that is what the
+        // Tolerate a deep link, /tree/main, /blob/..., because that is what the
         // address bar holds when somebody is looking at the repository.
         if (\count($segments) < 2 || '' === $segments[0] || '' === $segments[1]) {
             return null;

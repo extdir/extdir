@@ -14,7 +14,7 @@ use Twig\Environment;
  * The command the listing hands over when somebody presses Copy.
  *
  * It used to be `composer require <package>` for every row. For the extensions
- * Packagist does not carry — the ones the directory exists to surface — that command
+ * Packagist does not carry, the ones the directory exists to surface, that command
  * fails with "could not be found in any version", and the detail page said so in as
  * many words while the listing kept offering it.
  */

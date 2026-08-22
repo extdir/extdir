@@ -64,7 +64,7 @@ class RepositorySnapshot
     #[ORM\Column(length: 32, nullable: true)]
     private ?string $ciStatus = null;
 
-    /** GitHub's own archive flag — an explicit statement, worth more than inference. */
+    /** GitHub's own archive flag, an explicit statement, worth more than inference. */
     #[ORM\Column(options: ['default' => false])]
     private bool $archived = false;
 

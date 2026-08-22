@@ -7,7 +7,7 @@ import { Controller } from '@hotwired/stimulus';
  *
  * The site otherwise makes no third-party requests at all, and its privacy policy
  * says so. An icon hot-linked from GitHub would send every visitor's IP to GitHub on
- * every page view and quietly make that statement false — the same shape of problem
+ * every page view and quietly make that statement false, the same shape of problem
  * as embedding Google Fonts, which is why the fonts here are self-hosted.
  *
  * So this is the two-click pattern: nothing is requested until somebody asks, the

@@ -10,7 +10,7 @@ import { Controller } from '@hotwired/stimulus';
  * Visibility API, which covers tab switches, minimising, and mobile app
  * switching alike.
  *
- * None of this is a security control — anyone can read the endpoint. It raises
+ * None of this is a security control, anyone can read the endpoint. It raises
  * the cost of bulk address harvesting from "parse the HTML" to "run a browser
  * and wait", which is the whole of the ambition.
  *
@@ -57,7 +57,7 @@ export default class extends Controller {
         if (this._aborted || !finished) return;
 
         // Past this point the wait has been served, so backgrounding the tab no
-        // longer cancels anything — there is only the fetch left to do.
+        // longer cancels anything, there is only the fetch left to do.
         this._completed = true;
         this.removeVisibilityListener();
 
@@ -75,8 +75,8 @@ export default class extends Controller {
                 this.barTarget.style.width = `${Math.min(100, (elapsed / total) * 100)}%`;
                 const remaining = Math.max(0, Math.ceil((total - elapsed) / 1000));
                 this.labelTarget.textContent = remaining > 0
-                    ? `${remaining}s remaining — keep this tab open`
-                    : 'Almost there…';
+                    ? `${remaining}s remaining, keep this tab open`
+                    : 'Almost there...';
                 if (elapsed < total) {
                     requestAnimationFrame(tick);
                 } else {
@@ -119,7 +119,7 @@ export default class extends Controller {
 
             if (!response.ok) {
                 this.showError(response.status === 429
-                    ? 'Too many requests from this network. Wait an hour, or email us — the '
+                    ? 'Too many requests from this network. Wait an hour, or email us, the '
                       + 'address above reaches a person either way.'
                     : `The address could not be loaded (HTTP ${response.status}).`);
                 return;

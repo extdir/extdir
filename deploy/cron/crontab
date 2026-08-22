@@ -1,6 +1,6 @@
 # extdir scheduled work.
 #
-# APPEND these lines to the existing crontab — never `crontab deploy/cron/crontab`.
+# APPEND these lines to the existing crontab, never `crontab deploy/cron/crontab`.
 # That form replaces the whole crontab, and this account also schedules work for
 # other sites. Installing this file the obvious way would silently delete them:
 #
@@ -13,7 +13,7 @@
 # variable assignment: `EXTDIR=$HOME/websites/extdir.com` stores the literal text
 # `$HOME/...`, the shell then expands $EXTDIR to that literal, and cd receives a path
 # with a `$HOME` in it that nothing will ever resolve. $HOME used directly in a
-# command is fine — cron sets HOME and the shell expands it at run time.
+# command is fine, cron sets HOME and the shell expands it at run time.
 #
 # Times are deliberately off-peak and staggered. Packagist and GitHub are being
 # asked for a few hundred requests; doing that politely costs nothing and being
@@ -21,7 +21,7 @@
 
 # Monitoring: nothing to add here, deliberately.
 #
-# The usual way to watch a cron job is a heartbeat — the job pings a URL when it
+# The usual way to watch a cron job is a heartbeat, the job pings a URL when it
 # finishes, and the monitor alerts when the ping stops. UptimeRobot sells that only
 # on a paid tier, so instead the app answers the same question at
 # https://extdir.com/health/crawl, which returns 503 once the last completed crawl
@@ -31,7 +31,7 @@
 # The pull version is the better one regardless of price. A heartbeat proves a
 # command exited, and a crawl that ran, failed and still exited 0 would satisfy it.
 # /health/crawl reads the catalogue's own last_crawled_at, so it proves the data
-# actually got fresher — and it keeps working when the server cannot reach the
+# actually got fresher, and it keeps working when the server cannot reach the
 # internet, which is one of the failure modes worth catching.
 #
 # /health stays the separate, slower check: it tolerates 48 hours, because "a night
@@ -45,7 +45,7 @@
 # Package metadata from Packagist. Cheap and the primary source of truth.
 23 3 * * *   cd $HOME/websites/extdir.com && /usr/bin/php83 bin/console app:ingest:packagist >> $HOME/logs/extdir-cron.log 2>&1
 
-# Extensions published to GitHub but never to Packagist. Weekly is enough — a
+# Extensions published to GitHub but never to Packagist. Weekly is enough, a
 # repository that was never submitted to Packagist is not moving fast.
 41 4 * * 2   cd $HOME/websites/extdir.com && /usr/bin/php83 bin/console app:ingest:github >> $HOME/logs/extdir-cron.log 2>&1
 
@@ -59,7 +59,7 @@
 
 # Extension icons: confirm each one still exists where its metadata claims.
 #
-# Weekly, not nightly. Only a tenth of icon paths are declared in composer.json —
+# Weekly, not nightly. Only a tenth of icon paths are declared in composer.json,
 # the rest are the conventional src/Resources/config/plugin.png filled in by the
 # extractor, and about a quarter of those point at nothing. The command re-checks
 # an icon roughly monthly, so a weekly run spreads the work without ever leaving a
@@ -67,7 +67,7 @@
 # default branch the signals refresh records.
 #
 # Runs after the catalogue is otherwise settled because it is the slowest job per
-# request served — a HEAD to a few hundred forges, about two minutes.
+# request served, a HEAD to a few hundred forges, about two minutes.
 29 6 * * 3   cd $HOME/websites/extdir.com && /usr/bin/php83 bin/console app:ui:verify-icons >> $HOME/logs/extdir-cron.log 2>&1
 
 # Categories, recomputed from stored data. Seconds, no network.
@@ -76,8 +76,8 @@
 # Packagist install counts for the boards.
 #
 # Weekly, and this is the one job where that is a constraint rather than a preference.
-# Download counts live only on packagist.org, which carries no bulk endpoint —
-# list.json accepts a fields[] parameter and quietly ignores `downloads` — so it is one
+# Download counts live only on packagist.org, which carries no bulk endpoint,
+# list.json accepts a fields[] parameter and quietly ignores `downloads`, so it is one
 # request per package, about 425 of them, against the host whose own client config is
 # annotated "rate limited far more tightly" than the p2 endpoint. Nightly would spend
 # that budget to change numbers that barely move between Mondays.

@@ -57,7 +57,7 @@ final class OperationsTest extends WebTestCase
     }
 
     /**
-     * Health is the one endpoint whose answer must never come from a cache — a
+     * Health is the one endpoint whose answer must never come from a cache, a
      * cached health check reports the past, which is precisely what it exists to
      * avoid.
      */
@@ -74,7 +74,7 @@ final class OperationsTest extends WebTestCase
 
     /**
      * A degraded system must answer with a status code a monitor reacts to. The
-     * dangerous failure for a directory is not the site going down — it is the
+     * dangerous failure for a directory is not the site going down, it is the
      * site staying up while serving data that stopped being refreshed, so
      * staleness has to surface as 503 rather than as a field nobody reads.
      */
@@ -107,7 +107,7 @@ final class OperationsTest extends WebTestCase
      *
      * A heartbeat monitor is the usual way to check a cron job, and UptimeRobot only
      * sells it on a paid tier. This asks the same question with an ordinary HTTP check,
-     * which every plan has — and answers it better: a heartbeat proves a command
+     * which every plan has, and answers it better: a heartbeat proves a command
      * exited, while this proves the catalogue actually got fresher.
      */
     public function testTheCrawlEndpointAnswersWithAStatusCode(): void
@@ -116,7 +116,7 @@ final class OperationsTest extends WebTestCase
         $client->request('GET', '/health/crawl');
 
         // The test database holds no extensions, so no crawl has ever completed and
-        // the honest answer is 503 — which is the alerting path, exercised.
+        // the honest answer is 503, which is the alerting path, exercised.
         self::assertResponseStatusCodeSame(503);
         self::assertResponseHeaderSame('Content-Type', 'application/json');
 
@@ -144,7 +144,7 @@ final class OperationsTest extends WebTestCase
 
     /**
      * The health endpoints report degradation in plain words, and the monitor that
-     * watches them is a public status page — so they are discoverable even though
+     * watches them is a public status page, so they are discoverable even though
      * nothing links to them. JSON cannot carry a meta tag, so the instruction has to
      * travel as a header.
      */
@@ -172,7 +172,7 @@ final class OperationsTest extends WebTestCase
     }
 
     /**
-     * Two pages a person can act on — the way in for an extension no crawler found,
+     * Two pages a person can act on, the way in for an extension no crawler found,
      * and the instructions for pointing Composer here. Both were reachable and
      * neither was listed, which for the submission page is exactly backwards: it
      * exists for maintainers who arrive from a search.
@@ -193,12 +193,12 @@ final class OperationsTest extends WebTestCase
      * URL, as the one to keep.
      *
      * This generalises a real defect. The application was reachable a second time
-     * under /public/ — /public/about, /public/vendors, the lot — because the
+     * under /public/, /public/about, /public/vendors, the lot, because the
      * front-controller rewrite has to exempt that prefix from itself or loop. Symfony
      * derives the base URL from SCRIPT_NAME, so each duplicate emitted a canonical
      * pointing at itself rather than at the real page: two complete copies of the
      * site, each nominating the wrong one. Apache serves those paths without ever
-     * entering the kernel, so no test here can request them — but the invariant they
+     * entering the kernel, so no test here can request them, but the invariant they
      * broke is the one asserted below, and it holds for every route the kernel does
      * answer.
      */

@@ -23,7 +23,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * outage cannot take the GitHub signals down with it, or the reverse.
  *
  * Nothing this command writes affects ranking. The counts it stores are shown on
- * /boards and read by no scoring code anywhere — see RankingScore, which does not
+ * /boards and read by no scoring code anywhere, see RankingScore, which does not
  * accept them as an argument, and cannot be given them without changing its signature.
  */
 #[AsCommand(
@@ -45,7 +45,7 @@ final class RefreshPackagistStatsCommand extends Command
             'limit',
             'l',
             InputOption::VALUE_REQUIRED,
-            'Only fetch this many packages — use it to try a slice before a full sweep',
+            'Only fetch this many packages, use it to try a slice before a full sweep',
         );
     }
 
@@ -58,7 +58,7 @@ final class RefreshPackagistStatsCommand extends Command
 
         $extensions = $this->extensions->findPubliclyVisible();
 
-        $io->text(\sprintf('%d extensions indexed. Asking Packagist which of them it carries…', \count($extensions)));
+        $io->text(\sprintf('%d extensions indexed. Asking Packagist which of them it carries...', \count($extensions)));
 
         $result = $this->enricher->enrich($extensions, $limit);
 

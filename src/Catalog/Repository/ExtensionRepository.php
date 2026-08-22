@@ -59,9 +59,9 @@ class ExtensionRepository extends ServiceEntityRepository
     /**
      * Discovery source per package name.
      *
-     * Tells the GitHub sweep whether Packagist owns a package's release data — in
+     * Tells the GitHub sweep whether Packagist owns a package's release data, in
      * which case re-reading a bounded window of tags would replace complete metadata
-     * with a worse copy — or whether this sweep is the only thing that will ever
+     * with a worse copy, or whether this sweep is the only thing that will ever
      * refresh it.
      *
      * @return array<string, DiscoverySource>
@@ -88,7 +88,7 @@ class ExtensionRepository extends ServiceEntityRepository
      *
      * Discovery works in repository names while the catalogue is keyed by package
      * name, and the two only connect after composer.json has been read. Without this
-     * map, deciding whether a candidate is already indexed means assembling it first —
+     * map, deciding whether a candidate is already indexed means assembling it first,
      * two GraphQL round trips per repository, spent mostly on extensions we already
      * have.
      *
@@ -180,8 +180,8 @@ class ExtensionRepository extends ServiceEntityRepository
      * Most installed of all time, per Packagist.
      *
      * Restricted to extensions Packagist has actually answered for. A zero download
-     * count means one of two completely different things — nobody installs it, or it is
-     * one of the 170 indexed extensions that are not on Packagist at all — and letting
+     * count means one of two completely different things, nobody installs it, or it is
+     * one of the 170 indexed extensions that are not on Packagist at all, and letting
      * the second masquerade as the first would quietly libel exactly the agency-built
      * repositories the search channel was added to find.
      *
@@ -211,7 +211,7 @@ class ExtensionRepository extends ServiceEntityRepository
      *
      * The weakest signal on the page, and the page says so. It earns its place only
      * because it is the one popularity measure that reaches the extensions Packagist
-     * cannot see — without it, a third of the catalogue appears on no board at all.
+     * cannot see, without it, a third of the catalogue appears on no board at all.
      *
      * @return list<Extension>
      */

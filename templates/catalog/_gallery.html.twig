@@ -2,7 +2,7 @@
     Screenshots of the extension, linked from the maintainer's own repository.
 
     Never hosted here. §4.3 prefers linking to hosting, and screenshots are the
-    vendor's material rather than ours — a code licence covers the software, not the
+    vendor's material rather than ours, a code licence covers the software, not the
     marketing images, so copying them would be the one part of this needing
     permission we do not have.
 
@@ -12,8 +12,7 @@
     was given for "icons from their forges".
 
     The section stays hidden until the reader allows remote media. Unlike an icon
-    there is nothing to fall back on — a gallery with nothing in it is not a gallery
-    — so it removes itself rather than showing grey rectangles to somebody who
+    there is nothing to fall back on, a gallery with nothing in it is not a gallery, so it removes itself rather than showing grey rectangles to somebody who
     declined.
 #}
 {% set images = extension_gallery(extension) %}
@@ -23,7 +22,7 @@
         <h2>Screenshots</h2>
         <p class="subtle gallery-note">
             Published by the maintainer in their own repository, and loaded directly from
-            {{ extension_icon_host(extension) ?? 'the source repository' }} — extdir neither
+            {{ extension_icon_host(extension) ?? 'the source repository' }} - extdir neither
             stores nor serves them.
         </p>
 
@@ -31,7 +30,7 @@
             <div class="rail-track gallery-track" data-rail-target="track" tabindex="0"
                  role="group" aria-label="Screenshots of {{ extension.label }}">
                 {% for image in images %}
-                    {# Still a real link to the original on the forge — middle-click,
+                    {# Still a real link to the original on the forge, middle-click,
                        "open in new tab" and a JavaScript-free browser all behave the
                        way a link should. The lightbox intercepts the plain click
                        only, because landing on a bare PNG in a new tab with no

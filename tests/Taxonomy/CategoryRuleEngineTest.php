@@ -124,7 +124,7 @@ final class CategoryRuleEngineTest extends TestCase
      * term lists carry English and German side by side, so `customer` and `kunde` are
      * one concept written twice, not two independent signals. On the live corpus that
      * filed a CDN plugin under Shipping on "delivery, lieferung" and a search-suggest
-     * plugin under Customers on "customer, kunde" — about a third of the new
+     * plugin under Customers on "customer, kunde", about a third of the new
      * assignments were wrong that way.
      */
     public function testSeveralGenericTermsAreStillNotEnough(): void
@@ -186,7 +186,7 @@ final class CategoryRuleEngineTest extends TestCase
     /**
      * There is deliberately no "best guess" fallback, even when the weak match is
      * correct. "Adds a sitemap for better indexing" really is an SEO extension, and
-     * we still decline to categorise it from the description alone — because
+     * we still decline to categorise it from the description alone, because
      * nothing distinguishes it from the payment-provider sentence above, and a
      * rule that cannot tell true from false positives should not fire at all.
      *
@@ -206,7 +206,7 @@ final class CategoryRuleEngineTest extends TestCase
 
     /**
      * The same extension categorises correctly as soon as a stronger source carries
-     * the signal — which is what the rules are meant to key on.
+     * the signal, which is what the rules are meant to key on.
      */
     public function testTheSameExtensionCategorisesFromLabelOrKeywords(): void
     {
@@ -230,7 +230,7 @@ final class CategoryRuleEngineTest extends TestCase
         $one = $this->engine->explain(['payment'], [], []);
 
         // explain() lists every term that matched, so the stuffed one legitimately
-        // reports more of them — that is its job, showing why an assignment happened.
+        // reports more of them, that is its job, showing why an assignment happened.
         self::assertGreaterThan(
             \count($one['payment']['keywords']),
             \count($many['payment']['keywords']),

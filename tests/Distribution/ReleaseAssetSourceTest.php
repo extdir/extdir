@@ -23,7 +23,7 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 final class ReleaseAssetSourceTest extends TestCase
 {
     /**
-     * GitLab groups nest arbitrarily deep — "fyrst/shopware/OrderStates" is a real
+     * GitLab groups nest arbitrarily deep, "fyrst/shopware/OrderStates" is a real
      * example from the corpus. The project is addressed by its whole path,
      * URL-encoded including the slashes, so splitting on the first slash the way a
      * GitHub owner/repo parser does would produce a 404.
@@ -97,7 +97,7 @@ final class ReleaseAssetSourceTest extends TestCase
     /**
      * GitLab's auto-generated source archives live under `assets.sources`. Treating
      * one as a maintainer artifact would promise it is installable when it is only
-     * source — the exact mistake the release/zipball distinction exists to prevent.
+     * source, the exact mistake the release/zipball distinction exists to prevent.
      */
     public function testGitLabIgnoresGeneratedSourceArchives(): void
     {
@@ -119,7 +119,7 @@ final class ReleaseAssetSourceTest extends TestCase
 
     /**
      * A self-hosted forge being down, slow or behind a login is routine, so it must
-     * never abort a crawl of 422 packages — but it must report *failure*, not "no
+     * never abort a crawl of 422 packages, but it must report *failure*, not "no
      * archives".
      *
      * The distinction is not academic. A single run of 66 API timeouts previously
@@ -141,7 +141,7 @@ final class ReleaseAssetSourceTest extends TestCase
 
     /**
      * A 404 genuinely means the project has no releases endpoint we can read, so
-     * that is an empty result rather than a failure — there is nothing to protect.
+     * that is an empty result rather than a failure, there is nothing to protect.
      */
     public function testAMissingProjectIsAnEmptyResultNotAFailure(): void
     {

@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}extdir — open-source Shopware 6 extensions{% endblock %}</title>
+    <title>{% block title %}extdir - open-source Shopware 6 extensions{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}A community-run directory of open-source Shopware 6 extensions, with compatibility and maintenance data.{% endblock %}">
     {% block canonical %}{% endblock %}
 
     {# Open Graph and Twitter. Pages default to a site-level card; the extension
        page overrides all four with its own. Without these, every link shared into
-       Slack or a forum renders as a bare URL — which for a directory whose whole
+       Slack or a forum renders as a bare URL, which for a directory whose whole
        job is being passed between colleagues is a wasted introduction. #}
     <meta property="og:site_name" content="extdir">
     <meta property="og:type" content="{% block og_type %}website{% endblock %}">
@@ -45,7 +45,7 @@
     <link rel="preload" href="{{ asset('fonts/geist-mono-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
     {# Applied before the first paint, and therefore inline and synchronous.
        A module from the importmap is deferred, so restoring the choice there
-       would paint the wrong theme first and then correct it — a white flash on
+       would paint the wrong theme first and then correct it, a white flash on
        every navigation for anyone who chose dark. That flash is the whole reason
        this cannot be a Stimulus controller.
 
@@ -84,7 +84,7 @@
 
         <form class="header-search" action="{{ path('home') }}" method="get" role="search">
             <label class="visually-hidden" for="header-q">Search extensions</label>
-            <input class="input" id="header-q" type="search" name="q" placeholder="Search extensions…"
+            <input class="input" id="header-q" type="search" name="q" placeholder="Search extensions"
                    value="{{ app.request.query.get('q') }}" autocomplete="off"
                    data-shortcuts-target="search">
             {# The hint is the affordance. A shortcut nobody can see is a shortcut
@@ -176,8 +176,7 @@
                 A community-run directory of open-source Shopware 6 extensions.
             </p>
             <p class="muted small">
-                Not affiliated with, endorsed by, or connected to Shopware AG.
-                “Shopware” is used descriptively to say what these extensions are for.
+                Not affiliated with or endorsed by Shopware AG. "Shopware" is used descriptively.
             </p>
         </div>
 
@@ -210,8 +209,7 @@
                 <li><a href="https://github.com/extdir" rel="noopener">extdir on GitHub</a></li>
             </ul>
             <p class="muted small">
-                The platform itself is open source. Nobody should have to trust a directory
-                they cannot inspect.
+                The platform is open source, so you can inspect how the data was produced.
             </p>
         </div>
     </div>
@@ -219,12 +217,11 @@
     <div class="wrap footer-base">
         <p class="powered-by">
             Powered by <a href="https://runio.dev" rel="noopener">runio.dev</a>
-            <span class="subtle">— operator and maintainer</span>
+            <span class="subtle">operator and maintainer</span>
         </p>
         {# Off by default, and withdrawable. Consent that cannot be taken back is not
            consent, so both directions are one click from every page. The server always
-           renders the "off" wording and the controller corrects it on connect —
-           the reverse would flash a false claim to anyone who has not opted in. #}
+           renders the "off" wording and the controller corrects it on connect, the reverse would flash a false claim to anyone who has not opted in. #}
         <p class="powered-by remote-media-control">
             <span class="subtle" data-remote-media-target="status">
                 Extension icons and screenshots are not loaded from their forges.

@@ -1,17 +1,14 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}How ranking works — extdir{% endblock %}
+{% block title %}How ranking works - extdir{% endblock %}
 {% block canonical %}<link rel="canonical" href="{{ url('ranking') }}">{% endblock %}
-{% block meta_description %}The exact formula extdir uses to order extensions, rendered from the code that runs it.{% endblock %}
+{% block meta_description %}The formula extdir uses to order extensions, rendered from the code that runs it.{% endblock %}
 
 {% block body %}
 <div class="wrap page">
     <div class="page-head">
         <h1>How ranking works</h1>
-        <p>
-            The numbers below are read directly from the constants that do the ranking. This page
-            cannot drift out of date, because there is no second copy of the formula to fall behind.
-        </p>
+        <p>Read from the constants that do the ranking, so it cannot fall behind the code.</p>
     </div>
 
     <div class="prose">
@@ -38,35 +35,21 @@
             </table>
         </div>
 
-        <h2>What is deliberately not in it</h2>
+        <h2>What is not in it</h2>
         <p>
-            <strong>Stars and forks do not affect ranking.</strong> In this ecosystem popularity is a
-            misleading signal: an excellent extension built by a German agency for its own clients may
-            have a dozen stars, while an abandoned experiment has hundreds. Ranking on popularity would
-            bury precisely the extensions merchants most need to find. Star counts are still shown, and
-            you can sort by them if you want to — they simply do not feed the score.
+            <strong>Popularity.</strong> An agency extension may have a dozen stars while an
+            abandoned experiment has hundreds. Stars and installs are shown on <a href="{{
+            path('boards') }}">the boards</a> and never feed the score.
         </p>
         <p>
-            Popularity does get a page of its own. <a href="{{ path('boards') }}">The boards</a> rank
-            vendors and extensions by installs, releases and stars, each with the rule that produced
-            it printed underneath. None of those numbers reaches this formula — showing them where
-            they cannot decide what a merchant sees first is the entire point of putting them on a
-            separate page.
-        </p>
-        <p>
-            <strong>There is no manual placement.</strong> No paid slots, no featured section, no
-            editorial override, no per-vendor adjustment anywhere in the code. Extensions published by
-            the person who operates extdir carry a visible disclosure badge and are scored by exactly
-            this formula, with no exception in the codebase for them. There is an automated test that
-            fails the build if vendor-specific logic ever appears in the ranking path.
+            <strong>Manual placement.</strong> No paid slots, no featured section, no per-vendor
+            adjustment. A test fails the build if vendor-specific logic enters the ranking path.
         </p>
 
-        <h2>How compatibility confidence is graded</h2>
+        <h2>Confidence in a compatibility claim</h2>
         <p>
-            A declared version constraint is the maintainer's own statement, and some statements say
-            more than others. Where an extension supports the current Shopware release
-            {% if currentVersion %}(currently <strong>{{ currentVersion.majorMinor }}</strong>){% endif %},
-            the strength of that claim is graded:
+            Support for the current release {% if currentVersion %}(<strong>{{
+            currentVersion.majorMinor }}</strong>){% endif %} is graded:
         </p>
         <div class="table-scroll" tabindex="0">
             <table class="data">
@@ -75,12 +58,12 @@
                 <tr>
                     <td>explicit</td><td><code>~6.6.0</code>, <code>&gt;=6.5 &lt;6.7</code></td>
                     <td class="num">1.0</td>
-                    <td class="muted">Bounded inside one major. A deliberate statement about which versions were considered.</td>
+                    <td class="muted">Bounded inside one major.</td>
                 </tr>
                 <tr>
                     <td>caret</td><td><code>^6.5</code>, <code>~6.6</code></td>
                     <td class="num">0.85</td>
-                    <td class="muted">Expands to <code>&lt;7.0</code>, so it silently claims every later 6.x release — including ones published after the code was last touched.</td>
+                    <td class="muted">Expands to <code>&lt;7.0</code>, claiming releases published after the last commit.</td>
                 </tr>
                 <tr>
                     <td>wildcard</td><td><code>*</code>, <code>&gt;=6.0</code></td>
@@ -96,38 +79,31 @@
             </table>
         </div>
 
-        <h2>How maintenance is judged</h2>
+        <h2>Maintenance</h2>
         <p>
-            Not by the calendar. A small, finished extension can sit untouched for two years and work
-            perfectly — what actually breaks it is a new Shopware release. So activity is measured
-            against Shopware's release dates:
+            Measured against Shopware's release dates, not the calendar. What breaks a finished
+            extension is a new Shopware release.
         </p>
         <ul>
-            <li><strong>Current</strong> — committed to since the newest Shopware minor shipped.</li>
-            <li><strong>Lagging</strong> — quiet since then, but active after the previous minor.</li>
-            <li><strong>Dormant</strong> — silent across two or more minors <em>and</em> idle for over two years.</li>
-            <li><strong>Abandoned</strong> — the maintainer marked it abandoned on Packagist. Their statement, not our inference.</li>
+            <li><strong>Current</strong>: committed to since the newest Shopware minor shipped.</li>
+            <li><strong>Lagging</strong>: quiet since then, active after the previous minor.</li>
+            <li><strong>Dormant</strong>: silent across two or more minors <em>and</em> idle over two years.</li>
+            <li><strong>Abandoned</strong>: the maintainer marked it abandoned on Packagist.</li>
         </ul>
         <p>
-            The two-year floor matters: Shopware minors have shipped as little as five months apart, and
-            without it a fast release cadence would mark healthy extensions dormant purely because two
-            version numbers went by.
+            The two-year floor exists because Shopware minors have shipped five months apart.
         </p>
 
         <h2>Breaking ties</h2>
         <p>
-            Every factor above is categorical, so healthy extensions bunch at the top. Time since the
-            last commit is therefore folded in as a smooth curve, decaying over roughly
-            {{ recencyHalfLife }} days, which is about one Shopware release cycle. Without it the most
-            valuable position in the directory would be decided by database row order — which would not
-            be a public algorithm in any meaningful sense.
+            Every factor above is categorical, so healthy extensions bunch at the top. Time since
+            the last commit decays over {{ recencyHalfLife }} days to separate them.
         </p>
 
         <h2>Changing the formula</h2>
         <p>
-            The weights live in a single class in the public repository. Any change that would benefit
-            the maintainer's own extensions requires a written rationale in the commit that would hold
-            up if a competitor read it. You can check that in the git history.
+            The weights live in one class in the public repository. Any change benefiting the
+            maintainer's own extensions needs a written rationale in the commit.
         </p>
     </div>
 </div>

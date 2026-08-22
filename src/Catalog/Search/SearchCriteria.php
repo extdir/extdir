@@ -31,7 +31,7 @@ final readonly class SearchCriteria
      *
      * In the URL rather than a cookie, for the same reason every filter is: the view
      * survives filtering, it can be pasted to a colleague, and the site continues to
-     * set no cookies at all — which the privacy policy states and a test enforces.
+     * set no cookies at all, which the privacy policy states and a test enforces.
      */
     public const VIEW_COMFORTABLE = 'comfortable';
     public const VIEW_COMPACT = 'compact';
@@ -174,7 +174,7 @@ final readonly class SearchCriteria
      * produces a page that is word-for-word identical to a search engine, so every
      * variant would compete with the others for the same query. Facets and page are
      * kept, because those
-     * genuinely change what is on the page — a paginated result canonicalised back
+     * genuinely change what is on the page, a paginated result canonicalised back
      * to page one is a documented way to make everything past the first page
      * invisible.
      *

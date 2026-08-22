@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * Verification is deliberately re-checkable rather than permanent. People leave
  * organisations, repositories change hands, and a claim that was true in March is
- * not evidence about today — so the claim records when it was last confirmed, and
+ * not evidence about today, so the claim records when it was last confirmed, and
  * anything consequential re-verifies rather than trusting the row.
  */
 #[ORM\Entity(repositoryClass: OwnershipClaimRepository::class)]
@@ -40,7 +40,7 @@ class OwnershipClaim
     private VerificationMethod $method;
 
     /**
-     * What was actually observed, in words — "GitHub reported admin permission",
+     * What was actually observed, in words, "GitHub reported admin permission",
      * "token found at .extdir-verification on main". A verification nobody can
      * inspect afterwards is indistinguishable from one that never happened.
      */

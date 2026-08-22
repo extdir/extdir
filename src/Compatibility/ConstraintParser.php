@@ -67,7 +67,7 @@ final class ConstraintParser
         }
 
         if ([] === $intervals['numeric']) {
-            // Parses, but matches no numeric version at all — e.g. a pure branch
+            // Parses, but matches no numeric version at all, e.g. a pure branch
             // constraint like `dev-trunk`. Nothing to test a release against.
             return ParsedConstraint::unparseable($raw, $source);
         }
@@ -80,7 +80,7 @@ final class ConstraintParser
      *
      * `^6.5` is not the same kind of statement as `~6.6.0`, even though Composer
      * treats both as bounded ranges. `^6.5` expands to `>=6.5 <7.0`, which means it
-     * silently claims every Shopware minor released after the maintainer wrote it —
+     * silently claims every Shopware minor released after the maintainer wrote it,
      * including ones that did not exist yet and were never tested. `~6.6.0` expands
      * to `>=6.6 <6.7`, a deliberate statement about one minor.
      *

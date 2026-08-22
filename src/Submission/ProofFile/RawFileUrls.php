@@ -11,7 +11,7 @@ use App\Catalog\Enum\SourceHost;
  *
  * Raw URLs rather than each forge's API, which is a deliberate trade. An API gives
  * better errors and a stable contract, but it has to be implemented per forge and
- * usually needs a token — and a third of the GitLab-hosted extensions here live on
+ * usually needs a token, and a third of the GitLab-hosted extensions here live on
  * instances like `gitlab.jonathan-martz.de` rather than gitlab.com, with two more on
  * hosts (`git.schubwerk.com`, `git.optiweb.serv.si`) whose software we can only
  * guess at. Raw paths are identical between gitlab.com and a self-hosted GitLab,
@@ -47,7 +47,7 @@ final readonly class RawFileUrls
             SourceHost::Gitea => ['%s/%s/raw/branch/%s/%s'],
             // Bitbucket falls in here along with anything unrecognised. Its raw path
             // happens to match neither of the other two, so unknown self-hosted
-            // forges get all three shapes tried — cheap, since a wrong guess is one
+            // forges get all three shapes tried, cheap, since a wrong guess is one
             // 404 against a host we were going to contact anyway.
             SourceHost::Other, SourceHost::GitHub => [
                 '%s/%s/raw/%s/%s',
@@ -71,8 +71,8 @@ final readonly class RawFileUrls
      * Splits a repository URL into its origin and its project path.
      *
      * The path is kept whole rather than split into owner and repository, because
-     * GitLab groups nest arbitrarily deep — `fyrst/shopware/OrderStates` is one
-     * project, not a project inside a project — and splitting on the first slash
+     * GitLab groups nest arbitrarily deep, `fyrst/shopware/OrderStates` is one
+     * project, not a project inside a project, and splitting on the first slash
      * would build a URL for something that does not exist.
      *
      * @return array{string, string}|null
@@ -91,7 +91,7 @@ final readonly class RawFileUrls
 
         $scheme = strtolower($parts['scheme'] ?? 'https');
 
-        // Anything that is not plain http(s) — git://, ssh://, scp-style — is not
+        // Anything that is not plain http(s), git://, ssh://, scp-style, is not
         // something a raw file can be fetched from, and SafeFetcher would refuse it
         // in any case. Returning null here keeps the refusal legible.
         if ('https' !== $scheme && 'http' !== $scheme) {

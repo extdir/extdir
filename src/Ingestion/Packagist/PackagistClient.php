@@ -61,7 +61,7 @@ final class PackagistClient
      * The p2 documents use Composer's "minified" encoding: the first entry is
      * complete and every later entry lists only the fields that changed, with the
      * literal string `__unset` marking removals. Reading them as-is is the single
-     * most damaging mistake available here — for shopware/core, 122 of 209 entries
+     * most damaging mistake available here, for shopware/core, 122 of 209 entries
      * carry no `require` key at all, so a naive reader would conclude that most
      * versions declare no Shopware constraint and would render an empty matrix
      * while looking perfectly healthy.
@@ -91,7 +91,7 @@ final class PackagistClient
      * On packagist.org rather than repo.packagist.org, which is the whole reason this
      * is rationed. The p2 host is built to be hammered and says so; the website API is
      * rate limited far more tightly and carries no download figures, so there is no
-     * choice about which one to ask — only about how often. That is why the caller
+     * choice about which one to ask, only about how often. That is why the caller
      * runs weekly and throttles, and why a 429 here throws instead of returning null:
      * a rate limit is not this package's problem, it is the sweep's.
      *

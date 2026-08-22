@@ -19,8 +19,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * Rebuilds the Shopware release reference table from shopware/core on Packagist.
  *
  * Deliberately not a hardcoded fixture. This table underpins both halves of the
- * product — the compatibility matrix columns and the maintenance signal that asks
- * "has anyone touched this since the current Shopware shipped?" — so it must stay
+ * product, the compatibility matrix columns and the maintenance signal that asks
+ * "has anyone touched this since the current Shopware shipped?", so it must stay
  * correct on the day 6.8 is released, not on the day someone remembers to update a
  * constant. Deriving it from the same source Composer resolves against also means
  * the dates are the real tag dates rather than someone's recollection of them.

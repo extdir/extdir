@@ -47,7 +47,7 @@ final class DownloadResolverTest extends TestCase
     }
 
     /**
-     * Maintainers tag inconsistently — some as `v3.12.0`, some as `3.12.0` — and
+     * Maintainers tag inconsistently, some as `v3.12.0`, some as `3.12.0`, and
      * Packagist records whichever they used. Matching only one spelling would
      * silently downgrade half the corpus to source archives.
      */
@@ -103,7 +103,7 @@ final class DownloadResolverTest extends TestCase
 
     /**
      * With neither an attached archive nor a zipball, resolution yields nothing
-     * rather than inventing a URL — that case is what the build queue is for.
+     * rather than inventing a URL, that case is what the build queue is for.
      */
     public function testNothingResolvesWhenThereIsNoArchiveAtAll(): void
     {

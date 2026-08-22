@@ -56,7 +56,7 @@ final class SocialCardController extends AbstractController
         $extension = $this->extensions->findOneBySlug($slug);
 
         if (null === $extension || !$extension->getIndexStatus()->isPubliclyVisible()) {
-            // A delisted extension has no page, so it gets no card either — the
+            // A delisted extension has no page, so it gets no card either, the
             // removal should not leave a shareable artefact behind.
             return $this->redirectToRoute('og_default');
         }
@@ -79,7 +79,7 @@ final class SocialCardController extends AbstractController
                 // both wider than the column and less readable than its endpoints.
                 'declares' => match (true) {
                     [] === $declared => 'not declared',
-                    \count($declared) > 2 => $declared[0].' – '.$declared[\count($declared) - 1],
+                    \count($declared) > 2 => $declared[0].', '.$declared[\count($declared) - 1],
                     default => implode('  ', $declared),
                 },
                 'licence' => $extension->getLicenseSpdx() ?? $extension->getLicenseStatus()->badgeLabel(),

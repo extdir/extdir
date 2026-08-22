@@ -11,8 +11,8 @@ use App\Distribution\Enum\DistSource;
  * The link-first resolution decision, with no collaborators.
  *
  * Kept separate from DownloadResolver, which owns fetching and persistence. This
- * is the part where being wrong matters — pick the zipball over a maintainer's
- * archive and every download becomes source-only — so it is a pure function of its
+ * is the part where being wrong matters, pick the zipball over a maintainer's
+ * archive and every download becomes source-only, so it is a pure function of its
  * inputs and directly testable, rather than reachable only through a GitHub client
  * and an entity manager.
  */
@@ -42,7 +42,7 @@ final class DownloadPicker
             );
         }
 
-        // Step 3 — building — is not a URL that can be returned synchronously. It
+        // Step 3, building, is not a URL that can be returned synchronously. It
         // is a queued request with a licence gate in front of it.
         return null;
     }

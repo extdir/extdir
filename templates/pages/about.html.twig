@@ -2,7 +2,7 @@
 
 {% block title %}About extdir{% endblock %}
 {% block canonical %}<link rel="canonical" href="{{ url('about') }}">{% endblock %}
-{% block meta_description %}What extdir is, who runs it, and what it deliberately is not.{% endblock %}
+{% block meta_description %}What extdir is, who runs it, and where its data comes from.{% endblock %}
 
 {% block body %}
 <div class="wrap page">
@@ -12,78 +12,51 @@
     </div>
 
     <div class="prose">
-        <h2>The question this answers</h2>
         <p>
-            Is there an open-source extension that does what I need, is anyone still maintaining it,
-            and does it work with the Shopware version I actually run? That last part is the hard bit,
-            and it is why this exists. {{ total }} extensions are indexed, with the Shopware versions
-            each one declares support for and how recently anyone touched the code.
+            {{ total }} extensions, indexed with the Shopware versions each declares support for
+            and when its code was last touched. Independent project, no connection to Shopware AG,
+            not a replacement for the Shopware Store. "Shopware" is used descriptively.
         </p>
 
-        <h2>Not affiliated with Shopware AG</h2>
-        <p>
-            This is an independent project with no connection to Shopware AG — not a partnership, not
-            an endorsement, not an official anything. It is not a replacement for the Shopware Store,
-            and it lists only open-source extensions. “Shopware” appears here descriptively, because
-            that is the software these extensions are written for.
-        </p>
-
-        <h2>What it deliberately is not</h2>
+        <h2>What it is not</h2>
         <ul>
-            <li>No payments, no checkout, no paid listings, no advertising.</li>
-            <li>No proprietary or commercial extensions.</li>
-            <li>No accounts, no tracking, no cookies.</li>
+            <li>No payments, listings for sale, or advertising.</li>
+            <li>No proprietary extensions.</li>
+            <li>No accounts, tracking, or cookies.</li>
             <li>No editorial placement. <a href="{{ path('ranking') }}">Ranking is algorithmic and published.</a></li>
         </ul>
 
-        <h2>Where the data comes from</h2>
+        <h2>Data</h2>
         <p>
-            Packages are discovered on Packagist by their Composer type, and metadata comes from what
-            maintainers publish there — package names, descriptions, licences and, crucially, the
-            <code>shopware/core</code> version constraint. Repository activity comes from the GitHub API.
-        </p>
-        <p>
-            Compatibility is read from those declared constraints, so it reflects what the maintainer
-            stated rather than a test result. That distinction is kept visible everywhere on the site:
-            entries say “declares support for”, never “works with”, and open-ended constraints are
-            shown as less certain than bounded ones.
+            Packages from Packagist, by Composer type. Repository activity from the GitHub API.
+            Compatibility is read from the <code>shopware/core</code> constraint the maintainer
+            declared, not from a test, so entries say "declares support for" and open-ended
+            constraints are shown as less certain.
         </p>
 
-        <h2>Licences are taken seriously</h2>
+        <h2>Licences</h2>
         <p>
-            A public repository with no licence file is not open source — it is all rights reserved,
-            and nobody may redistribute it. Extensions where no licence can be detected are indexed and
-            linked only, with a visible badge, and are never mirrored or rebuilt. Copyleft extensions
-            are labelled as such rather than lumped in with MIT-style ones, because the obligations
-            they place on a shop are genuinely different.
+            No licence file means all rights reserved, so those are linked and badged, never
+            mirrored. Copyleft is labelled separately from MIT-style.
         </p>
 
         <h2>Who runs it</h2>
         <p>
-            extdir is operated and maintained by <a href="https://runio.dev" rel="noopener">runio.dev</a>
-            as a non-commercial community project. Full contact details are in the
-            <a href="{{ path('imprint') }}">imprint</a>.
-        </p>
-        <p>
-            The maintainer also publishes Shopware extensions. Those are indexed exactly like anyone
-            else's, carry a visible disclosure badge, and receive no preferential treatment in ranking
-            or verification — there is a test in the build that fails if vendor-specific logic ever
-            enters that code.
+            <a href="https://runio.dev" rel="noopener">runio.dev</a>, non-commercial. Contact
+            details in the <a href="{{ path('imprint') }}">imprint</a>. The maintainer publishes
+            Shopware extensions too: indexed like any other, badged, no ranking preference.
         </p>
 
-        <h2>The platform is open source</h2>
+        <h2>Open source</h2>
         <p>
-            The code behind this site is public at
-            <a href="https://github.com/extdir" rel="noopener">github.com/extdir</a>. That is not a
-            nicety: a directory that asks you to trust its compatibility and licence data should let you
-            check how that data was produced.
+            The code is public at <a href="https://github.com/extdir" rel="noopener">github.com/extdir</a>,
+            so you can check how the data was produced.
         </p>
 
         <h2>Found a mistake?</h2>
         <p>
-            Entries are generated automatically and some of them will be wrong. If your extension is
-            misrepresented, or you want it gone, the <a href="{{ path('takedown') }}">takedown policy</a>
-            explains how — no justification required.
+            Entries are generated automatically and some will be wrong. The
+            <a href="{{ path('takedown') }}">takedown policy</a> covers corrections and removal.
         </p>
     </div>
 </div>

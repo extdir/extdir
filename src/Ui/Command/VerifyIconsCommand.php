@@ -20,7 +20,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * Only about one icon path in ten is declared. The rest are the convention
  * `src/Resources/config/plugin.png`, filled in by the metadata extractor when
- * composer.json says nothing — a reasonable default for a Shopware plugin and a
+ * composer.json says nothing, a reasonable default for a Shopware plugin and a
  * guess all the same. Probing a sample of the catalogue found roughly a third of
  * those paths pointing at nothing.
  *
