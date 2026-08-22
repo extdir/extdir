@@ -748,6 +748,7 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
     padding: var(--s-4); margin-bottom: var(--s-5); background: var(--surface); }
 .notice--ok { border-left-color: var(--signal-ok); background: var(--signal-ok-bg); }
 .notice--warn { border-left-color: var(--signal-caution); background: var(--signal-caution-bg); }
+.notice--info { border-left-color: var(--signal-info); background: var(--signal-info-bg); }
 
 .kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--s-2) var(--s-4); font-size: var(--t-small); }
 .kv dt { color: var(--ink-subtle); }
@@ -1330,3 +1331,95 @@ table.data a:hover { text-decoration-thickness: 2px; }
 .theme-btn {
     min-height: 1.75rem;
 }
+
+/* Boards ------------------------------------------------------------------ */
+
+/* Three boards abreast on a wide screen, one on a phone. min() on the track so a
+   long vendor name cannot push the grid wider than the viewport — the same guard
+   the other auto-fit grids here carry, and the fix for the same bug four times over. */
+.board-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(17rem, 100%), 1fr));
+    gap: var(--s-4);
+    margin-bottom: var(--s-6);
+}
+
+.board {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: var(--s-4);
+    min-width: 0;
+}
+
+.board-title { font-size: var(--t-body); }
+.board-question { color: var(--ink-muted); font-size: var(--t-small); margin: var(--s-1) 0 var(--s-3); }
+
+.board-rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: board;
+}
+
+/* Rank as a counter rather than a column: the position is the list's own numbering,
+   so a screen reader announces it from the <ol> and it is never stated twice. */
+.board-row {
+    counter-increment: board;
+    display: grid;
+    grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: var(--s-1) var(--s-2);
+    padding-block: var(--s-2);
+    border-bottom: 1px solid var(--border);
+    min-width: 0;
+}
+
+.board-row:last-child { border-bottom: 0; }
+
+.board-row::before {
+    content: counter(board);
+    color: var(--ink-muted);
+    font-size: var(--t-small);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Long package and vendor names are common here and must wrap rather than widen the
+   track. anywhere is right for a slug like vendor/some-very-long-plugin-name, which
+   has no spaces to break at. */
+.board-name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-weight: 500;
+}
+
+.board-sublabel {
+    grid-column: 2;
+    font-size: var(--t-small);
+    color: var(--ink-muted);
+    overflow-wrap: anywhere;
+}
+
+.board-value { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.board-row .weight-bar { grid-column: 2 / -1; }
+
+.board-empty { font-size: var(--t-small); }
+
+.board-rule {
+    margin: var(--s-3) 0 0;
+    font-size: var(--t-small);
+    color: var(--ink-muted);
+    border-top: 1px solid var(--border);
+    padding-top: var(--s-2);
+}
+
+.board-rule-label {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.6875rem;
+    color: var(--ink-subtle, var(--ink-muted));
+    margin-right: var(--s-1);
+}
+
+.board .chip { vertical-align: middle; }

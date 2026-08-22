@@ -1,0 +1,44 @@
+{#
+    One leaderboard.
+
+    Every board on the page goes through this partial, vendors and extensions alike,
+    because the rule that governs them is the same: a board must publish the expression
+    that produced it. Keeping one renderer is the cheapest way to make that structural
+    rather than a habit — there is no second template where the rule could be left out.
+
+    An ordered list, not a table. The rank is the list's own numbering, so it is not
+    repeated as a column, and a screen reader announces position without us restating it
+    in text.
+#}
+<section class="board" aria-labelledby="board-{{ board.title|lower|replace({' ': '-', ',': ''}) }}">
+    <h3 class="board-title" id="board-{{ board.title|lower|replace({' ': '-', ',': ''}) }}">{{ board.title }}</h3>
+    <p class="board-question">{{ board.question }}</p>
+
+    {% if board.rows is empty %}
+        <p class="muted board-empty">No data yet.</p>
+    {% else %}
+        <ol class="board-rows">
+            {% for row in board.rows %}
+                <li class="board-row">
+                    <a class="board-name" href="{{ path(row.route, row.params) }}">{{ row.label }}</a>
+                    {% if row.disclosure %}
+                        {# The conflict-of-interest rule again: the maintainer's own vendor may appear
+                           on any board it qualifies for, and never without saying so. #}
+                        <span class="chip chip--disclosure">extdir maintainer</span>
+                    {% endif %}
+                    {% if row.sublabel is defined %}
+                        <span class="board-sublabel mono">{{ row.sublabel }}</span>
+                    {% endif %}
+                    <span class="board-value num">
+                        {{ row.value == row.value|round ? row.value|number_format(0, '.', ',') : row.value|number_format(1, '.', ',') }}
+                    </span>
+                    <span class="weight-bar" style="width: {{ row.share }}%" aria-hidden="true"></span>
+                </li>
+            {% endfor %}
+        </ol>
+    {% endif %}
+
+    {# The rule, in the page, under the numbers it produced. This is the line that makes
+       the board a published algorithm rather than an editorial pick. #}
+    <p class="board-rule"><span class="board-rule-label">Rule</span> {{ board.rule }}</p>
+</section>

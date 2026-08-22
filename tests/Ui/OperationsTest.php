@@ -231,6 +231,7 @@ final class OperationsTest extends WebTestCase
         // that let the /public/ duplicates speak for themselves.
         yield 'home' => ['/'];
         yield 'about' => ['/about'];
+        yield 'boards' => ['/boards'];
         yield 'ranking' => ['/ranking'];
         yield 'vendors' => ['/vendors'];
         yield 'submit' => ['/submit'];

@@ -118,6 +118,7 @@
         <div class="wrap header-nav-inner">
             <nav class="header-nav" aria-label="Main">
                 <a href="{{ path('home') }}" class="{{ route == 'home' ? 'is-current' : '' }}">Extensions</a>
+                <a href="{{ path('boards') }}" class="{{ route == 'boards' ? 'is-current' : '' }}">Boards</a>
                 <a href="{{ path('ranking') }}" class="{{ route == 'ranking' ? 'is-current' : '' }}">Ranking</a>
                 <a href="{{ path('about') }}" class="{{ route == 'about' ? 'is-current' : '' }}">About</a>
                 {% if app.user %}

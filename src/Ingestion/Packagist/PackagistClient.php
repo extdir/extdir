@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Ingestion\Packagist;
 
+use App\Signals\PackagistPopularity;
 use Composer\MetadataMinifier\MetadataMinifier;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -82,6 +83,48 @@ final class PackagistClient
         }
 
         return $versions;
+    }
+
+    /**
+     * Install counts for one package, or null if there are none to be had.
+     *
+     * On packagist.org rather than repo.packagist.org, which is the whole reason this
+     * is rationed. The p2 host is built to be hammered and says so; the website API is
+     * rate limited far more tightly and carries no download figures, so there is no
+     * choice about which one to ask — only about how often. That is why the caller
+     * runs weekly and throttles, and why a 429 here throws instead of returning null:
+     * a rate limit is not this package's problem, it is the sweep's.
+     *
+     * @return array{total: int, monthly: int}|null
+     */
+    public function fetchPackageStats(string $packageName): ?array
+    {
+        try {
+            $response = $this->apiClient->request('GET', \sprintf('packages/%s.json', $packageName));
+            $status = $response->getStatusCode();
+
+            if (429 === $status) {
+                throw new PackagistRateLimited('Packagist returned 429 for '.$packageName);
+            }
+
+            // A package listed minutes ago and deleted since. Ordinary, and not worth
+            // a log line in a sweep of several hundred.
+            if (404 === $status) {
+                return null;
+            }
+
+            /** @var array<string, mixed> $payload */
+            $payload = $response->toArray();
+        } catch (HttpExceptionInterface $e) {
+            $this->logger->warning('Packagist stats fetch failed', [
+                'package' => $packageName,
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
+
+        return PackagistPopularity::fromPayload($payload);
     }
 
     /**

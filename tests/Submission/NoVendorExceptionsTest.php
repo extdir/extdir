@@ -55,6 +55,11 @@ final class NoVendorExceptionsTest extends TestCase
             'compatibility resolution' => 'src/Compatibility/CompatibilityResolver.php',
             'ownership verification' => 'src/Submission/OwnershipVerifier.php',
             'search and ordering' => 'src/Catalog/Search/ExtensionSearch.php',
+            // The boards are a placement surface, and the conflict-of-interest rule
+            // treats placement exactly as it treats ranking. A leaderboard is the most
+            // tempting place in the whole codebase to write "except for us".
+            'vendor boards' => 'src/Catalog/Repository/VendorRepository.php',
+            'extension boards' => 'src/Ui/Controller/BoardsController.php',
             'licence classification' => 'src/License/SpdxAllowlist.php',
             'licence resolution' => 'src/License/LicenseResolver.php',
         ];
@@ -121,6 +126,45 @@ final class NoVendorExceptionsTest extends TestCase
         }
 
         self::assertSame($ranking->score(...$arguments), $ranking->score(...$arguments));
+    }
+
+    /**
+     * Popularity is displayed on the boards and must never reach the scorer.
+     *
+     * The ranking guidance is blunt that stars and installs mislead in this ecosystem, and the boards
+     * exist precisely to show those numbers somewhere they cannot do harm. The
+     * guarantee that keeps them harmless is structural rather than careful: the
+     * scorer takes no download or star argument, so there is no way to pass one
+     * without changing the signature and tripping this test.
+     */
+    public function testPopularityCannotReachTheScorer(): void
+    {
+        foreach (['score', 'components'] as $method) {
+            $parameters = array_map(
+                static fn (\ReflectionParameter $p): string => strtolower($p->getName()),
+                (new \ReflectionMethod(RankingScore::class, $method))->getParameters(),
+            );
+
+            foreach ($parameters as $name) {
+                foreach (['download', 'star', 'fork', 'popular', 'install'] as $forbidden) {
+                    self::assertStringNotContainsString(
+                        $forbidden,
+                        $name,
+                        \sprintf('RankingScore::%s() accepts "%s" — popularity must not be scored.', $method, $name),
+                    );
+                }
+            }
+        }
+
+        // And the formula's own source must not read them either, in case they ever
+        // arrive by some route other than an argument.
+        $code = $this->stripComments((string) file_get_contents(
+            \dirname(__DIR__, 2).'/src/Signals/RankingScore.php',
+        ));
+
+        foreach (['download', 'stars', 'forks'] as $forbidden) {
+            self::assertStringNotContainsStringIgnoringCase($forbidden, $code);
+        }
     }
 
     /**

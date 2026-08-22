@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Boards — who builds and who uses Shopware 6 extensions — extdir{% endblock %}
+{% block canonical %}<link rel="canonical" href="{{ url('boards') }}">{% endblock %}
+{% block meta_description %}Which vendors maintain the most open-source Shopware 6 extensions, which ship the most releases, and which extensions are installed most — each board with the rule that produced it.{% endblock %}
+{% block og_title %}Who builds and who uses open-source Shopware 6 extensions{% endblock %}
+{% block og_description %}Six leaderboards over the whole indexed catalogue. Every board publishes the expression behind it, and none of them affects how extensions are ranked.{% endblock %}
+
+{% block body %}
+<div class="wrap page">
+    <div class="page-head">
+        <h1>Boards</h1>
+        <p>
+            Six leaderboards over the whole indexed catalogue. Each one prints the rule that
+            produced it, so any of them can be checked rather than trusted.
+        </p>
+    </div>
+
+    <div class="prose">
+        <h2>Who builds the ecosystem</h2>
+        <p>
+            “Most contributing” has at least three honest meanings, and they disagree. The vendor
+            that ships the most releases maintains a third as many extensions as the vendor with
+            the most extensions. Rather than pick one meaning and present it as the answer, all
+            three are here, side by side, with no winner declared.
+        </p>
+    </div>
+
+    <div class="board-grid">
+        {% for board in vendorBoards %}
+            {% include 'pages/_board.html.twig' with {board: board} only %}
+        {% endfor %}
+    </div>
+
+    <div class="prose">
+        <h2>What people install</h2>
+        <p>
+            Two of these boards count Packagist installs. Read them together, not separately: a
+            lifetime total only ever accumulates, so it rewards age as much as use and an
+            extension nobody has installed since 2021 can still sit near the top of it. The
+            thirty-day board cannot say that.
+        </p>
+        <p class="notice notice--info">
+            <strong>{{ coverage.measured }} of {{ coverage.total }} listed extensions are on Packagist.</strong>
+            The rest are published only on a forge, so no install count exists for them at all.
+            Absence from these two boards means unmeasured, never unpopular — and the extensions it
+            affects are disproportionately the agency-built ones this directory went looking for.
+        </p>
+    </div>
+
+    <div class="board-grid">
+        {% for board in extensionBoards %}
+            {% include 'pages/_board.html.twig' with {board: board} only %}
+        {% endfor %}
+    </div>
+
+    <div class="prose">
+        <h2>None of this affects ranking</h2>
+        <p>
+            Installs and stars appear on this page and nowhere in the score. That is deliberate and
+            long-standing: in this ecosystem popularity is a misleading signal, because an
+            excellent extension built by a German agency for its own clients may have a dozen
+            stars while an abandoned experiment has hundreds. Ranking on it would bury precisely
+            the extensions merchants most need to find.
+        </p>
+        <p>
+            So the numbers here are shown, and the order of the catalogue is decided by
+            <a href="{{ path('ranking') }}">the published formula</a> — compatibility, maintenance,
+            the quality of the compatibility claim, licence clarity, responsiveness and recency.
+            No board on this page feeds into it.
+        </p>
+        <p>
+            There is also no manual placement anywhere in this feature: no curated list, no
+            override table, no configuration naming a vendor. The only way onto a board is to
+            satisfy the rule printed under it. That includes the vendor operated by this
+            directory’s own maintainer, which appears on any board it qualifies for and always
+            carries a disclosure chip when it does.
+        </p>
+    </div>
+</div>
+{% endblock %}

@@ -177,6 +177,102 @@ class ExtensionRepository extends ServiceEntityRepository
     }
 
     /**
+     * Most installed of all time, per Packagist.
+     *
+     * Restricted to extensions Packagist has actually answered for. A zero download
+     * count means one of two completely different things — nobody installs it, or it is
+     * one of the 170 indexed extensions that are not on Packagist at all — and letting
+     * the second masquerade as the first would quietly libel exactly the agency-built
+     * repositories the search channel was added to find.
+     *
+     * @return list<Extension>
+     */
+    public function topByDownloads(int $limit): array
+    {
+        return $this->popularityBoard('e.downloadsTotal', $limit, measuredOnly: true);
+    }
+
+    /**
+     * Most installed over the trailing thirty days.
+     *
+     * The board that corrects the one above. A lifetime total only ever accumulates, so
+     * on its own it ranks by age as much as by use and an extension nobody has installed
+     * since 2021 can still sit near the top. This one cannot say that.
+     *
+     * @return list<Extension>
+     */
+    public function topByMonthlyDownloads(int $limit): array
+    {
+        return $this->popularityBoard('e.downloadsMonthly', $limit, measuredOnly: true);
+    }
+
+    /**
+     * Most starred on the forge.
+     *
+     * The weakest signal on the page, and the page says so. It earns its place only
+     * because it is the one popularity measure that reaches the extensions Packagist
+     * cannot see — without it, a third of the catalogue appears on no board at all.
+     *
+     * @return list<Extension>
+     */
+    public function topByStars(int $limit): array
+    {
+        return $this->popularityBoard('e.stars', $limit, measuredOnly: false);
+    }
+
+    /**
+     * One extension board.
+     *
+     * Same visibility rule as the public listing, deliberately: a board is a placement
+     * surface, and anything shown here must already be shown in the catalogue.
+     *
+     * @return list<Extension>
+     */
+    private function popularityBoard(string $field, int $limit, bool $measuredOnly): array
+    {
+        $qb = $this->createQueryBuilder('e')
+            ->where('e.indexStatus IN (:visible)')
+            ->andWhere($field.' > 0')
+            ->setParameter('visible', [IndexStatus::Listed, IndexStatus::IndexOnly])
+            ->orderBy($field, 'DESC')
+            // Reproducible ties, for the same reason the vendor boards break theirs on
+            // name: an order nobody can predict is not a published rule.
+            ->addOrderBy('e.packageName', 'ASC')
+            ->setMaxResults($limit);
+
+        if ($measuredOnly) {
+            $qb->andWhere('e.packagistCheckedAt IS NOT NULL');
+        }
+
+        /** @var list<Extension> $result */
+        $result = $qb->getQuery()->getResult();
+
+        return $result;
+    }
+
+    /**
+     * How many visible extensions Packagist has given us counts for.
+     *
+     * The boards print this beside the download tables. Derived rather than written
+     * down, because a hardcoded coverage figure is wrong the first time an extension is
+     * indexed and nobody notices for months.
+     *
+     * @return array{measured: int, total: int}
+     */
+    public function packagistCoverage(): array
+    {
+        /** @var array{measured: string|int, total: string|int} $row */
+        $row = $this->createQueryBuilder('e')
+            ->select('COUNT(e.id) AS total', 'SUM(CASE WHEN e.packagistCheckedAt IS NULL THEN 0 ELSE 1 END) AS measured')
+            ->where('e.indexStatus IN (:visible)')
+            ->setParameter('visible', [IndexStatus::Listed, IndexStatus::IndexOnly])
+            ->getQuery()
+            ->getSingleResult();
+
+        return ['measured' => (int) $row['measured'], 'total' => (int) $row['total']];
+    }
+
+    /**
      * Everything visible from one vendor, best first.
      *
      * @return list<Extension>

@@ -73,5 +73,23 @@
 # Categories, recomputed from stored data. Seconds, no network.
 13 6 * * *   cd $HOME/websites/extdir.com && /usr/bin/php83 bin/console app:taxonomy:classify >> $HOME/logs/extdir-cron.log 2>&1
 
+# Packagist install counts for the boards.
+#
+# Weekly, and this is the one job where that is a constraint rather than a preference.
+# Download counts live only on packagist.org, which carries no bulk endpoint —
+# list.json accepts a fields[] parameter and quietly ignores `downloads` — so it is one
+# request per package, about 425 of them, against the host whose own client config is
+# annotated "rate limited far more tightly" than the p2 endpoint. Nightly would spend
+# that budget to change numbers that barely move between Mondays.
+#
+# Thursday, so it lands in the gap between the GitHub sweep on Tuesday and the icon
+# check on Wednesday. After 03:23, so the daily Packagist ingest has already refreshed
+# which packages exist before this asks how often each was installed.
+#
+# Nothing it writes affects ranking. The counts are shown on /boards and read by no
+# scoring code; RankingScore cannot even accept them without changing its signature,
+# and a test fails the build if it ever does.
+37 4 * * 4   cd $HOME/websites/extdir.com && /usr/bin/php83 bin/console app:signals:packagist >> $HOME/logs/extdir-cron.log 2>&1
+
 # Database backup, kept for 14 days.
 30 2 * * *   $HOME/websites/extdir.com/deploy/backup.sh >> $HOME/logs/extdir-backup.log 2>&1

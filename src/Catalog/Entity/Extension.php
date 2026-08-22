@@ -188,6 +188,29 @@ class Extension
     private int $forks = 0;
 
     /**
+     * Packagist install counts: all time, and the trailing thirty days.
+     *
+     * Shown on the boards and nowhere in the score, for exactly the reason stars
+     * are not scored. The two are kept separately because a single total is a
+     * misleading number on its own: it only accumulates, so an extension published
+     * in 2019 outranks a better one published last year on age alone. The monthly
+     * figure is the one that answers "is anyone installing this now".
+     *
+     * Zero is ambiguous by itself and must never be read as unpopular — 170 of the
+     * indexed extensions are not on Packagist at all and cannot be measured this
+     * way. packagistCheckedAt is what distinguishes the two: null means we have
+     * never had a number, not that the number is nought.
+     */
+    #[ORM\Column(options: ['default' => 0])]
+    private int $downloadsTotal = 0;
+
+    #[ORM\Column(options: ['default' => 0])]
+    private int $downloadsMonthly = 0;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $packagistCheckedAt = null;
+
+    /**
      * The repository's default branch, denormalised from RepositorySnapshot.
      *
      * Only used to build raw-file URLs for icons. Guessing `main` and falling back to
@@ -629,6 +652,39 @@ class Extension
     {
         $this->stars = $stars;
         $this->forks = $forks;
+    }
+
+    public function getDownloadsTotal(): int
+    {
+        return $this->downloadsTotal;
+    }
+
+    public function getDownloadsMonthly(): int
+    {
+        return $this->downloadsMonthly;
+    }
+
+    public function getPackagistCheckedAt(): ?\DateTimeImmutable
+    {
+        return $this->packagistCheckedAt;
+    }
+
+    /**
+     * True once Packagist has actually answered for this package.
+     *
+     * The boards use this rather than a non-zero count, so an extension that is on
+     * Packagist and genuinely has few installs is still shown as measured.
+     */
+    public function hasPackagistStats(): bool
+    {
+        return null !== $this->packagistCheckedAt;
+    }
+
+    public function setPackagistDownloads(int $total, int $monthly, \DateTimeImmutable $checkedAt): void
+    {
+        $this->downloadsTotal = $total;
+        $this->downloadsMonthly = $monthly;
+        $this->packagistCheckedAt = $checkedAt;
     }
 
     public function getRankScore(): float
