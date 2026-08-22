@@ -49,6 +49,23 @@ DirectoryIndex index.php
     # - disable this feature by commenting the following 2 lines or
     # - use Apache >= 2.3.9 and replace all L flags by END flags and remove the
     #   following RewriteCond (best solution)
+    # Added for extdir: the document root is the project directory, not this one,
+    # so /public/ is reachable from outside and Apache serves a second, complete
+    # copy of the site under it — /public/about, /public/vendors, all 200. Each
+    # copy declared itself canonical, because Symfony reads its base URL from
+    # SCRIPT_NAME and that is /public/index.php once the rewrite has run.
+    #
+    # The root .htaccess cannot fix this. A subdirectory that switches on
+    # mod_rewrite discards the parent's rules instead of inheriting them, so a
+    # redirect written up there never runs for a request that lands in here.
+    #
+    # Where the document root is public/ itself, REQUEST_URI never carries the
+    # prefix and this rule simply never matches. Same REDIRECT_STATUS guard as
+    # the rule above, for exactly the same reason.
+    RewriteCond %{ENV:REDIRECT_STATUS} =""
+    RewriteCond %{REQUEST_URI} ^/public/(.*)$
+    RewriteRule ^ /%1 [R=301,L]
+
     RewriteCond %{ENV:REDIRECT_STATUS} =""
     RewriteRule ^index\.php(?:/(.*)|$) %{ENV:BASE}/$1 [R=308,L]
 

@@ -32,7 +32,7 @@
     RewriteCond %{HTTP_HOST} ^www\.extdir\.com$ [NC]
     RewriteRule ^(.*)$ https://extdir.com/$1 [L,R=301]
 
-    # /public/ and /index.php are internal paths, not URLs this site has.
+    # /index.php is an internal path, not a URL this site has.
     #
     # The front-controller rule at the bottom rewrites everything into /public/,
     # and it has to exempt /public/ from itself or it would loop. That exemption
@@ -47,11 +47,13 @@
     # network and is set on every internal rewrite, which is what lets these
     # fire for a visitor without catching the rewrite below and looping. It is
     # the same guard Symfony's own public/.htaccess uses for index.php.
+    #
+    # The matching /public/ redirect cannot live here: a subdirectory that
+    # switches on mod_rewrite discards the parent's rules rather than inheriting
+    # them, so a rule written here never runs for a request that resolves into
+    # public/. It is in public/.htaccess instead.
     RewriteCond %{ENV:REDIRECT_STATUS} =""
-    RewriteRule ^(?:public/)?index\.php(?:/(.*)|$) /$1 [R=301,L]
-
-    RewriteCond %{ENV:REDIRECT_STATUS} =""
-    RewriteRule ^public/(.*)$ /$1 [R=301,L]
+    RewriteRule ^index\.php(?:/(.*)|$) /$1 [R=301,L]
 
     # Application directories are never served directly.
     RewriteRule ^(config|src|var|bin|migrations|tests|templates|translations|deploy|docker|builder)/ - [F,L]
