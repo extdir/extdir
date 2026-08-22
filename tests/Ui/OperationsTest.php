@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Ui;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
@@ -139,5 +140,92 @@ final class OperationsTest extends WebTestCase
             'no-store',
             (string) $client->getResponse()->headers->get('Cache-Control'),
         );
+    }
+
+    /**
+     * The health endpoints report degradation in plain words, and the monitor that
+     * watches them is a public status page — so they are discoverable even though
+     * nothing links to them. JSON cannot carry a meta tag, so the instruction has to
+     * travel as a header.
+     */
+    #[DataProvider('operationalEndpoints')]
+    public function testOperationalEndpointsAreNotIndexable(string $path): void
+    {
+        $client = static::createClient();
+        $client->request('GET', $path);
+
+        self::assertStringContainsString(
+            'noindex',
+            (string) $client->getResponse()->headers->get('X-Robots-Tag'),
+            $path.' is reachable and machine-readable, so it must say it is not for an index',
+        );
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function operationalEndpoints(): iterable
+    {
+        yield 'health' => ['/health'];
+        yield 'crawl freshness' => ['/health/crawl'];
+        yield 'imprint contact details' => ['/imprint/contact-details.json'];
+    }
+
+    /**
+     * Two pages a person can act on — the way in for an extension no crawler found,
+     * and the instructions for pointing Composer here. Both were reachable and
+     * neither was listed, which for the submission page is exactly backwards: it
+     * exists for maintainers who arrive from a search.
+     */
+    public function testTheSitemapListsThePagesAVisitorCanActOn(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/sitemap.xml');
+
+        $body = (string) $client->getResponse()->getContent();
+
+        self::assertStringContainsString('/submit<', $body);
+        self::assertStringContainsString('/repo<', $body);
+    }
+
+    /**
+     * Every page we ask a search engine to index must nominate itself, and no other
+     * URL, as the one to keep.
+     *
+     * This generalises a real defect. The application was reachable a second time
+     * under /public/ — /public/about, /public/vendors, the lot — because the
+     * front-controller rewrite has to exempt that prefix from itself or loop. Symfony
+     * derives the base URL from SCRIPT_NAME, so each duplicate emitted a canonical
+     * pointing at itself rather than at the real page: two complete copies of the
+     * site, each nominating the wrong one. Apache serves those paths without ever
+     * entering the kernel, so no test here can request them — but the invariant they
+     * broke is the one asserted below, and it holds for every route the kernel does
+     * answer.
+     */
+    #[DataProvider('indexablePages')]
+    public function testAnIndexablePageDeclaresItselfCanonical(string $path): void
+    {
+        $client = static::createClient();
+        $crawler = $client->request('GET', $path);
+
+        self::assertResponseIsSuccessful();
+
+        $canonical = $crawler->filter('link[rel="canonical"]');
+
+        self::assertCount(1, $canonical, $path.' must declare exactly one canonical URL');
+        self::assertSame(
+            'http://localhost'.$path,
+            $canonical->attr('href'),
+            $path.' must nominate itself, not a duplicate of itself',
+        );
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function indexablePages(): iterable
+    {
+        yield 'home' => ['/'];
+        yield 'vendors' => ['/vendors'];
     }
 }

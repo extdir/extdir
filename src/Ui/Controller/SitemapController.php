@@ -63,7 +63,15 @@ final class SitemapController extends AbstractController
     {
         $urls = [];
 
-        foreach (['home', 'about', 'ranking', 'vendors', 'imprint', 'privacy', 'terms', 'takedown'] as $route) {
+        // /submit and /repo are landing pages a person can act on, not endpoints:
+        // one is the way in for an extension no crawler found, the other explains
+        // how to point Composer at the directory. Both were reachable and neither
+        // was listed, which for the submission page in particular is the wrong way
+        // round — it exists precisely for maintainers who arrive from a search.
+        foreach ([
+            'home', 'about', 'ranking', 'vendors', 'submission_new', 'repo_landing',
+            'imprint', 'privacy', 'terms', 'takedown',
+        ] as $route) {
             $urls[] = ['loc' => $this->generateUrl($route, [], UrlGeneratorInterface::ABSOLUTE_URL)];
         }
 

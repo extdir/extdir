@@ -69,6 +69,12 @@ final class HealthController extends AbstractController
         // not do.
         $response->headers->set('Cache-Control', 'no-store, max-age=0');
 
+        // An operational endpoint, and one that reports degradation in plain words.
+        // Nothing links to it, but the monitor watching it is a public status page,
+        // so it is discoverable — and "extdir degraded" is not a search result the
+        // project should own. JSON cannot carry a meta tag, so it goes in a header.
+        $response->headers->set('X-Robots-Tag', 'noindex, nofollow');
+
         return $response;
     }
 
@@ -97,6 +103,7 @@ final class HealthController extends AbstractController
         );
 
         $response->headers->set('Cache-Control', 'no-store, max-age=0');
+        $response->headers->set('X-Robots-Tag', 'noindex, nofollow');
 
         return $response;
     }

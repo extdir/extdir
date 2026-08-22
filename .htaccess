@@ -32,6 +32,27 @@
     RewriteCond %{HTTP_HOST} ^www\.extdir\.com$ [NC]
     RewriteRule ^(.*)$ https://extdir.com/$1 [L,R=301]
 
+    # /public/ and /index.php are internal paths, not URLs this site has.
+    #
+    # The front-controller rule at the bottom rewrites everything into /public/,
+    # and it has to exempt /public/ from itself or it would loop. That exemption
+    # also left the whole application reachable a second time from outside:
+    # /public/about, /public/vendors, /index.php all returned 200 and served a
+    # complete duplicate of the site. Worse, each copy emitted a canonical
+    # pointing at itself, because Symfony derives the base URL from SCRIPT_NAME
+    # and that is /public/index.php once the rewrite has run — so the duplicate
+    # nominated itself, not the real page, as the one to index.
+    #
+    # REDIRECT_STATUS is empty only on the request as it arrived from the
+    # network and is set on every internal rewrite, which is what lets these
+    # fire for a visitor without catching the rewrite below and looping. It is
+    # the same guard Symfony's own public/.htaccess uses for index.php.
+    RewriteCond %{ENV:REDIRECT_STATUS} =""
+    RewriteRule ^(?:public/)?index\.php(?:/(.*)|$) /$1 [R=301,L]
+
+    RewriteCond %{ENV:REDIRECT_STATUS} =""
+    RewriteRule ^public/(.*)$ /$1 [R=301,L]
+
     # Application directories are never served directly.
     RewriteRule ^(config|src|var|bin|migrations|tests|templates|translations|deploy|docker|builder)/ - [F,L]
 
