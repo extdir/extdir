@@ -78,7 +78,7 @@ final class BoardsController extends AbstractController
     }
 
     /**
-     * @return list<array{title: string, question: string, rule: string, unit: string, rows: list<array<string, mixed>>}>
+     * @return list<array{title: string, question: string, rule: string, unit: string, decimals: int, rows: list<array<string, mixed>>}>
      */
     private function vendorBoards(): array
     {
@@ -89,6 +89,7 @@ final class BoardsController extends AbstractController
                 'COUNT(extensions), counting only what the catalogue lists',
                 'extensions',
                 $this->vendors->topByExtensionCount(self::ROWS),
+                0,
             ),
             $this->vendorBoard(
                 'Depth',
@@ -96,6 +97,7 @@ final class BoardsController extends AbstractController
                 'SUM(ranking score) ÷ 100 — the same score shown on every extension page',
                 'score',
                 $this->vendors->topByAggregateScore(self::ROWS),
+                1,
             ),
             $this->vendorBoard(
                 'Activity',
@@ -103,12 +105,13 @@ final class BoardsController extends AbstractController
                 'COUNT(tagged releases) across the vendor’s listed extensions',
                 'releases',
                 $this->vendors->topByReleaseCount(self::ROWS),
+                0,
             ),
         ];
     }
 
     /**
-     * @return list<array{title: string, question: string, rule: string, unit: string, rows: list<array<string, mixed>>}>
+     * @return list<array{title: string, question: string, rule: string, unit: string, decimals: int, rows: list<array<string, mixed>>}>
      */
     private function extensionBoards(): array
     {
@@ -143,10 +146,16 @@ final class BoardsController extends AbstractController
     /**
      * @param list<array{vendor: \App\Catalog\Entity\Vendor, value: float}> $rows
      *
-     * @return array{title: string, question: string, rule: string, unit: string, rows: list<array<string, mixed>>}
+     * @return array{title: string, question: string, rule: string, unit: string, decimals: int, rows: list<array<string, mixed>>}
      */
-    private function vendorBoard(string $title, string $question, string $rule, string $unit, array $rows): array
-    {
+    private function vendorBoard(
+        string $title,
+        string $question,
+        string $rule,
+        string $unit,
+        array $rows,
+        int $decimals,
+    ): array {
         $values = array_map(static fn (array $row): float => $row['value'], $rows);
 
         return [
@@ -154,6 +163,7 @@ final class BoardsController extends AbstractController
             'question' => $question,
             'rule' => $rule,
             'unit' => $unit,
+            'decimals' => $decimals,
             'rows' => array_map(
                 fn (array $row): array => [
                     'label' => $row['vendor']->getName(),
@@ -174,7 +184,7 @@ final class BoardsController extends AbstractController
      * @param list<Extension>          $extensions
      * @param callable(Extension): float $value
      *
-     * @return array{title: string, question: string, rule: string, unit: string, rows: list<array<string, mixed>>}
+     * @return array{title: string, question: string, rule: string, unit: string, decimals: int, rows: list<array<string, mixed>>}
      */
     private function extensionBoard(
         string $title,
@@ -191,6 +201,8 @@ final class BoardsController extends AbstractController
             'question' => $question,
             'rule' => $rule,
             'unit' => $unit,
+            // Installs and stars are counts. There is no fractional star.
+            'decimals' => 0,
             'rows' => array_map(
                 fn (Extension $e): array => [
                     'label' => $e->getLabel(),
