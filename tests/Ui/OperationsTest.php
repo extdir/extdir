@@ -225,7 +225,19 @@ final class OperationsTest extends WebTestCase
      */
     public static function indexablePages(): iterable
     {
+        // Every static page the sitemap advertises. Two of these carried a
+        // canonical already; the other eight were being submitted for indexing
+        // while saying nothing about which URL to keep, which is the same silence
+        // that let the /public/ duplicates speak for themselves.
         yield 'home' => ['/'];
+        yield 'about' => ['/about'];
+        yield 'ranking' => ['/ranking'];
         yield 'vendors' => ['/vendors'];
+        yield 'submit' => ['/submit'];
+        yield 'repo' => ['/repo'];
+        yield 'imprint' => ['/imprint'];
+        yield 'privacy' => ['/privacy'];
+        yield 'terms' => ['/terms'];
+        yield 'takedown' => ['/takedown'];
     }
 }
