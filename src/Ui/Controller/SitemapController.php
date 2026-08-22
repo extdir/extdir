@@ -75,9 +75,9 @@ final class SitemapController extends AbstractController
             $urls[] = ['loc' => $this->generateUrl($route, [], UrlGeneratorInterface::ABSOLUTE_URL)];
         }
 
-        // Facet landing pages. Each one answers a question somebody actually types
-        //, "shopware 6.7 extensions", "shopware payment plugins", and each is a
-        // real page rather than a redirect, so they are worth submitting.
+        // Facet landing pages. Each one answers a question somebody actually types,
+        // such as "shopware 6.7 extensions" or "shopware payment plugins", and each is
+        // a real page rather than a redirect, so they are worth submitting.
         foreach ($this->shopwareVersions->findShownInMatrix() as $version) {
             $urls[] = ['loc' => $this->generateUrl(
                 'home',

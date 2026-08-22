@@ -35,6 +35,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Index(name: 'idx_extension_facets', columns: ['index_status', 'license_status', 'maintenance_status'])]
 #[ORM\Index(name: 'idx_extension_rank', columns: ['rank_score'])]
 #[ORM\Index(name: 'idx_extension_crawl', columns: ['last_crawled_at'])]
+#[ORM\Index(name: 'idx_extension_downloads_total', columns: ['downloads_total'])]
+#[ORM\Index(name: 'idx_extension_downloads_monthly', columns: ['downloads_monthly'])]
 // Declared through the ORM rather than raw migration SQL so that
 // doctrine:schema:validate stays green, otherwise every future diff would try to
 // drop an index it does not know about. MariaDB's innodb_ft_min_token_size of 3

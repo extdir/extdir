@@ -36,11 +36,11 @@ use Symfony\Component\Routing\Attribute\Route;
  * either direction: it can appear on any board it qualifies for, wearing the same
  * disclosure chip it wears on the vendor listing.
  *
- * Popularity is displayed and never scored. The download counts below feed no ranking
- *, RankingScore does not take them as an argument and cannot be given them without
- * changing its signature, because the ranking guidance is blunt that stars and installs
- * mislead in this ecosystem. Showing them on a page whose whole subject is popularity
- * is honest; letting them decide what a merchant sees first is not.
+ * Popularity is displayed and never scored. RankingScore does not take the download
+ * counts as an argument and cannot be given them without changing its signature. The
+ * ranking guidance is blunt that stars and installs mislead in this ecosystem. Showing
+ * them on a page whose whole subject is popularity is honest; letting them decide what
+ * a merchant sees first is not.
  */
 final class BoardsController extends AbstractController
 {
@@ -181,7 +181,7 @@ final class BoardsController extends AbstractController
     }
 
     /**
-     * @param list<Extension>          $extensions
+     * @param list<Extension>            $extensions
      * @param callable(Extension): float $value
      *
      * @return array{title: string, question: string, rule: string, unit: string, decimals: int, rows: list<array<string, mixed>>}

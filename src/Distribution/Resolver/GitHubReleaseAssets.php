@@ -29,9 +29,9 @@ final class GitHubReleaseAssets implements ReleaseAssetSource
      * 100 releases, 10 assets each.
      *
      * Both numbers are load-bearing in opposite directions. Dropping releases to
-     * 50 to dodge a timeout silently cost coverage: extensions with a long history
-     *, frosh/tools has 108 tagged releases, lost the maintainer archives for
-     * everything older, and 281 releases quietly downgraded to source zipballs
+     * 50 to dodge a timeout silently cost coverage. Extensions with a long history
+     * such as frosh/tools, which has 108 tagged releases, lost the maintainer
+     * archives for everything older, and 281 releases quietly downgraded to zipballs
      * with nothing in the output to show it.
      *
      * The document size that actually caused the timeouts came from the asset
