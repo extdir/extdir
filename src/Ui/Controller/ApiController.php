@@ -1,0 +1,136 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Ui\Controller;
+
+use App\Catalog\Repository\ExtensionRepository;
+use App\Catalog\Search\ExtensionSearch;
+use App\Catalog\Search\SearchCriteria;
+use App\Compatibility\Repository\CompatibilityClaimRepository;
+use App\Ui\Api\ExtensionSerialiser;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Requirement\Requirement;
+
+/**
+ * The catalogue as JSON.
+ *
+ * The directory answers one question: does this extension work with the Shopware I run,
+ * is anyone maintaining it, and may I legally use it. Until now the only way to get that
+ * answer was to parse the HTML, or to read /repo/packages.json, which is Composer
+ * metadata rather than an answer.
+ *
+ * Built on the same ExtensionSearch the pages use, deliberately. A second search would
+ * be a second definition of what "licence=permissive" means, and the two would agree
+ * until the day they did not.
+ *
+ * Read-only, unauthenticated and cacheable. There is nothing here that is not already
+ * on a public page; the difference is that this shape does not have to be scraped.
+ */
+final class ApiController extends AbstractController
+{
+    public function __construct(
+        private readonly ExtensionSearch $search,
+        private readonly ExtensionRepository $extensions,
+        private readonly CompatibilityClaimRepository $claims,
+        private readonly ExtensionSerialiser $serialiser,
+    ) {
+    }
+
+    #[Route('/api/extensions', name: 'api_extensions', methods: ['GET'])]
+    public function list(
+        Request $request,
+        #[Autowire(service: 'limiter.api')]
+        RateLimiterFactoryInterface $limiter,
+    ): JsonResponse {
+        if (!$limiter->create($request->getClientIp() ?? 'anonymous')->consume(1)->isAccepted()) {
+            return $this->problem($request, 429, 'Too many requests. The catalogue changes once a night; please cache.');
+        }
+
+        // Parsed by the same object the HTML listing uses, so a filter cannot mean one
+        // thing here and another there.
+        $criteria = SearchCriteria::fromRequest($request);
+        $result = $this->search->search($criteria);
+
+        return $this->cacheable([
+            'total' => $result->total,
+            'page' => $criteria->page,
+            'pageCount' => $result->pageCount(),
+            'perPage' => SearchCriteria::PER_PAGE,
+            'filters' => $criteria->toCanonicalParameters(),
+            'extensions' => array_map(
+                fn ($extension): array => $this->serialiser->toArray($extension),
+                $result->extensions,
+            ),
+        ]);
+    }
+
+    #[Route('/api/extensions/{slug}', name: 'api_extension', requirements: ['slug' => Requirement::CATCH_ALL], methods: ['GET'])]
+    public function detail(
+        string $slug,
+        Request $request,
+        #[Autowire(service: 'limiter.api')]
+        RateLimiterFactoryInterface $limiter,
+    ): JsonResponse {
+        if (!$limiter->create($request->getClientIp() ?? 'anonymous')->consume(1)->isAccepted()) {
+            return $this->problem($request, 429, 'Too many requests. The catalogue changes once a night; please cache.');
+        }
+
+        $extension = $this->extensions->findOneBySlug($slug);
+
+        // Delisted work is gone from here for the same reason it is gone from the
+        // pages: a takedown that leaves the data reachable through a second door is
+        // not a takedown.
+        if (null === $extension || !$extension->getIndexStatus()->isPubliclyVisible()) {
+            return $this->problem($request, 404, 'No extension with that slug is listed.');
+        }
+
+        return $this->cacheable($this->serialiser->toArrayWithCompatibility(
+            $extension,
+            $this->claims->findMatrixForExtension($extension),
+        ));
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function cacheable(array $payload): JsonResponse
+    {
+        $response = new JsonResponse($payload);
+
+        // Nothing here is per-visitor and the underlying data moves once a night, so
+        // an intermediary is welcome to hold it. This is also the polite half of the
+        // rate limit: a caller who respects it will rarely reach the ceiling.
+        $response->setPublic();
+        $response->setMaxAge(3600);
+
+        return $response;
+    }
+
+    /**
+     * RFC 9457, because an agent parsing an error is the case that matters.
+     *
+     * A JSON API that answers failures in HTML hands whatever is reading it a page to
+     * guess at. This says what went wrong in the same format as everything else.
+     */
+    private function problem(Request $request, int $status, string $detail): JsonResponse
+    {
+        return new JsonResponse(
+            [
+                'type' => 'about:blank',
+                'title' => Response::$statusTexts[$status] ?? 'Error',
+                'status' => $status,
+                'detail' => $detail,
+                'instance' => $request->getPathInfo(),
+            ],
+            $status,
+            ['Content-Type' => 'application/problem+json'],
+        );
+    }
+}

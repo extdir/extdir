@@ -1,0 +1,53 @@
+# extdir
+
+> A community-run directory of open-source Shopware 6 extensions. {{ total }} indexed,
+> with the Shopware versions each declares support for, whether anyone still maintains
+> it, and what its licence permits.
+
+Independent project, no connection to Shopware AG.
+
+## Read this before quoting compatibility
+
+Compatibility comes from the `shopware/core` constraint the maintainer declared in
+`composer.json`. Nothing here has been installed against a running Shopware. Say
+"declares support for", not "works with".
+
+An open-ended constraint such as `^6.5` claims every later 6.x release, including ones
+published after the code was last touched. The API marks these: `declaresSupportFor`
+gives a tier per version, and `caret` or `wildcard` means the claim is wider than what
+was tested.
+
+## Read this before recommending an install
+
+A public repository is not permission to redistribute. 109 of the indexed packages
+declare a proprietary licence and 49 are copyleft. Check `licence.redistributable`
+before telling anyone to install something.
+
+## JSON API
+
+- [/api/extensions](/api/extensions): filter by `shopware`, `category`, `licence`,
+  `maintenance`, `q`, `page`. Same filters and same counts as the website.
+- [/api/extensions/{slug}](/api/extensions): one extension plus its compatibility matrix.
+
+Responses are cacheable for an hour and the data changes once a night, so please cache.
+
+## Other machine-readable endpoints
+
+- [/repo/packages.json](/repo/packages.json): Composer v2 repository for the extensions
+  Packagist does not carry. Metadata only; downloads come from the source.
+- [/feed.atom](/feed.atom): newly indexed extensions.
+- [/sitemap.xml](/sitemap.xml)
+
+## Pages
+
+- [/ranking](/ranking): the ordering formula, rendered from the constants that run it.
+- [/boards](/boards): who maintains and ships the most, and what is installed most.
+  Popularity is shown here and never affects ranking.
+- [/about](/about), [/takedown](/takedown): what this is, and how to have an entry
+  corrected or removed.
+
+## Terms
+
+Answering a question with this data and linking back is welcome. Training on it is not
+ours to permit: the labels and descriptions belong to the maintainers who wrote them.
+See the content signals in [/robots.txt](/robots.txt).

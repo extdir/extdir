@@ -40,6 +40,18 @@ framework:
             limit: 5
             interval: '1 hour'
 
+        # The JSON API. Sized for an agent answering a developer's question, not for
+        # copying the catalogue: the whole index is 595 records at 24 a page, so 120 an
+        # hour is five full sweeps and far more than any single question needs.
+        #
+        # Deliberately not a hostile limit. The point of the API is to be used, and
+        # every response is publicly cacheable for an hour, so a caller who respects
+        # the headers will rarely come near this.
+        api:
+            policy: 'sliding_window'
+            limit: 120
+            interval: '1 hour'
+
 # Tests would exhaust the real budget within one test class, turning an unrelated
 # assertion into a 429. The limiter still runs, only the ceiling moves, so the
 # 429 path stays testable by exhausting it deliberately, which the rate-limit test
@@ -50,6 +62,10 @@ when@test:
             imprint_reveal:
                 policy: 'fixed_window'
                 limit: 50
+                interval: '1 hour'
+            api:
+                policy: 'sliding_window'
+                limit: 1000
                 interval: '1 hour'
             ownership_proof:
                 policy: 'fixed_window'

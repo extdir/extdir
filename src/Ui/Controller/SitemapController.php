@@ -44,9 +44,34 @@ final class SitemapController extends AbstractController
         // crawler walk them multiplies identical content across the crawl budget.
         // Facet combinations are left crawlable: "6.7 + payment" is a page a
         // merchant would genuinely search for.
+        $llms = $this->generateUrl('llms_txt', [], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        // Content signals, in Cloudflare's robots.txt syntax.
+        //
+        // Not the usual publisher's answer, and the difference is deliberate. This is a
+        // discovery project: being quoted in an answer, with a link back, is the point
+        // rather than the leak. So search and ai-input are yes.
+        //
+        // ai-train is no, and not as an objection. The labels and descriptions here
+        // were written by the maintainers whose packages we index, and extdir has no
+        // standing to license somebody else's prose for training. It would be
+        // incoherent to refuse to redistribute an unlicensed repository while granting
+        // a broader right over the same vendors' text.
         $body = <<<ROBOTS
+            # Content-Signal: search=yes, ai-input=yes, ai-train=no
+            #
+            # search=yes    index this and show it in results
+            # ai-input=yes  use it to answer a question now, with a link back
+            # ai-train=no   not ours to grant: the package descriptions belong to the
+            #               maintainers who wrote them, not to this directory
+            #
+            # Full text: https://contentsignals.org
+
             User-agent: *
             Allow: /
+
+            # For anything reading this to answer a question rather than to index it,
+            # {$llms} is written for that.
 
             # Same results, different order or layout, nothing new to index.
             Disallow: /*?*sort=

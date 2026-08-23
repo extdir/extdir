@@ -273,6 +273,31 @@ class ExtensionRepository extends ServiceEntityRepository
     }
 
     /**
+     * Most recently indexed first, for the feed.
+     *
+     * Ordered by first sight rather than by release date, because the feed answers
+     * "what is new in this directory". A plugin published in 2021 and discovered last
+     * week is new here and old everywhere else, and pretending otherwise would put a
+     * five-year-old release at the top of somebody's reader.
+     *
+     * @return list<Extension>
+     */
+    public function findRecentlyIndexed(int $limit): array
+    {
+        /** @var list<Extension> $result */
+        $result = $this->createQueryBuilder('e')
+            ->where('e.indexStatus IN (:visible)')
+            ->setParameter('visible', [IndexStatus::Listed, IndexStatus::IndexOnly])
+            ->orderBy('e.firstSeenAt', 'DESC')
+            ->addOrderBy('e.id', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        return $result;
+    }
+
+    /**
      * Everything visible from one vendor, best first.
      *
      * @return list<Extension>

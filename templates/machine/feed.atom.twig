@@ -1,0 +1,32 @@
+{% apply spaceless %}{% endapply %}<?xml version="1.0" encoding="UTF-8"?>
+{#
+    Newly indexed extensions.
+
+    updated is taken from the newest entry rather than from now(), so a reader polling
+    an unchanged feed sees an unchanged timestamp. Stamping it with the current time
+    tells every aggregator the feed changed every time it is fetched, which is how a
+    feed teaches people to ignore it.
+#}
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>extdir: newly indexed Shopware 6 extensions</title>
+    <subtitle>Open-source extensions as they are added to the directory.</subtitle>
+    <link href="{{ url('feed_atom') }}" rel="self"/>
+    <link href="{{ url('home') }}"/>
+    <id>{{ url('home') }}</id>
+    <updated>{{ (extensions|first).firstSeenAt|date('c') }}</updated>
+    <author><name>extdir</name></author>
+
+    {% for extension in extensions %}
+        <entry>
+            <title>{{ extension.label }} ({{ extension.packageName }})</title>
+            <link href="{{ url('extension_detail', {slug: extension.slug}) }}"/>
+            <id>{{ url('extension_detail', {slug: extension.slug}) }}</id>
+            <updated>{{ extension.firstSeenAt|date('c') }}</updated>
+            <summary>{{ extension.description|default(extension.label) }}</summary>
+            {# Stated in the entry because a reader may never open the page, and
+               "on Packagist" is not the same as "you may redistribute it". #}
+            <category term="{{ extension.licenseStatus.value }}" label="Licence: {{ extension.licenseSpdx|default('not declared') }}"/>
+            <category term="{{ extension.maintenanceStatus.value }}" label="Maintenance"/>
+        </entry>
+    {% endfor %}
+</feed>

@@ -38,6 +38,9 @@
     {% endblock %}
 
     <link rel="icon" href="{{ asset('images/favicon.svg') }}" type="image/svg+xml">
+    {# Autodiscovery. A reader pointed at any page finds the feed without being told
+       where it is, which is the only reason the convention exists. #}
+    <link rel="alternate" type="application/atom+xml" title="Newly indexed extensions" href="{{ path('feed_atom') }}">
     {# The two font faces used above the fold. Without the hint they are only
        discovered once the stylesheet has parsed, which is a visible reflow on a
        cold load. #}
