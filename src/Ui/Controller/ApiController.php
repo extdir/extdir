@@ -9,13 +9,14 @@ use App\Catalog\Search\ExtensionSearch;
 use App\Catalog\Search\SearchCriteria;
 use App\Compatibility\Repository\CompatibilityClaimRepository;
 use App\Ui\Api\ExtensionSerialiser;
+use App\Ui\Api\Problem;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\Requirement\Requirement;
 
 /**
@@ -43,6 +44,55 @@ final class ApiController extends AbstractController
     ) {
     }
 
+    /**
+     * What this API answers.
+     *
+     * Exists because the first thing anyone does with an undocumented API is request
+     * its root, and until now that returned the HTML 404 page. The two caveats are
+     * repeated here rather than left to llms.txt: something that starts at /api may
+     * never read anything else, and both are the kind of mistake that ends with
+     * somebody installing a package they may not redistribute.
+     */
+    #[Route('/api', name: 'api_index', methods: ['GET'])]
+    public function index(): JsonResponse
+    {
+        return $this->cacheable([
+            'name' => 'extdir',
+            'description' => 'A community-run directory of open-source Shopware 6 extensions.',
+            'documentation' => $this->generateUrl('llms_txt', [], UrlGeneratorInterface::ABSOLUTE_URL),
+            'endpoints' => [
+                'extensions' => [
+                    'url' => $this->generateUrl('api_extensions', [], UrlGeneratorInterface::ABSOLUTE_URL),
+                    'filters' => ['q', 'shopware', 'category', 'licence', 'maintenance', 'page'],
+                    'description' => 'Filtered listing. Same filters and same counts as the website.',
+                ],
+                'extension' => [
+                    // Built by hand rather than generated: the router percent-encodes
+                    // the braces, and %7Bslug%7D reads like a real URL somebody could
+                    // request rather than a placeholder to substitute.
+                    'url' => $this->generateUrl('api_extensions', [], UrlGeneratorInterface::ABSOLUTE_URL).'/{slug}',
+                    'description' => 'One extension, with the Shopware versions it declares support for.',
+                ],
+                'composer' => [
+                    'url' => $this->generateUrl('repo_root', [], UrlGeneratorInterface::ABSOLUTE_URL),
+                    'description' => 'Composer v2 repository for the extensions Packagist does not carry.',
+                ],
+                'feed' => [
+                    'url' => $this->generateUrl('feed_atom', [], UrlGeneratorInterface::ABSOLUTE_URL),
+                    'description' => 'Newly indexed extensions.',
+                ],
+            ],
+            'readThisFirst' => [
+                'compatibility' => 'Read from the shopware/core constraint the maintainer declared. '
+                    .'Nothing here has been installed against a running Shopware. The field is called '
+                    .'declaresSupportFor for that reason.',
+                'licence' => 'A public repository is not permission to redistribute. Check '
+                    .'licence.redistributable before recommending an install.',
+            ],
+            'cache' => 'Responses are public for one hour. The catalogue changes once a night.',
+        ]);
+    }
+
     #[Route('/api/extensions', name: 'api_extensions', methods: ['GET'])]
     public function list(
         Request $request,
@@ -50,7 +100,7 @@ final class ApiController extends AbstractController
         RateLimiterFactoryInterface $limiter,
     ): JsonResponse {
         if (!$limiter->create($request->getClientIp() ?? 'anonymous')->consume(1)->isAccepted()) {
-            return $this->problem($request, 429, 'Too many requests. The catalogue changes once a night; please cache.');
+            return Problem::response(429, 'Too many requests. The catalogue changes once a night; please cache.', $request->getPathInfo());
         }
 
         // Parsed by the same object the HTML listing uses, so a filter cannot mean one
@@ -79,7 +129,7 @@ final class ApiController extends AbstractController
         RateLimiterFactoryInterface $limiter,
     ): JsonResponse {
         if (!$limiter->create($request->getClientIp() ?? 'anonymous')->consume(1)->isAccepted()) {
-            return $this->problem($request, 429, 'Too many requests. The catalogue changes once a night; please cache.');
+            return Problem::response(429, 'Too many requests. The catalogue changes once a night; please cache.', $request->getPathInfo());
         }
 
         $extension = $this->extensions->findOneBySlug($slug);
@@ -88,7 +138,7 @@ final class ApiController extends AbstractController
         // pages: a takedown that leaves the data reachable through a second door is
         // not a takedown.
         if (null === $extension || !$extension->getIndexStatus()->isPubliclyVisible()) {
-            return $this->problem($request, 404, 'No extension with that slug is listed.');
+            return Problem::response(404, 'No extension with that slug is listed.', $request->getPathInfo());
         }
 
         return $this->cacheable($this->serialiser->toArrayWithCompatibility(
@@ -111,26 +161,5 @@ final class ApiController extends AbstractController
         $response->setMaxAge(3600);
 
         return $response;
-    }
-
-    /**
-     * RFC 9457, because an agent parsing an error is the case that matters.
-     *
-     * A JSON API that answers failures in HTML hands whatever is reading it a page to
-     * guess at. This says what went wrong in the same format as everything else.
-     */
-    private function problem(Request $request, int $status, string $detail): JsonResponse
-    {
-        return new JsonResponse(
-            [
-                'type' => 'about:blank',
-                'title' => Response::$statusTexts[$status] ?? 'Error',
-                'status' => $status,
-                'detail' => $detail,
-                'instance' => $request->getPathInfo(),
-            ],
-            $status,
-            ['Content-Type' => 'application/problem+json'],
-        );
     }
 }

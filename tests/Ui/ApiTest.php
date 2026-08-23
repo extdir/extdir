@@ -22,6 +22,63 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
  */
 final class ApiTest extends WebTestCase
 {
+    /**
+     * The first thing anyone does with an undocumented API is request its root.
+     *
+     * That is how this gap was found: /api answered with the HTML 404 page, which is
+     * the one response an API client cannot do anything with.
+     */
+    public function testTheApiRootSaysWhatItAnswers(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/api');
+
+        self::assertResponseIsSuccessful();
+        self::assertResponseHeaderSame('Content-Type', 'application/json');
+
+        $payload = $this->decode($client);
+
+        self::assertArrayHasKey('extensions', $payload['endpoints']);
+        self::assertArrayHasKey('extension', $payload['endpoints']);
+
+        // Repeated here rather than left to llms.txt, because something starting at
+        // /api may never read anything else, and both mistakes end with somebody
+        // installing a package they may not redistribute.
+        self::assertArrayHasKey('compatibility', $payload['readThisFirst']);
+        self::assertArrayHasKey('licence', $payload['readThisFirst']);
+    }
+
+    /**
+     * A client that mistypes a path is the one that most needs a parsable answer, and
+     * the one nobody tests by hand because they type the URL correctly.
+     */
+    public function testAnUnroutedApiPathStillAnswersAsJson(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/api/nonsense');
+
+        self::assertResponseStatusCodeSame(404);
+        self::assertResponseHeaderSame('Content-Type', 'application/problem+json');
+
+        $payload = $this->decode($client);
+
+        self::assertSame(404, $payload['status']);
+        self::assertStringContainsString('/api', (string) $payload['detail']);
+    }
+
+    /**
+     * The listener is scoped to /api. A person who mistypes a page should still get the
+     * page that helps them, not a JSON document.
+     */
+    public function testOrdinaryPagesStillGetTheHtmlErrorPage(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/no-such-page');
+
+        self::assertResponseStatusCodeSame(404);
+        self::assertStringContainsString('text/html', (string) $client->getResponse()->headers->get('Content-Type'));
+    }
+
     public function testTheListReturnsExtensions(): void
     {
         $client = static::createClient();
