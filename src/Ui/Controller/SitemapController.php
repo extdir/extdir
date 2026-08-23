@@ -7,6 +7,8 @@ namespace App\Ui\Controller;
 use App\Catalog\Repository\CategoryRepository;
 use App\Catalog\Repository\ExtensionRepository;
 use App\Catalog\Repository\VendorRepository;
+use App\Catalog\Search\FacetIndexability;
+use App\Compatibility\Repository\CompatibilityClaimRepository;
 use App\Compatibility\Repository\ShopwareVersionRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,6 +31,7 @@ final class SitemapController extends AbstractController
         private readonly ShopwareVersionRepository $shopwareVersions,
         private readonly CategoryRepository $categories,
         private readonly VendorRepository $vendors,
+        private readonly CompatibilityClaimRepository $claims,
     ) {
     }
 
@@ -86,10 +89,20 @@ final class SitemapController extends AbstractController
             $urls[] = ['loc' => $this->generateUrl($route, [], UrlGeneratorInterface::ABSOLUTE_URL)];
         }
 
-        // Facet landing pages. Each one answers a question somebody actually types,
-        // such as "shopware 6.7 extensions" or "shopware payment plugins", and each is
-        // a real page rather than a redirect, so they are worth submitting.
+        // Facet landing pages. Each answers a question somebody actually types, such
+        // as "shopware 6.7 extensions" or "shopware payment plugins".
+        //
+        // Filtered by the same rule the page itself uses to decide whether to emit
+        // noindex. They have to agree: submitting a URL that then tells the crawler
+        // not to index it is a reported error, and four of the categories are small
+        // enough to fail it. subscription holds one extension.
+        $versionCounts = $this->claims->countExtensionsByVersion();
+
         foreach ($this->shopwareVersions->findShownInMatrix() as $version) {
+            if (!FacetIndexability::isIndexable(1, $versionCounts[$version->getMajorMinor()] ?? 0)) {
+                continue;
+            }
+
             $urls[] = ['loc' => $this->generateUrl(
                 'home',
                 ['shopware' => $version->getMajorMinor()],
@@ -97,7 +110,13 @@ final class SitemapController extends AbstractController
             )];
         }
 
-        foreach ($this->categories->findAllKeyed() as $key => $category) {
+        $categoryCounts = $this->categories->countsByKey();
+
+        foreach (array_keys($this->categories->findAllKeyed()) as $key) {
+            if (!FacetIndexability::isIndexable(1, $categoryCounts[$key] ?? 0)) {
+                continue;
+            }
+
             $urls[] = ['loc' => $this->generateUrl(
                 'home',
                 ['category' => $key],

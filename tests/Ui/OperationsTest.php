@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Ui;
 
+use App\Catalog\Entity\Category;
+use App\Catalog\Entity\Extension;
+use App\Catalog\Entity\Vendor;
+use App\Catalog\Enum\IndexStatus;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -74,6 +79,78 @@ final class OperationsTest extends WebTestCase
         // The compact layout is the same results in a different shape, exactly like
         // sort. 182 of these were crawled before it was excluded.
         yield 'layout toggle' => ['/*?*view='];
+    }
+
+    /**
+     * The sitemap and the pages it submits must agree about what is indexable.
+     *
+     * Submitting a URL that then tells the crawler not to index it is a reported
+     * error. The two decisions live in different files and nothing but this stops
+     * them drifting, so it seeds one category big enough to qualify and one too
+     * small, then checks both ends: the sitemap carries the first and not the
+     * second, and the small one's page says noindex.
+     */
+    public function testTheSitemapAndTheListingAgreeOnWhatIsIndexable(): void
+    {
+        $client = static::createClient();
+        $this->seedCategories();
+
+        $client->request('GET', '/sitemap.xml');
+        $sitemap = (string) $client->getResponse()->getContent();
+
+        self::assertStringContainsString('category=roomy', $sitemap, 'a category with enough extensions belongs in the sitemap');
+        self::assertStringNotContainsString('category=lonely', $sitemap, 'a category with one extension is too thin to submit');
+
+        // And the thin one says so itself, rather than leaving Google to work it out
+        // and pick its own canonical.
+        $client->request('GET', '/?category=lonely');
+        self::assertStringContainsString('noindex', (string) $client->getResponse()->getContent());
+
+        $client->request('GET', '/?category=roomy');
+        self::assertStringNotContainsString('noindex', (string) $client->getResponse()->getContent());
+    }
+
+    /**
+     * Stacked filters are a path through the UI, not a page somebody searched for.
+     */
+    public function testADeepFilterCombinationIsNotIndexable(): void
+    {
+        $client = static::createClient();
+        $this->seedCategories();
+
+        $client->request('GET', '/?shopware=6.3&category=roomy&licence=copyleft&maintenance=lagging');
+
+        self::assertStringContainsString(
+            'noindex',
+            (string) $client->getResponse()->getContent(),
+            'four stacked facets is the shape Search Console reported as a duplicate',
+        );
+    }
+
+    private function seedCategories(): void
+    {
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+
+        $roomy = new Category('roomy', 'Roomy');
+        $lonely = new Category('lonely', 'Lonely');
+        $vendor = new Vendor('acme', 'acme');
+        $em->persist($roomy);
+        $em->persist($lonely);
+        $em->persist($vendor);
+
+        foreach (range(1, 4) as $i) {
+            $extension = new Extension($vendor, 'acme/roomy-'.$i, 'acme-roomy-'.$i, 'Roomy '.$i);
+            $extension->setIndexStatus(IndexStatus::Listed);
+            $extension->addCategory($roomy);
+            $em->persist($extension);
+        }
+
+        $only = new Extension($vendor, 'acme/lonely', 'acme-lonely', 'Lonely');
+        $only->setIndexStatus(IndexStatus::Listed);
+        $only->addCategory($lonely);
+        $em->persist($only);
+
+        $em->flush();
     }
 
     public function testTheSitemapIsValidXmlAndListsExtensions(): void

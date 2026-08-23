@@ -107,11 +107,25 @@ final readonly class SearchCriteria
 
     public function hasFilters(): bool
     {
-        return null !== $this->query
-            || null !== $this->shopwareVersion
-            || null !== $this->category
-            || null !== $this->licence
-            || null !== $this->maintenance;
+        return $this->activeFilterCount() > 0;
+    }
+
+    /**
+     * How many facets are set.
+     *
+     * Page, sort and view are not filters: they change how the same set is shown, not
+     * which set it is. FacetIndexability uses this to tell a landing page somebody
+     * would search for from a path through the filter UI.
+     */
+    public function activeFilterCount(): int
+    {
+        return \count(array_filter([
+            $this->query,
+            $this->shopwareVersion,
+            $this->category,
+            $this->licence,
+            $this->maintenance,
+        ], static fn (?string $v): bool => null !== $v && '' !== $v));
     }
 
     /**

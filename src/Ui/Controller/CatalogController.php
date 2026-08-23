@@ -9,6 +9,7 @@ use App\Catalog\Entity\Extension;
 use App\Catalog\Repository\CategoryRepository;
 use App\Catalog\Repository\ExtensionRepository;
 use App\Catalog\Search\ExtensionSearch;
+use App\Catalog\Search\FacetIndexability;
 use App\Catalog\Search\SearchCriteria;
 use App\Compatibility\Repository\CompatibilityClaimRepository;
 use App\Compatibility\Repository\ShopwareVersionRepository;
@@ -41,6 +42,9 @@ final class CatalogController extends AbstractController
         return $this->render('catalog/index.html.twig', [
             'result' => $result,
             'criteria' => $criteria,
+            // Decided here rather than in Twig so the sitemap can apply the same rule
+            // to the same class and the two cannot drift.
+            'indexable' => FacetIndexability::isIndexable($criteria->activeFilterCount(), $result->total),
             'shopwareVersions' => $this->shopwareVersions->findShownInMatrix(),
             'categories' => $this->categories->findAllKeyed(),
             'matrices' => $this->claims->findMatrixForExtensions($result->extensions),

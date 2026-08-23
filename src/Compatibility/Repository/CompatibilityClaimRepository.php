@@ -6,6 +6,7 @@ namespace App\Compatibility\Repository;
 
 use App\Catalog\Entity\Extension;
 use App\Catalog\Entity\ExtensionRelease;
+use App\Catalog\Enum\IndexStatus;
 use App\Compatibility\Entity\CompatibilityClaim;
 use App\Compatibility\Enum\ConstraintTier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -26,6 +27,37 @@ class CompatibilityClaimRepository extends ServiceEntityRepository
      * because a re-parse can turn a satisfied claim into an unsatisfied one and a
      * merge would leave the stale row behind.
      */
+    /**
+     * Visible extensions per Shopware minor, keyed by "6.7".
+     *
+     * The sitemap applies FacetIndexability before submitting a version page, and this
+     * answers it in one query rather than by running the listing search once per
+     * version.
+     *
+     * @return array<string, int>
+     */
+    public function countExtensionsByVersion(): array
+    {
+        /** @var list<array{majorMinor: string, total: int|string}> $rows */
+        $rows = $this->getEntityManager()
+            ->createQuery(
+                'SELECT v.majorMinor AS majorMinor, COUNT(DISTINCT e.id) AS total'
+                .' FROM '.CompatibilityClaim::class.' c'
+                .' JOIN c.shopwareVersion v JOIN c.extension e'
+                .' WHERE e.indexStatus IN (:visible) GROUP BY v.id',
+            )
+            ->setParameter('visible', [IndexStatus::Listed, IndexStatus::IndexOnly])
+            ->getResult();
+
+        $counts = [];
+
+        foreach ($rows as $row) {
+            $counts[$row['majorMinor']] = (int) $row['total'];
+        }
+
+        return $counts;
+    }
+
     public function deleteForRelease(ExtensionRelease $release): void
     {
         $this->createQueryBuilder('c')

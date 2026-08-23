@@ -28,6 +28,15 @@
 
 {% block canonical %}
     <link rel="canonical" href="{{ url('home', criteria.toCanonicalParameters) }}">
+    {% if not indexable %}
+        {# A filter path rather than a page: three or more facets, or too few results
+           to rank for anything. Google had already reached that conclusion on its own
+           and picked a different canonical; this says the same thing first.
+
+           follow, not nofollow. The extensions listed here are worth crawling even
+           when the listing itself is not worth keeping. #}
+        <meta name="robots" content="noindex, follow">
+    {% endif %}
 {% endblock %}
 
 {% block og_title %}
@@ -64,7 +73,7 @@
     <div class="page-head">
         <h1>Open-source Shopware 6 extensions</h1>
         <p>
-            {{ result.total }} extensions. Each shows the Shopware versions its maintainer
+            {{ result.total }} extension{{ result.total == 1 ? '' : 's' }}. Each shows the Shopware versions its maintainer
             <em>declares</em> support for, when the repository was last touched, and what its
             licence permits.
         </p>
