@@ -86,6 +86,9 @@ RSYNC_EXCLUDES=(
     # Raised before the sync starts and cleared after the cache is warm. rsync
     # --delete would otherwise remove the very flag holding the site at 503.
     --exclude '.deploying'
+    # Generated on the server, because Apache here refuses to rewrite a dot-path and
+    # security.txt therefore has to be a real file rather than a route.
+    --exclude '.well-known/'
 )
 
 # Only tracked files are deployed. Everything the server needs is either in git
@@ -179,6 +182,10 @@ $PHP_BIN bin/console doctrine:migrations:migrate --no-interaction --allow-no-mig
 
 $PHP_BIN bin/console cache:clear --env=prod --no-debug
 $PHP_BIN bin/console cache:warmup --env=prod --no-debug
+
+# RFC 9116 treats a past Expires as invalid, so the file is rewritten with a fresh one
+# every deploy. Cron does it nightly too, for the stretch between deploys.
+$PHP_BIN bin/console app:ui:security-txt
 
 # assets/vendor is not in git, so a fresh server has nothing to compile.
 $PHP_BIN bin/console importmap:install

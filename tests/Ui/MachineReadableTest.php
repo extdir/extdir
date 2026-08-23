@@ -8,8 +8,11 @@ use App\Catalog\Entity\Extension;
 use App\Catalog\Entity\Vendor;
 use App\Catalog\Enum\IndexStatus;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * llms.txt, security.txt, the feed, and the content signals in robots.txt.
@@ -17,30 +20,35 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 final class MachineReadableTest extends WebTestCase
 {
     /**
-     * RFC 9116 treats a past Expires as invalid, which is the whole reason this file is
-     * generated rather than written by hand: a typed date keeps serving long after it
-     * stopped being true.
+     * security.txt is generated, not routed.
+     *
+     * Apache on this host refuses any dot-path that has to be rewritten, so the
+     * controller version answered 403 in production while working locally. It is a real
+     * file now, rewritten on every deploy and nightly, because RFC 9116 treats a past
+     * Expires as invalid and a file written once decays in silence.
      */
-    public function testSecurityTxtHasAnExpiryInTheFuture(): void
+    public function testSecurityTxtIsGeneratedWithAnExpiryInTheFuture(): void
     {
-        $client = static::createClient();
-        $client->request('GET', '/.well-known/security.txt');
+        $kernel = self::bootKernel();
 
-        self::assertResponseIsSuccessful();
+        $application = new Application($kernel);
+        $tester = new CommandTester($application->find('app:ui:security-txt'));
 
-        $body = (string) $client->getResponse()->getContent();
+        self::assertSame(Command::SUCCESS, $tester->execute([]));
+
+        $body = (string) file_get_contents($kernel->getProjectDir().'/.well-known/security.txt');
 
         self::assertMatchesRegularExpression('/^Contact: mailto:.+@.+$/m', $body);
-        self::assertMatchesRegularExpression('/^Expires: (.+)$/m', $body);
 
         preg_match('/^Expires: (.+)$/m', $body, $matches);
         $declared = $matches[1] ?? null;
 
         self::assertNotNull($declared, 'security.txt without Expires is invalid under RFC 9116');
-
-        $expires = new \DateTimeImmutable($declared);
-
-        self::assertGreaterThan(new \DateTimeImmutable(), $expires, 'an expired security.txt is an invalid one');
+        self::assertGreaterThan(
+            new \DateTimeImmutable(),
+            new \DateTimeImmutable($declared),
+            'an expired security.txt is an invalid one',
+        );
     }
 
     /**

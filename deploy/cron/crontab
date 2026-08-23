@@ -70,6 +70,11 @@
 # request served, a HEAD to a few hundred forges, about two minutes.
 29 6 * * 3   cd $HOME/websites/extdir.com && /usr/bin/php83 bin/console app:ui:verify-icons >> $HOME/logs/extdir-cron.log 2>&1
 
+# security.txt, rewritten with a fresh expiry. RFC 9116 treats a past Expires as
+# invalid, and a file written once decays silently: it keeps serving and only a
+# validator ever notices. Milliseconds, no network.
+51 6 * * *   cd $HOME/websites/extdir.com && /usr/bin/php83 bin/console app:ui:security-txt >> $HOME/logs/extdir-cron.log 2>&1
+
 # Categories, recomputed from stored data. Seconds, no network.
 13 6 * * *   cd $HOME/websites/extdir.com && /usr/bin/php83 bin/console app:taxonomy:classify >> $HOME/logs/extdir-cron.log 2>&1
 
