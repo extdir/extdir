@@ -13,16 +13,11 @@
     Require all denied
 </FilesMatch>
 
-# Served while the deploy flag is present. A static file, so it works even when the
-# application cannot boot at all.
-ErrorDocument 503 /maintenance.html
 
-<IfModule mod_headers.c>
-    # Without this a crawler has to guess how long to wait, and Google's guess is
-    # not generous. Also stops a proxy caching the maintenance page.
-    Header always set Retry-After "120" env=DEPLOYING
-    Header always set Cache-Control "no-store" env=DEPLOYING
-</IfModule>
+# The deploy window is handled in public/index.php, not here. Apache on this host
+# does not resolve %{DOCUMENT_ROOT} to the project directory, so a RewriteCond file
+# test never matches and would fail open: the site would keep serving 500s during a
+# deploy while looking like it had a maintenance mode.
 
 # Top-level files that describe the build rather than serve it.
 <FilesMatch "(composer\.(json|lock)|symfony\.lock|importmap\.php|phpunit.*\.xml|phpstan.*\.neon|compose\.yaml)">
@@ -37,27 +32,6 @@ ErrorDocument 503 /maintenance.html
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /
-
-    # Deploy window. Answer 503 rather than whatever half-updated state the
-    # application is in.
-    #
-    # Deploying is not atomic: rsync puts the new code on disk, then composer runs,
-    # then migrations. Anything served in between is new code against the old
-    # schema. That is not theoretical. On 22 August at 21:25:32, 44 seconds after
-    # the boards release landed, Googlebot got a 500 from
-    # /extension/ratepay-shopware6-module because the entity already knew about
-    # extension.downloads_total and the column did not exist yet.
-    #
-    # 503 with Retry-After is the correct answer to "come back shortly": a crawler
-    # retries and keeps the page indexed, where a 500 says the page is broken and
-    # eventually costs it. The flag is written before the sync starts and removed
-    # after the cache is warm, and rsync is told to leave it alone.
-    RewriteCond %{DOCUMENT_ROOT}/.deploying -f
-    RewriteRule ^ - [E=DEPLOYING:1]
-
-    RewriteCond %{DOCUMENT_ROOT}/.deploying -f
-    RewriteCond %{REQUEST_URI} !^/maintenance\.html$
-    RewriteRule ^ - [R=503,L]
 
     # Canonical host. Harmless before www is routed; run
     # `uberspace web domain add www.extdir.com` to make it take effect.
