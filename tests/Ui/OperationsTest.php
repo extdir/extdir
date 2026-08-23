@@ -42,6 +42,40 @@ final class OperationsTest extends WebTestCase
         self::assertStringNotContainsString("Disallow: /\n", $body, 'the site itself must stay crawlable');
     }
 
+    /**
+     * Action endpoints are not pages, and a crawler following one wastes a request on
+     * a redirect it can never complete.
+     *
+     * Not hypothetical: Search Console reported a server error on
+     * /auth/github?extension=..., which Googlebot only ever saw because the "Verify
+     * ownership" link on every extension page was crawlable.
+     */
+    #[DataProvider('pathsNoCrawlerShouldFollow')]
+    public function testRobotsKeepsCrawlersOffActionEndpoints(string $rule): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/robots.txt');
+
+        self::assertStringContainsString(
+            'Disallow: '.$rule,
+            (string) $client->getResponse()->getContent(),
+        );
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function pathsNoCrawlerShouldFollow(): iterable
+    {
+        yield 'oauth' => ['/auth/'];
+        yield 'maintainer area' => ['/my/'];
+        yield 'complaint form' => ['/report/'];
+        yield 'moderation' => ['/moderate'];
+        // The compact layout is the same results in a different shape, exactly like
+        // sort. 182 of these were crawled before it was excluded.
+        yield 'layout toggle' => ['/*?*view='];
+    }
+
     public function testTheSitemapIsValidXmlAndListsExtensions(): void
     {
         $client = static::createClient();

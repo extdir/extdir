@@ -83,6 +83,9 @@ RSYNC_EXCLUDES=(
     # Server-only secrets. Overwriting these from a laptop is how a deploy takes
     # the site down with "Access denied for user".
     --exclude '.env.local' --exclude '.env.local.php'
+    # Raised before the sync starts and cleared after the cache is warm. rsync
+    # --delete would otherwise remove the very flag holding the site at 503.
+    --exclude '.deploying'
 )
 
 # Only tracked files are deployed. Everything the server needs is either in git
@@ -93,6 +96,26 @@ RSYNC_EXCLUDES=(
 while IFS= read -r untracked; do
     RSYNC_EXCLUDES+=(--exclude "/$untracked")
 done < <(git ls-files --others --directory)
+
+# Hold the site at 503 for the whole deploy.
+#
+# Deploying is not atomic. rsync puts new code on disk, then composer runs, then
+# migrations; anything served in between is new code against the old schema. On
+# 22 August at 21:25:32, 44 seconds after the boards release, Googlebot got a 500
+# from an extension page because the entity already knew about
+# extension.downloads_total and the column did not exist yet.
+#
+# 503 with Retry-After is the correct answer: a crawler waits and keeps the page,
+# where a 500 says the page is broken. Raised before the first byte is copied,
+# because the window opens the moment rsync starts writing.
+if [ "$DRY_RUN" -eq 0 ]; then
+    step "Holding the site at 503"
+    ssh "$REMOTE" "touch '$REMOTE_PATH/.deploying'" || fail "could not raise the deploy flag"
+    # Whatever happens next, the site comes back. Without this a failed migration
+    # leaves it showing the maintenance page until somebody notices.
+    trap 'ssh "$REMOTE" "rm -f '"'$REMOTE_PATH/.deploying'"'" >/dev/null 2>&1 || true' EXIT
+    ok
+fi
 
 if [ "$REMOTE_ONLY" -eq 0 ]; then
     if [ "$DRY_RUN" -eq 1 ]; then
@@ -149,8 +172,9 @@ fi
 
 composer install --no-dev --optimize-autoloader --classmap-authoritative --no-interaction --no-progress
 
-# Migrations run before the cache warms, so new code never serves against an old
-# schema.
+# Migrations run before the cache warms. That is necessary but not sufficient: the
+# code is already on disk by now, so the schema gap is covered by the 503 the
+# caller raised, not by this ordering.
 $PHP_BIN bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
 
 $PHP_BIN bin/console cache:clear --env=prod --no-debug
@@ -169,6 +193,15 @@ composer dump-env prod
 supervisorctl restart extdir-worker-ingest extdir-worker-build 2>/dev/null || true
 REMOTE_SCRIPT
 ok
+
+# ---------- Back online -----------------------------------------------------
+# Before the health check, not after: /health is served by the application, and
+# while the flag is up it answers 503 like everything else.
+if [ "$DRY_RUN" -eq 0 ]; then
+    step "Lifting the 503"
+    ssh "$REMOTE" "rm -f '$REMOTE_PATH/.deploying'" || fail "the site is still holding at 503"
+    ok
+fi
 
 # ---------- Verify ----------------------------------------------------------
 step "Health check"

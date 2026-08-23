@@ -45,9 +45,20 @@ final class SitemapController extends AbstractController
             User-agent: *
             Allow: /
 
-            # Same results, different order, nothing new to index.
+            # Same results, different order or layout, nothing new to index.
             Disallow: /*?*sort=
             Disallow: /*&sort=
+            Disallow: /*?*view=
+            Disallow: /*&view=
+
+            # Actions, not pages. A crawler following "Verify ownership" starts an
+            # OAuth redirect it can never finish, and reaches the one part of the site
+            # that writes a session. These were being crawled, and were among the URLs
+            # Search Console reported a server error on.
+            Disallow: /auth/
+            Disallow: /my/
+            Disallow: /report/
+            Disallow: /moderate
 
             # Machine-readable endpoints; useful to Composer, not to a search index.
             Disallow: /repo/

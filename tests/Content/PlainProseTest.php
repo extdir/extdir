@@ -67,7 +67,7 @@ final class PlainProseTest extends TestCase
      * @var list<string>
      */
     private const array TEXT = [
-        'twig', 'php', 'js', 'css', 'yaml', 'yml', 'json', 'md', 'txt', 'sh', 'neon', 'xml',
+        'twig', 'php', 'js', 'css', 'yaml', 'yml', 'json', 'md', 'txt', 'sh', 'neon', 'xml', 'html',
     ];
 
     /**

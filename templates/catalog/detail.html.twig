@@ -384,7 +384,7 @@ bin/console plugin:install --activate {{ technicalName }}</pre>
                 access; the token is used once and never stored.
                 </p>
                 <p class="small">
-                <a class="link-arrow" href="{{ path('auth_github', {extension: extension.slug}) }}">Verify ownership</a>
+                <a class="link-arrow" rel="nofollow" href="{{ path('auth_github', {extension: extension.slug}) }}">Verify ownership</a>
                 </p>
             {% else %}
                 {# Not on GitHub, so there is no API to ask about write access. The
@@ -395,7 +395,7 @@ bin/console plugin:install --activate {{ technicalName }}</pre>
                 file in the repository instead.
                 </p>
                 <p class="small">
-                <a class="link-arrow" href="{{ path('ownership_verify_file', {slug: extension.slug}) }}">Verify with a file</a>
+                <a class="link-arrow" rel="nofollow" href="{{ path('ownership_verify_file', {slug: extension.slug}) }}">Verify with a file</a>
                 </p>
                 <p class="small subtle">
                 You will be asked to sign in, so the verification belongs to an account.
@@ -403,7 +403,7 @@ bin/console plugin:install --activate {{ technicalName }}</pre>
             {% endif %}
             <p class="small subtle">
                 Not the maintainer? Report a wrong category, an outdated description or a rights
-                complaint <a href="{{ path('complaint_new', {slug: extension.slug}) }}">here</a>.
+                complaint <a rel="nofollow" href="{{ path('complaint_new', {slug: extension.slug}) }}">here</a>.
                 No account needed, and the <a href="{{ path('takedown') }}">takedown policy</a>
                 covers what happens next.
             </p>
