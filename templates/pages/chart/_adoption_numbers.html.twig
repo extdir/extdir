@@ -1,0 +1,35 @@
+{#
+    The adoption curves as a table.
+
+    Every twelfth month rather than every month: a row per month across five versions
+    is a hundred and twenty rows nobody reads, and the shape of these curves is
+    carried by the year marks.
+#}
+<details class="chart-numbers">
+    <summary>Show the numbers</summary>
+    <div class="table-scroll">
+        <table class="data">
+            <thead>
+                <tr>
+                    <th scope="col">Shopware</th>
+                    <th scope="col" class="num">At launch</th>
+                    <th scope="col" class="num">After 12 months</th>
+                    <th scope="col" class="num">After 24 months</th>
+                    <th scope="col" class="num">Latest</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for line in chart.lines %}
+                    <tr>
+                        <th scope="row">{{ line.version }}</th>
+                        {% for month in [0, 12, 24] %}
+                            {% set point = line.points|filter(p => p.month == month)|first %}
+                            <td class="num">{{ point ? point.value|number_format(0, '.', ',') : 'not yet' }}</td>
+                        {% endfor %}
+                        <td class="num">{{ line.total|number_format(0, '.', ',') }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</details>

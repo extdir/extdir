@@ -1,0 +1,48 @@
+{#
+    Category against Shopware version.
+
+    A real table, not a grid of divs. The data is a table, every cell has two headers,
+    and a screen reader that knows it is a table can say "Payment, 6.7, 71 percent"
+    without us inventing labels for that.
+
+    The shade is a share, not a count. Payment holds sixty extensions and subscriptions
+    holds one, so a count would draw the size of the category and nothing else, which
+    is a fact already on the chart above this one.
+
+    Five steps of one hue. Past five, neighbouring shades stop being rankable and the
+    grid becomes decoration. Zero gets no shade at all, because none of a category is
+    a different statement from the least of it, and the number is in every cell
+    regardless so the colour is never carrying the value alone.
+#}
+<section class="panel chart chart--wide" id="chart-{{ chart.id }}">
+    <h2>{{ chart.title }}</h2>
+    <p class="chart-question">{{ chart.question }}</p>
+
+    <div class="table-scroll">
+        <table class="data heatmap">
+            <thead>
+                <tr>
+                    <th scope="col">Category</th>
+                    <th scope="col" class="num">Total</th>
+                    {% for version in chart.versions %}
+                        <th scope="col" class="num">{{ version }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in chart.rows %}
+                    <tr>
+                        <th scope="row">{{ row.label }}</th>
+                        <td class="num muted">{{ row.total }}</td>
+                        {% for cell in row.cells %}
+                            <td class="num heat step-{{ cell.step }}"
+                                title="{{ cell.value }} of {{ row.total }} declare support for {{ cell.version }}">{{ cell.percent }}%</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <p class="board-rule"><span class="board-rule-label">Rule</span> {{ chart.rule }}</p>
+</section>

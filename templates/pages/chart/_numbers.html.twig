@@ -1,0 +1,31 @@
+{#
+    The table twin every chart carries.
+
+    Not a fallback. A value that can only be reached by hovering is a value some
+    readers cannot reach at all, and a chart whose numbers live only in a tooltip is
+    also a chart a search engine reads as an empty box. The table is the chart's
+    honest form; the drawing is the convenience.
+#}
+<details class="chart-numbers">
+    <summary>Show the numbers</summary>
+    <div class="table-scroll">
+        <table class="data">
+            <thead>
+                <tr>
+                    <th scope="col">{{ dimension|default('Group') }}</th>
+                    <th scope="col" class="num">{{ unit|default('Count')|capitalize }}</th>
+                    {% if withShare %}<th scope="col" class="num">Share</th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                    <tr>
+                        <th scope="row">{{ row.label }}{% if row.partial %} (year still running){% endif %}</th>
+                        <td class="num">{{ row.value|number_format(0, '.', ',') }}</td>
+                        {% if withShare %}<td class="num">{{ row.share|number_format(1, '.', ',') }}%</td>{% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</details>

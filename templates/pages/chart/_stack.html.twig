@@ -1,0 +1,36 @@
+{#
+    One bar, split into its parts.
+
+    These are the two charts that use the site's signal colours, because the reader
+    has already learned them from the badge on every extension card and a different
+    palette here would teach them a second vocabulary for the same fact.
+
+    Those four colours are not separable enough to carry four classes on their own.
+    That was measured, not assumed: risk against caution sits well under the
+    threshold for colour-blind readers and only a little above it for everyone else.
+    So the legend is not optional decoration, it is the encoding, and every segment
+    states its own name, count and share in text.
+#}
+<section class="panel chart" id="chart-{{ chart.id }}">
+    <h2>{{ chart.title }}</h2>
+    <p class="chart-question">{{ chart.question }}</p>
+
+    <div class="chart-stack" aria-hidden="true">
+        {% for row in chart.rows %}
+            <span class="chart-stack-seg tone--{{ row.tone }}" style="width: {{ row.share }}%"></span>
+        {% endfor %}
+    </div>
+
+    <ul class="chart-legend">
+        {% for row in chart.rows %}
+            <li>
+                <span class="chart-swatch tone--{{ row.tone }}" aria-hidden="true"></span>
+                <span class="chart-legend-label">{{ row.label }}</span>
+                <span class="chart-legend-value num">{{ row.value|number_format(0, '.', ',') }}</span>
+                <span class="chart-legend-share num">{{ row.share|number_format(1, '.', ',') }}%</span>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <p class="board-rule"><span class="board-rule-label">Rule</span> {{ chart.rule }}</p>
+</section>

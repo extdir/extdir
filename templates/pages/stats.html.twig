@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ecosystem statistics - extdir{% endblock %}
+
+{% block meta_description %}How the open-source Shopware 6 extension ecosystem has grown, how fast it adopts each Shopware release, and how precisely compatibility is declared.{% endblock %}
+
+{% block og_title %}Ecosystem statistics{% endblock %}
+{% block og_description %}Seven years of open-source Shopware extension releases, measured.{% endblock %}
+
+{% block canonical %}<link rel="canonical" href="{{ url('stats') }}">{% endblock %}
+
+{% block body %}
+<div class="wrap page">
+
+    <div class="page-head">
+        <h1>Ecosystem statistics</h1>
+        <p>
+            Everything here is counted from the same catalogue the listing pages search,
+            and every chart prints the expression behind it.
+        </p>
+    </div>
+
+    {# The numbers that are a number rather than a shape. A one-bar chart would be a
+       worse way to say any of these. #}
+    <ul class="kpi-row">
+        <li class="kpi">
+            <span class="kpi-value">{{ headline.extensions|number_format(0, '.', ',') }}</span>
+            <span class="kpi-label">extensions listed</span>
+        </li>
+        <li class="kpi">
+            <span class="kpi-value">{{ headline.releases|number_format(0, '.', ',') }}</span>
+            <span class="kpi-label">tagged releases tracked</span>
+        </li>
+        <li class="kpi">
+            <span class="kpi-value">{{ headline.vendors|number_format(0, '.', ',') }}</span>
+            <span class="kpi-label">vendors publishing</span>
+        </li>
+        <li class="kpi">
+            <span class="kpi-value">{{ headline.onCurrent|number_format(0, '.', ',') }}</span>
+            <span class="kpi-label">declare the current Shopware</span>
+        </li>
+        <li class="kpi">
+            <span class="kpi-value">{{ headline.redistributable|number_format(0, '.', ',') }}</span>
+            <span class="kpi-label">may be redistributed</span>
+        </li>
+    </ul>
+
+    <div class="chart-grid">
+        {% for chart in charts %}
+            {% if chart.type == 'columns' %}
+                {% include 'pages/chart/_columns.html.twig' with {chart: chart} only %}
+            {% elseif chart.type == 'bars' %}
+                {% include 'pages/chart/_bars.html.twig' with {chart: chart} only %}
+            {% elseif chart.type == 'stack' %}
+                {% include 'pages/chart/_stack.html.twig' with {chart: chart} only %}
+            {% elseif chart.type == 'lines' %}
+                {% include 'pages/chart/_lines.html.twig' with {chart: chart} only %}
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    {% include 'pages/chart/_heatmap.html.twig' with {chart: heatmap} only %}
+
+    <div class="prose">
+        <p>
+            Compatibility here is declared, never tested. Nothing in this catalogue has
+            been installed against a running Shopware, so every chart above measures
+            what maintainers wrote in their own manifests.
+        </p>
+        <p>
+            Repositories that are not on Packagist are read from their newest thirty
+            tags, so the earliest years are lighter than the ecosystem really was.
+            The current year is still running and is drawn faded for that reason.
+        </p>
+    </div>
+
+</div>
+{% endblock %}

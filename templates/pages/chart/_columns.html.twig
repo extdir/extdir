@@ -1,0 +1,37 @@
+{#
+    A column chart, drawn as boxes rather than as SVG.
+
+    Every label stays at a real font size this way, which an SVG label cannot do once
+    the drawing scales down to phone width, and the whole chart works with scripting
+    turned off. The fills and the labels are two flex rows sharing one gap, so they
+    line up without either one distorting the other.
+
+    Values appear on hover and focus, and the tallest column keeps its value always.
+    A number above all twelve would be noise, and a number above none of them would
+    leave the eye with nothing to calibrate against.
+#}
+<section class="panel chart" id="chart-{{ chart.id }}">
+    <h2>{{ chart.title }}</h2>
+    <p class="chart-question">{{ chart.question }}</p>
+
+    <div class="chart-plot" aria-hidden="true">
+        <div class="chart-columns">
+            {% for row in chart.rows %}
+                <div class="chart-col{{ row.partial ? ' is-partial' : '' }}{{ row.value == chart.peak ? ' is-peak' : '' }}"
+                     style="--fill: {{ row.share }}%" tabindex="0">
+                    <span class="chart-col-value num">{{ row.value|number_format(0, '.', ',') }}</span>
+                    <span class="chart-col-fill"></span>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="chart-axis">
+            {% for row in chart.rows %}
+                <span class="chart-axis-label{{ row.partial ? ' is-partial' : '' }}">{{ row.label }}</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% include 'pages/chart/_numbers.html.twig' with {rows: chart.rows, unit: chart.unit, withShare: false} only %}
+
+    <p class="board-rule"><span class="board-rule-label">Rule</span> {{ chart.rule }}</p>
+</section>

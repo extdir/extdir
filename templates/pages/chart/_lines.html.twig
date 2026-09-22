@@ -1,0 +1,93 @@
+{#
+    The adoption curves. The one chart here that needs real geometry.
+
+    A diagonal is the single shape CSS cannot draw honestly, so this is the only SVG
+    on the page. Only the marks live inside it; every label is ordinary HTML beside
+    it, so nothing shrinks into illegibility when the drawing scales down.
+
+    Strokes carry vector-effect="non-scaling-stroke" so a line stays two pixels wide
+    at every container width rather than thinning out on a phone.
+
+    Five lines, so identity comes from the legend rather than from direct labels at
+    five endpoints that would collide. Colour follows the Shopware version and never
+    the line's current rank, so adding next year's release repaints nothing.
+#}
+<section class="panel chart chart--wide" id="chart-{{ chart.id }}"
+         data-controller="chart"
+         data-chart-span-value="{{ chart.span }}"
+         data-chart-unit-value="{{ chart.unit }}">
+    <h2>{{ chart.title }}</h2>
+    <p class="chart-question">{{ chart.question }}</p>
+
+    <div class="chart-lines">
+        <div class="chart-yaxis" aria-hidden="true">
+            {% for tick in chart.ticks|reverse %}
+                <span class="chart-tick num">{{ tick|number_format(0, '.', ',') }}</span>
+            {% endfor %}
+        </div>
+
+        <div class="chart-lines-plot" data-chart-target="plot">
+            {# No preserveAspectRatio override. Stretching the box with "none" scales x
+               and y by different factors, and a non-scaling stroke under a non-uniform
+               scale renders as a wedge that thickens mid-span: a single series drawn as
+               though two lines had merged. The CSS gives the box the viewBox's own
+               aspect ratio instead, so the scale stays uniform and a 2px line stays a
+               2px line at every width. #}
+            <svg class="chart-svg" viewBox="0 0 {{ chart.width }} {{ chart.height }}"
+                 role="presentation" focusable="false">
+                {% for tick in chart.ticks %}
+                    {% set y = chart.height - (chart.ceiling > 0 ? tick / chart.ceiling * chart.height : 0) %}
+                    <line class="chart-grid-line" x1="0" y1="{{ y }}" x2="{{ chart.width }}" y2="{{ y }}"
+                          vector-effect="non-scaling-stroke"/>
+                {% endfor %}
+
+                {% for line in chart.lines %}
+                    {# A halo in the surface colour under each stroke. Where two versions
+                       adopt at a similar pace their lines run together and read as one
+                       thick band, which is exactly the place a reader is trying to tell
+                       them apart. The halo is the 2px surface ring that overlapping marks
+                       need, drawn as a wider path beneath its own line. #}
+                    <path class="chart-halo" d="{{ line.path }}"
+                          fill="none" vector-effect="non-scaling-stroke"/>
+                    <path class="chart-line step-{{ line.step }}" d="{{ line.path }}"
+                          fill="none" vector-effect="non-scaling-stroke"
+                          data-chart-target="line"
+                          data-version="{{ line.version }}"
+                          data-points="{{ line.points|json_encode }}"/>
+                    {% set last = line.points|last %}
+                    {% if last %}
+                        <circle class="chart-dot step-{{ line.step }}" cx="{{ last.x }}" cy="{{ last.y }}" r="3"
+                                vector-effect="non-scaling-stroke"/>
+                    {% endif %}
+                {% endfor %}
+
+                <line class="chart-crosshair" data-chart-target="crosshair"
+                      x1="0" y1="0" x2="0" y2="{{ chart.height }}"
+                      vector-effect="non-scaling-stroke" hidden/>
+            </svg>
+
+            <div class="chart-tooltip" data-chart-target="tooltip" role="status" hidden></div>
+        </div>
+    </div>
+
+    <div class="chart-xaxis" aria-hidden="true">
+        <span>0</span>
+        <span>{{ (chart.span / 2)|round }}</span>
+        <span>{{ chart.span }}</span>
+    </div>
+    <p class="chart-xlabel">Months since that Shopware version shipped</p>
+
+    <ul class="chart-legend">
+        {% for line in chart.lines %}
+            <li>
+                <span class="chart-key step-{{ line.step }}" aria-hidden="true"></span>
+                <span class="chart-legend-label">Shopware {{ line.version }}</span>
+                <span class="chart-legend-value num">{{ line.total|number_format(0, '.', ',') }}</span>
+            </li>
+        {% endfor %}
+    </ul>
+
+    {% include 'pages/chart/_adoption_numbers.html.twig' with {chart: chart} only %}
+
+    <p class="board-rule"><span class="board-rule-label">Rule</span> {{ chart.rule }}</p>
+</section>

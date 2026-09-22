@@ -27,6 +27,7 @@ final class RenderSmokeTest extends WebTestCase
         yield 'catalogue empty' => ['/?q=zzzzznothingmatchesthis'];
         yield 'catalogue compact' => ['/?view=compact'];
         yield 'catalogue compact filtered' => ['/?view=compact&shopware=6.7&maintenance=current'];
+        yield 'stats' => ['/stats'];
         yield 'ranking' => ['/ranking'];
         yield 'vendors' => ['/vendors'];
         yield 'about' => ['/about'];

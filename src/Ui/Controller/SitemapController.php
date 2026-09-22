@@ -108,7 +108,7 @@ final class SitemapController extends AbstractController
         // was listed, which for the submission page in particular is the wrong way
         // round, it exists precisely for maintainers who arrive from a search.
         foreach ([
-            'home', 'about', 'boards', 'ranking', 'vendors', 'submission_new', 'repo_landing',
+            'home', 'about', 'boards', 'stats', 'ranking', 'vendors', 'submission_new', 'repo_landing',
             'imprint', 'privacy', 'terms', 'takedown',
         ] as $route) {
             $urls[] = ['loc' => $this->generateUrl($route, [], UrlGeneratorInterface::ABSOLUTE_URL)];

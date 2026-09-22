@@ -1,0 +1,30 @@
+{#
+    Horizontal bars, sorted, one colour.
+
+    One colour for every bar on purpose. The categories here have no natural order and
+    no identity worth encoding, so colouring each one differently would spend the only
+    free channel on information the bar length already carries, and twenty-eight hues
+    are not separable by anyone. Length is the encoding; colour is just ink.
+
+    Horizontal rather than vertical because the labels are words. Vertical columns
+    would need them rotated, and a chart nobody can read without tilting their head is
+    a chart that failed at the last step.
+#}
+<section class="panel chart" id="chart-{{ chart.id }}">
+    <h2>{{ chart.title }}</h2>
+    <p class="chart-question">{{ chart.question }}</p>
+
+    <ul class="chart-bars" aria-hidden="true">
+        {% for row in chart.rows %}
+            <li class="chart-bar">
+                <span class="chart-bar-label">{{ row.label }}</span>
+                <span class="chart-bar-track"><span class="chart-bar-fill" style="width: {{ row.share }}%"></span></span>
+                <span class="chart-bar-value num">{{ row.value|number_format(0, '.', ',') }}</span>
+            </li>
+        {% endfor %}
+    </ul>
+
+    {% include 'pages/chart/_numbers.html.twig' with {rows: chart.rows, unit: chart.unit, withShare: false} only %}
+
+    <p class="board-rule"><span class="board-rule-label">Rule</span> {{ chart.rule }}</p>
+</section>
