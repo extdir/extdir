@@ -14,6 +14,24 @@ framework:
         # APCu (not recommended with heavy random-write workloads as memory fragmentation can cause perf issues)
         #app: cache.adapter.apcu
 
-        # Namespaced pools use the above "app" backend by default
-        #pools:
-            #my.dedicated.cache: null
+        pools:
+            # The statistics page, which is a dozen GROUP BY queries over every
+            # release in the catalogue and cost about a second and a half a visit.
+            # None of it is per-visitor and the catalogue changes once a night, so
+            # the work is done once an hour and shared by everyone.
+            #
+            # A pool of its own rather than a corner of cache.app, so that clearing
+            # the page costs one command and touches nothing else.
+            cache.stats:
+                adapter: cache.app
+                default_lifetime: 3600
+
+when@test:
+    framework:
+        cache:
+            pools:
+                # In memory, and therefore gone when the kernel reboots between
+                # tests. A filesystem pool would carry one test's fixtures into the
+                # next and the page assertions would start passing on stale rows.
+                cache.stats:
+                    adapter: cache.adapter.array

@@ -361,6 +361,67 @@ final readonly class EcosystemStats
     }
 
     /**
+     * What share of each category is still being maintained.
+     *
+     * The catalogue can already say how many extensions do X, and the listing page
+     * facets say it on every visit, so counting them again here would draw a chart of
+     * something a reader had already been told. What nothing on the site answers is
+     * the question underneath: if I need a media extension, what are the odds anyone
+     * is still looking after it?
+     *
+     * That is the third leg of the question this directory exists to answer. Does one
+     * exist, is it maintained, does it work with my Shopware version. The heatmap
+     * covers the third by category; this covers the second, and the spread is wide
+     * enough to be worth publishing: media sits near a third while shipping and
+     * payment sit near four fifths.
+     *
+     * Sorted by share, so the chart ranks health rather than size. Size is printed
+     * beside every row anyway, because a share with no denominator is not a
+     * measurement, and a category of two at a hundred percent is noise dressed as a
+     * finding. Small categories are kept out of the drawing and left in the table for
+     * exactly that reason.
+     *
+     * @return list<array{label: string, value: int, total: int, current: int, partial: bool}>
+     */
+    public function categoryMaintenance(): array
+    {
+        $visible = $this->visibleCondition();
+
+        $rows = $this->connection->fetchAllAssociative(
+            "SELECT c.label AS lbl,
+                    COUNT(DISTINCT e.id) AS total,
+                    COUNT(DISTINCT CASE WHEN e.maintenance_status = 'current' THEN e.id END) AS still_current
+             FROM category c
+             JOIN extension_category ec ON ec.category_id = c.id
+             JOIN extension e ON e.id = ec.extension_id
+             WHERE {$visible}
+             GROUP BY c.id",
+            ['visible' => self::VISIBLE],
+            ['visible' => ArrayParameterType::STRING],
+        );
+
+        $out = [];
+        foreach ($rows as $row) {
+            $total = (int) $row['total'];
+            $current = (int) $row['still_current'];
+
+            $out[] = [
+                'label' => (string) $row['lbl'],
+                'value' => $total > 0 ? (int) round($current / $total * 100) : 0,
+                'total' => $total,
+                'current' => $current,
+                'partial' => false,
+            ];
+        }
+
+        // Share first, then size, so two categories on the same percentage fall in an
+        // order a reader can predict rather than whatever the database returned.
+        usort($out, static fn (array $a, array $b): int => [$b['value'], $b['total']] <=> [$a['value'], $a['total']]);
+
+        return $out;
+    }
+
+    /**
      * Share of each category declaring support for each Shopware version.
      *
      * A share rather than a count, because the categories differ in size by a factor

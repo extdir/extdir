@@ -1643,6 +1643,19 @@ table.data a:hover { text-decoration-thickness: 2px; }
     font-size: var(--t-small);
     color: var(--ink-muted);
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* The denominator behind a percentage, on the same line and a step quieter.
+   A share with no count under it is not a measurement: eighty-nine percent of nine
+   and eighty-nine percent of four hundred are different claims, and the reader
+   cannot tell which one they are looking at from the bar. Quieter than the value
+   because it is context, not the subject, but never absent. */
+.chart-bar-context {
+    color: var(--ink-muted);
+    font-size: 0.6875rem;
+    margin-left: 0.4em;
+    opacity: 0.75;
 }
 
 /* --- stacked bar ---------------------------------------------------- */

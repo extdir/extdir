@@ -19,12 +19,18 @@
             <li class="chart-bar">
                 <span class="chart-bar-label">{{ row.label }}</span>
                 <span class="chart-bar-track"><span class="chart-bar-fill" style="width: {{ row.share }}%"></span></span>
-                <span class="chart-bar-value num">{{ row.value|number_format(0, '.', ',') }}</span>
+                <span class="chart-bar-value num">{{ row.value|number_format(0, '.', ',') }}{{ chart.suffix|default('') }}{% if row.context is defined %}<small class="chart-bar-context">{{ row.context }}</small>{% endif %}</span>
             </li>
         {% endfor %}
     </ul>
 
-    {% include 'pages/chart/_numbers.html.twig' with {rows: chart.rows, unit: chart.unit, withShare: false} only %}
+    {% include 'pages/chart/_numbers.html.twig' with {
+        rows: chart.tableRows|default(chart.rows),
+        unit: chart.unit,
+        withShare: false,
+        suffix: chart.suffix|default(''),
+        contextLabel: chart.contextLabel|default(null),
+    } only %}
 
     <p class="board-rule"><span class="board-rule-label">Rule</span> {{ chart.rule }}</p>
 </section>

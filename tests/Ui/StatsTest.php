@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Ui;
 
+use App\Catalog\Entity\Category;
 use App\Catalog\Entity\Extension;
 use App\Catalog\Entity\ExtensionRelease;
 use App\Catalog\Entity\Vendor;
@@ -14,8 +15,10 @@ use App\Compatibility\Enum\ConstraintSource;
 use App\Compatibility\Enum\ConstraintTier;
 use App\License\Enum\FindingSource;
 use App\License\Enum\LicenseStatus;
+use App\Signals\Enum\MaintenanceStatus;
 use App\Stats\EcosystemStats;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
@@ -178,6 +181,141 @@ final class StatsTest extends WebTestCase
     }
 
     /**
+     * The aggregates are computed once and shared, not once per visitor.
+     *
+     * A dozen GROUP BY queries over every release in the catalogue cost about a second
+     * and a half, and none of the answers differ between two readers.
+     */
+    public function testTheAggregatesAreCachedAfterTheFirstVisit(): void
+    {
+        $client = static::createClient();
+        $client->disableReboot();
+        $this->seed();
+
+        $pool = static::getContainer()->get('cache.stats');
+        self::assertInstanceOf(CacheItemPoolInterface::class, $pool);
+        self::assertFalse($pool->getItem('stats.payload')->isHit(), 'nothing should be cached yet');
+
+        $client->request('GET', '/stats');
+
+        self::assertTrue($pool->getItem('stats.payload')->isHit(), 'the payload must survive the request');
+    }
+
+    /**
+     * The freshness badge is never served from the cache.
+     *
+     * Everything else on this page may be an hour old without harm. The badge saying
+     * how old the catalogue is may not: cached, it would go on reporting the data
+     * stale for an hour after a crawl had already fixed it, and the one claim a
+     * reader checks before trusting any of the rest would be the only false one.
+     */
+    public function testTheFreshnessBadgeIsNotCachedWithTheCharts(): void
+    {
+        $client = static::createClient();
+        $client->disableReboot();
+        $this->seed();
+
+        $client->request('GET', '/stats');
+
+        $pool = static::getContainer()->get('cache.stats');
+        self::assertInstanceOf(CacheItemPoolInterface::class, $pool);
+
+        $cached = $pool->getItem('stats.payload')->get();
+
+        self::assertIsArray($cached);
+        self::assertArrayHasKey('charts', $cached, 'the charts belong in the cache');
+        self::assertArrayNotHasKey('catalogueStatus', $cached, 'the freshness badge does not');
+    }
+
+    /**
+     * The page must never be offered to a shared cache.
+     *
+     * The masthead renders a moderator's navigation for a moderator, so a shared cache
+     * holding this response would hand it to everybody.
+     *
+     * What this catches is the combination, not either half. The controller used to
+     * call setPublic and setMaxAge, and they did nothing at all, because reading
+     * app.user starts a session and the session listener rewrites the header to
+     * private. Re-adding them alone would still not fail here. What would fail is the
+     * day someone adds them back and the masthead stops reading app.user, or a header
+     * is forced late enough to survive the listener. That pairing is the actual leak,
+     * and it is the one nobody would notice by looking at either file on its own.
+     */
+    public function testThePageIsNeverOfferedToASharedCache(): void
+    {
+        $client = static::createClient();
+        $this->seed();
+
+        $client->request('GET', '/stats');
+
+        self::assertStringNotContainsString(
+            'public',
+            (string) $client->getResponse()->headers->get('Cache-Control'),
+            'a page carrying signed-in navigation must not be offered to a shared cache',
+        );
+    }
+
+    /**
+     * A percentage is measured against a hundred, never against the best row present.
+     *
+     * Scaled against its own tallest bar, a category at forty percent would paint a
+     * full-width bar the moment it happened to be the healthiest one on the page, and
+     * the chart would quietly stop answering "how many are maintained" and start
+     * answering "compared to the best of these", without a word of it changing.
+     */
+    public function testAShareChartIsScaledAgainstAHundred(): void
+    {
+        $client = static::createClient();
+        $this->seedCategories();
+
+        $crawler = $client->request('GET', '/stats');
+        $fills = $crawler->filter('#chart-category-health .chart-bar-fill');
+
+        self::assertGreaterThan(0, $fills->count(), 'the category chart must draw something');
+
+        // Half the healthy category is maintained, so its bar is half the track. If
+        // the ceiling were the largest value present it would be the whole track.
+        self::assertStringContainsString('width: 50%', (string) $fills->first()->attr('style'));
+    }
+
+    /**
+     * A category of one at a hundred percent is not a finding, and on a chart sorted
+     * by share it would be the first thing anybody read. It stays in the table, where
+     * the denominator is in the next column and cannot be missed.
+     */
+    public function testATinyCategoryIsTabulatedButNotDrawn(): void
+    {
+        $client = static::createClient();
+        $this->seedCategories();
+
+        $crawler = $client->request('GET', '/stats');
+        $chart = $crawler->filter('#chart-category-health');
+
+        self::assertStringNotContainsString('Tiny', $chart->filter('.chart-bars')->text());
+        self::assertStringContainsString('Tiny', $chart->filter('.chart-numbers')->text());
+    }
+
+    /**
+     * The chart must carry the denominator next to the share.
+     *
+     * A share without the count it came from is not a measurement, and this chart is
+     * the one place on the site where the two are most tempting to separate.
+     */
+    public function testEveryShareIsPrintedWithTheCountItCameFrom(): void
+    {
+        $client = static::createClient();
+        $this->seedCategories();
+
+        $crawler = $client->request('GET', '/stats');
+
+        self::assertStringContainsString(
+            '3 of 6',
+            $crawler->filter('#chart-category-health .chart-bars')->text(),
+            'the chart must show how many of how many',
+        );
+    }
+
+    /**
      * Two copies of the visibility rule exist, and this is the test the docblock in
      * EcosystemStats promises. ExtensionSearch keeps its copy private, so the honest
      * options were to duplicate it and check, or to widen an API for one caller.
@@ -192,6 +330,43 @@ final class StatsTest extends WebTestCase
             $stats->getConstant('VISIBLE'),
             'the statistics page and the catalogue must agree on what is public',
         );
+    }
+
+    /**
+     * Two categories either side of the threshold.
+     *
+     * "Healthy" holds six, three of them current, which is a share of fifty against a
+     * ceiling of a hundred and a bar of exactly half the track. "Tiny" holds one, so
+     * it is above every other row on share and below the minimum to be drawn at all.
+     */
+    private function seedCategories(): void
+    {
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $vendor = new Vendor('cats', 'cats');
+        $em->persist($vendor);
+
+        $big = new Category('healthy', 'Healthy');
+        $small = new Category('tiny', 'Tiny');
+        $em->persist($big);
+        $em->persist($small);
+
+        foreach (range(1, 6) as $n) {
+            $extension = new Extension($vendor, 'cats/big-'.$n, 'cats-big-'.$n, 'Big '.$n);
+            $extension->setIndexStatus(IndexStatus::Listed);
+            $extension->forceLicense('MIT', LicenseStatus::Permissive, FindingSource::ComposerJson);
+            $extension->setMaintenanceStatus($n <= 3 ? MaintenanceStatus::Current : MaintenanceStatus::Dormant);
+            $extension->addCategory($big);
+            $em->persist($extension);
+        }
+
+        $only = new Extension($vendor, 'cats/tiny', 'cats-tiny', 'Tiny one');
+        $only->setIndexStatus(IndexStatus::Listed);
+        $only->forceLicense('MIT', LicenseStatus::Permissive, FindingSource::ComposerJson);
+        $only->setMaintenanceStatus(MaintenanceStatus::Current);
+        $only->addCategory($small);
+        $em->persist($only);
+
+        $em->flush();
     }
 
     private function seed(): void

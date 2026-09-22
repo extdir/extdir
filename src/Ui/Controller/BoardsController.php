@@ -62,19 +62,21 @@ final class BoardsController extends AbstractController
     #[Route('/boards', name: 'boards', methods: ['GET'])]
     public function index(): Response
     {
-        $response = $this->render('pages/boards.html.twig', [
+        // This page once asked to be cached publicly for an hour. It never was, and
+        // could not have been: the masthead reads app.user, that starts a session, and
+        // Symfony's session listener then rewrites the response to private,
+        // max-age=0. The calls sat here looking like caching and doing nothing.
+        //
+        // Removed rather than forced, because forcing them would be a bug rather than
+        // a fix. A moderator's navigation is rendered into this page, and a shared
+        // cache holding it would serve one to everybody. Six aggregates a visit is
+        // affordable; if it stops being so, the fix is a server-side cache around the
+        // queries, the way the statistics page does it, not a public header here.
+        return $this->render('pages/boards.html.twig', [
             'vendorBoards' => $this->vendorBoards(),
             'extensionBoards' => $this->extensionBoards(),
             'coverage' => $this->extensions->packagistCoverage(),
         ]);
-
-        // The underlying numbers change once a night at most, and the download counts
-        // once a week. Six aggregate queries per visit is not a lot, but it is not
-        // nothing either, and none of it is per-visitor.
-        $response->setPublic();
-        $response->setMaxAge(3600);
-
-        return $response;
     }
 
     /**

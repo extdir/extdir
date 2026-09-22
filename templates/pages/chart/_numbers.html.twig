@@ -14,6 +14,7 @@
                 <tr>
                     <th scope="col">{{ dimension|default('Group') }}</th>
                     <th scope="col" class="num">{{ unit|default('Count')|capitalize }}</th>
+                    {% if contextLabel|default(null) %}<th scope="col" class="num">{{ contextLabel }}</th>{% endif %}
                     {% if withShare %}<th scope="col" class="num">Share</th>{% endif %}
                 </tr>
             </thead>
@@ -21,7 +22,8 @@
                 {% for row in rows %}
                     <tr>
                         <th scope="row">{{ row.label }}{% if row.partial %} (year still running){% endif %}</th>
-                        <td class="num">{{ row.value|number_format(0, '.', ',') }}</td>
+                        <td class="num">{{ row.value|number_format(0, '.', ',') }}{{ suffix|default('') }}</td>
+                        {% if contextLabel|default(null) %}<td class="num">{{ row.context|default('') }}</td>{% endif %}
                         {% if withShare %}<td class="num">{{ row.share|number_format(1, '.', ',') }}%</td>{% endif %}
                     </tr>
                 {% endfor %}

@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace App\Ui\Controller;
 
-use App\Catalog\Repository\CategoryRepository;
 use App\Catalog\Search\ExtensionSearch;
 use App\Catalog\Search\SearchCriteria;
 use App\Stats\EcosystemStats;
 use App\Ui\CatalogueStatus;
 use App\Ui\Chart\Plot;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * What the catalogue knows about the ecosystem, rather than about one extension.
@@ -33,23 +34,62 @@ use Symfony\Component\Routing\Attribute\Route;
  */
 final class StatsController extends AbstractController
 {
+    /**
+     * The smallest category worth drawing a percentage for.
+     *
+     * Five is where a share stops being an anecdote. Below it one extension moves the
+     * bar by twenty points or more, and on a chart sorted by share the noisiest
+     * categories would be the ones a reader looks at first.
+     */
+    private const int MIN_CATEGORY = 5;
+
     public function __construct(
         private readonly EcosystemStats $stats,
         private readonly ExtensionSearch $search,
-        private readonly CategoryRepository $categories,
         private readonly CatalogueStatus $status,
+        #[Autowire(service: 'cache.stats')]
+        private readonly CacheInterface $cache,
     ) {
     }
 
     #[Route('/stats', name: 'stats', methods: ['GET'])]
     public function index(): Response
     {
+        // Cached server side rather than at the edge, because this page cannot be
+        // cached at the edge. The masthead reads app.user, which starts a session, and
+        // Symfony then downgrades the response to private, max-age=0 no matter what
+        // the controller asked for. That is the correct outcome: a moderator's
+        // navigation must never be served to an anonymous visitor. So the page is
+        // rebuilt per request and only the arithmetic behind it is shared.
+        //
+        // One key for the whole payload. The charts are read together, they go stale
+        // together, and a dozen keys would only buy the ability to serve half a page
+        // from one crawl and half from another.
+        $payload = $this->cache->get('stats.payload', fn (): array => $this->payload());
+
+        // Deliberately outside the cache. This is the masthead badge saying how old
+        // the catalogue is, and an hour-stale copy of it could warn that the data has
+        // gone stale in the hour after a crawl finished, which is the one thing on the
+        // page that must never be wrong about itself. Two cheap aggregates, and the
+        // class is written to run on every request.
+        return $this->render('pages/stats.html.twig', $payload + [
+            'catalogueStatus' => $this->status->toArray(),
+        ]);
+    }
+
+    /**
+     * Everything the page draws, in one round of queries.
+     *
+     * @return array<string, mixed>
+     */
+    private function payload(): array
+    {
         // The same facet counts the listing page shows, from the same code. A second
         // implementation of "how many are permissive" would agree with the first until
         // the day it did not, and nothing on either page would say which was right.
         $facets = $this->search->facets(new SearchCriteria());
 
-        $response = $this->render('pages/stats.html.twig', [
+        return [
             'headline' => $this->stats->headline(),
             'charts' => [
                 $this->newExtensions(),
@@ -60,18 +100,10 @@ final class StatsController extends AbstractController
                 $this->maintenanceMix($facets['maintenance'] ?? []),
                 $this->constraintQuality(),
                 $this->dormancy(),
-                $this->categorySize($facets['category'] ?? []),
+                $this->categoryHealth(),
             ],
             'heatmap' => $this->heatmap(),
-            'catalogueStatus' => $this->status->toArray(),
-        ]);
-
-        // Nine aggregates, none of them per-visitor, over a catalogue that changes
-        // once a night. The same hour Boards uses, for the same reason.
-        $response->setPublic();
-        $response->setMaxAge(3600);
-
-        return $response;
+        ];
     }
 
     /**
@@ -150,32 +182,54 @@ final class StatsController extends AbstractController
     }
 
     /**
-     * @param array<string, int> $facetCounts
+     * How well maintained each category is.
+     *
+     * This replaced a chart of how many extensions each category holds, which was not
+     * telling anyone anything: the listing page prints those counts in its facets on
+     * every visit, so drawing them again was a picture of a number the reader had
+     * already been given.
+     *
+     * The share that is still maintained is not available anywhere else on the site,
+     * and it is the question a merchant is actually asking when they browse a
+     * category. Size has not been thrown away, it is printed against every row, and
+     * it has to be: a share without its denominator is not a measurement.
      *
      * @return array<string, mixed>
      */
-    private function categorySize(array $facetCounts): array
+    private function categoryHealth(): array
     {
-        $labels = $this->categories->findAllKeyed();
-        $rows = [];
+        $all = $this->stats->categoryMaintenance();
 
-        foreach ($facetCounts as $key => $count) {
-            $rows[] = [
-                'label' => isset($labels[$key]) ? $labels[$key]->getLabel() : $key,
-                'value' => $count,
-                'partial' => false,
-            ];
-        }
+        $withContext = array_map(
+            static fn (array $row): array => $row + [
+                'context' => \sprintf('%d of %d', $row['current'], $row['total']),
+            ],
+            $all,
+        );
 
-        usort($rows, static fn (array $a, array $b): int => $b['value'] <=> $a['value']);
+        // Small categories are kept out of the drawing. A category of one at a hundred
+        // percent would top a chart ranked by share and say nothing at all, and the
+        // eye reads the top row as the finding. They stay in the table, where the
+        // denominator sits in the next column and cannot be missed.
+        $charted = array_values(array_filter(
+            $withContext,
+            static fn (array $row): bool => $row['total'] >= self::MIN_CATEGORY,
+        ));
 
         return $this->bars(
-            'categories',
-            'Extensions per category',
-            'Where is the ecosystem thick, and where is it thin?',
-            'COUNT(DISTINCT extensions) per category. An extension can hold several categories, so these add up to more than the catalogue total, and anything the classifier could not place is in none of them.',
-            'extensions',
-            $rows,
+            'category-health',
+            'How well maintained each category is',
+            'If I need an extension that does this, are the odds anyone still looks after it?',
+            \sprintf(
+                'The share of each category whose extensions are currently maintained, against every listed extension in that category. Sorted by share, then by size. Categories holding fewer than %d extensions are listed in the table but not drawn, because a share of one or two says nothing. An extension can hold several categories, so these do not partition the catalogue.',
+                self::MIN_CATEGORY,
+            ),
+            'maintained',
+            $charted,
+            ceiling: 100,
+            suffix: '%',
+            contextLabel: 'Current of total',
+            tableRows: $withContext,
         );
     }
 
@@ -340,13 +394,29 @@ final class StatsController extends AbstractController
     }
 
     /**
-     * @param list<array{label: string, value: int, partial: bool}> $rows
+     * @param list<array<string, mixed>>      $rows
+     * @param list<array<string, mixed>>|null $tableRows rows for the table twin, when it carries more than the chart draws
      *
      * @return array<string, mixed>
      */
-    private function bars(string $id, string $title, string $question, string $rule, string $unit, array $rows): array
-    {
-        $ceiling = $this->largest($rows);
+    private function bars(
+        string $id,
+        string $title,
+        string $question,
+        string $rule,
+        string $unit,
+        array $rows,
+        ?int $ceiling = null,
+        string $suffix = '',
+        ?string $contextLabel = null,
+        ?array $tableRows = null,
+    ): array {
+        // A percentage chart has to be scaled against a hundred and not against its
+        // own tallest bar. Scaled against itself, the healthiest category would draw a
+        // full bar whether it sat at eighty-nine percent or at nine, and the chart
+        // would silently change its own subject from "how many" to "compared to the
+        // best one here".
+        $ceiling ??= $this->largest($rows);
 
         return [
             'id' => $id,
@@ -356,10 +426,13 @@ final class StatsController extends AbstractController
             'rule' => $rule,
             'unit' => $unit,
             'ceiling' => $ceiling,
+            'suffix' => $suffix,
+            'contextLabel' => $contextLabel,
             'rows' => array_map(
-                static fn (array $row): array => $row + ['share' => Plot::share($row['value'], $ceiling)],
+                static fn (array $row): array => $row + ['share' => Plot::share((int) $row['value'], $ceiling)],
                 $rows,
             ),
+            'tableRows' => $tableRows ?? $rows,
         ];
     }
 
@@ -406,11 +479,11 @@ final class StatsController extends AbstractController
     }
 
     /**
-     * @param list<array{label: string, value: int, partial: bool}> $rows
+     * @param list<array<string, mixed>> $rows
      */
     private function largest(array $rows): int
     {
-        $values = array_map(static fn (array $row): int => $row['value'], $rows);
+        $values = array_map(static fn (array $row): int => (int) $row['value'], $rows);
 
         return $values ? max($values) : 0;
     }
