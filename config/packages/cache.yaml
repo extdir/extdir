@@ -26,6 +26,12 @@ framework:
                 adapter: cache.app
                 default_lifetime: 3600
 
+            # The leaderboards. Six aggregates over every listed extension, and the
+            # download counts behind three of them only move once a week.
+            cache.boards:
+                adapter: cache.app
+                default_lifetime: 3600
+
 when@test:
     framework:
         cache:
@@ -34,4 +40,6 @@ when@test:
                 # tests. A filesystem pool would carry one test's fixtures into the
                 # next and the page assertions would start passing on stale rows.
                 cache.stats:
+                    adapter: cache.adapter.array
+                cache.boards:
                     adapter: cache.adapter.array

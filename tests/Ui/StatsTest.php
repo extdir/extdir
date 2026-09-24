@@ -17,6 +17,7 @@ use App\License\Enum\FindingSource;
 use App\License\Enum\LicenseStatus;
 use App\Signals\Enum\MaintenanceStatus;
 use App\Stats\EcosystemStats;
+use App\Ui\Cache\CatalogueCache;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -367,6 +368,23 @@ final class StatsTest extends WebTestCase
         $em->persist($only);
 
         $em->flush();
+        $this->settle();
+    }
+
+    /**
+     * Settle the cache invalidator after seeding.
+     *
+     * Seeding writes to the catalogue, which marks both cached pages stale, and
+     * nothing clears that flag until a request or a command ends. Without this the
+     * first request in a test would fill the cache and then throw it away again at
+     * its own kernel.terminate, which is a shape no real process is ever in: in
+     * production the write and the page view are separate requests.
+     */
+    private function settle(): void
+    {
+        $cache = static::getContainer()->get(CatalogueCache::class);
+        self::assertInstanceOf(CatalogueCache::class, $cache);
+        $cache->commit();
     }
 
     private function seed(): void
@@ -396,5 +414,6 @@ final class StatsTest extends WebTestCase
         }
 
         $em->flush();
+        $this->settle();
     }
 }

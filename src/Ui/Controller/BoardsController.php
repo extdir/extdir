@@ -8,8 +8,10 @@ use App\Catalog\Entity\Extension;
 use App\Catalog\Repository\ExtensionRepository;
 use App\Catalog\Repository\VendorRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * Six leaderboards: who builds this ecosystem, and what people actually install.
@@ -56,27 +58,32 @@ final class BoardsController extends AbstractController
     public function __construct(
         private readonly VendorRepository $vendors,
         private readonly ExtensionRepository $extensions,
+        #[Autowire(service: 'cache.boards')]
+        private readonly CacheInterface $cache,
     ) {
     }
 
     #[Route('/boards', name: 'boards', methods: ['GET'])]
     public function index(): Response
     {
-        // This page once asked to be cached publicly for an hour. It never was, and
-        // could not have been: the masthead reads app.user, that starts a session, and
-        // Symfony's session listener then rewrites the response to private,
-        // max-age=0. The calls sat here looking like caching and doing nothing.
+        // Cached server side, because it cannot be cached anywhere else. This page
+        // once asked for setPublic and an hour of max-age and never got either: the
+        // masthead reads app.user, that starts a session, and Symfony's session
+        // listener rewrites the response to private. Those calls sat here looking
+        // like caching and doing nothing.
         //
-        // Removed rather than forced, because forcing them would be a bug rather than
-        // a fix. A moderator's navigation is rendered into this page, and a shared
-        // cache holding it would serve one to everybody. Six aggregates a visit is
-        // affordable; if it stops being so, the fix is a server-side cache around the
-        // queries, the way the statistics page does it, not a public header here.
-        return $this->render('pages/boards.html.twig', [
+        // Forcing them would have been a bug rather than a fix. A moderator's
+        // navigation is rendered into this page, and a shared cache holding it would
+        // serve one to everybody. So the page is built per request and only the six
+        // aggregates behind it are shared. CatalogueCache throws them away the moment
+        // anything they count changes.
+        $payload = $this->cache->get('boards.payload', fn (): array => [
             'vendorBoards' => $this->vendorBoards(),
             'extensionBoards' => $this->extensionBoards(),
             'coverage' => $this->extensions->packagistCoverage(),
         ]);
+
+        return $this->render('pages/boards.html.twig', $payload);
     }
 
     /**
