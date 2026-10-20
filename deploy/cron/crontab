@@ -96,5 +96,18 @@
 # and a test fails the build if it ever does.
 37 4 * * 4   cd $HOME/websites/extdir.com && /usr/bin/php83 bin/console app:signals:packagist >> $HOME/logs/extdir-cron.log 2>&1
 
+# Supply-chain security findings from Plumb, shown on extension pages and counted on
+# /stats. Never ranked on: they are a third party's scores, produced by an algorithm
+# this project does not control and cannot publish as its own.
+#
+# Weekly because Plumb rescans on a 168 hour cadence of its own, so asking more often
+# returns the same answer and spends somebody else's bandwidth to learn nothing. One
+# request per package, about 450 of them at two a second, so roughly four minutes.
+#
+# Friday, in the gap after the Thursday Packagist install counts and before the weekend,
+# and after 05:11 so the daily signals refresh has already settled which extensions are
+# listed before this asks what their pipelines look like.
+19 5 * * 5   cd $HOME/websites/extdir.com && /usr/bin/php83 bin/console app:signals:plumb >> $HOME/logs/extdir-cron.log 2>&1
+
 # Database backup, kept for 14 days.
 30 2 * * *   $HOME/websites/extdir.com/deploy/backup.sh >> $HOME/logs/extdir-backup.log 2>&1

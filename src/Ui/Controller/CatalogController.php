@@ -14,6 +14,7 @@ use App\Catalog\Search\SearchCriteria;
 use App\Compatibility\Repository\CompatibilityClaimRepository;
 use App\Compatibility\Repository\ShopwareVersionRepository;
 use App\Ui\CatalogueStatus;
+use App\Ui\SecurityFindings;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,6 +31,7 @@ final class CatalogController extends AbstractController
         private readonly CompatibilityClaimRepository $claims,
         private readonly CatalogueStatus $status,
         private readonly AlternativeFinder $alternatives,
+        private readonly SecurityFindings $security,
     ) {
     }
 
@@ -74,6 +76,8 @@ final class CatalogController extends AbstractController
             // A rail costs no vertical space per card, so it can carry more than the
             // five a stacked list could justify.
             'alternatives' => $this->alternatives->forExtension($extension, 10),
+            // A third party's supply-chain findings, displayed and never ranked.
+            'security' => $this->security->forExtension($extension),
         ]);
     }
 

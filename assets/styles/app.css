@@ -804,7 +804,9 @@ table.data { width: 100%; border-collapse: collapse; font-size: var(--t-small); 
 table.data th, table.data td { text-align: left; padding: var(--s-3); border-bottom: 1px solid var(--border); }
 table.data th { color: var(--ink-subtle); font-weight: 500; font-size: var(--t-micro);
     text-transform: uppercase; letter-spacing: 0.07em; }
-table.data tbody tr:last-child td { border-bottom: 0; }
+/* th as well as td. A row label is a th, so a table with row headers kept a stub
+   of border under its last row, about half the width and nothing under the rest. */
+table.data tbody tr:last-child th, table.data tbody tr:last-child td { border-bottom: 0; }
 table.data td.num, table.data th.num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--font-mono); }
 .table-scroll { overflow-x: auto; }
 
@@ -1839,7 +1841,81 @@ table.data a:hover { text-decoration-thickness: 2px; }
 
 .chart-numbers[open] summary { margin-bottom: var(--s-3); }
 
+/* Credit for a chart built from somebody else's measurements. Under the rule and
+   quieter than it: it is a citation, not part of the finding. */
+.chart-source {
+    margin: var(--s-2) 0 0;
+    font-size: var(--t-micro);
+    color: var(--ink-subtle, var(--ink-muted));
+}
+
 @media (max-width: 560px) {
     .chart-bar { grid-template-columns: minmax(4.5rem, 6rem) 1fr auto; gap: var(--s-2); }
     .chart-axis-label { font-size: 0.625rem; }
+}
+
+/* ===== SUPPLY-CHAIN SECURITY (PLUMB) ======================================
+   Somebody else's findings, so the panel is deliberately plainer than the
+   charts next to it. No ramp, no fill, no colour carrying a magnitude: the
+   status badges are the site's existing four, reused unchanged, because a
+   reader has already learned what they mean everywhere else on the page.
+   ========================================================================= */
+
+.plumb-head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--s-3);
+    flex-wrap: wrap;
+    margin-bottom: var(--s-3);
+}
+
+.plumb-score {
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+/* The denominator is context, not the number. Same treatment the category
+   chart gives its counts: present, and a step quieter than the value. */
+.plumb-score small {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--ink-muted);
+}
+
+.plumb-head p { margin: 0; }
+
+.plumb-checks {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-2);
+}
+
+/* The badge keeps its own column so the titles line up down the list and the
+   eye can run the statuses on their own. At phone width the badge sits above
+   the title instead, because a fixed badge column plus a wrapped sentence
+   leaves the sentence about eleven characters wide. */
+.plumb-check {
+    display: grid;
+    grid-template-columns: minmax(5.5rem, auto) 1fr;
+    gap: var(--s-3);
+    align-items: start;
+}
+
+.plumb-check-body { display: block; }
+
+.plumb-check-body small {
+    display: block;
+    font-size: 0.75rem;
+    margin-top: 2px;
+}
+
+@media (max-width: 560px) {
+    /* justify-items, or the badge inherits the single column's full width and a
+       one-word status reads as a banner across the panel. */
+    .plumb-check { grid-template-columns: 1fr; gap: var(--s-1); justify-items: start; }
 }

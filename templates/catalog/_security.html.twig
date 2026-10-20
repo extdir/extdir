@@ -1,0 +1,72 @@
+{#
+    Supply-chain security, from Plumb.
+
+    The one question this directory has never been able to answer for itself. extdir
+    measures whether an extension works with your Shopware, whether its licence
+    permits use and whether anyone still maintains it, and none of those say whether
+    its release pipeline can be hijacked.
+
+    Somebody else's findings, and the panel says so in three places: the heading names
+    them, every check links to their published guide, and the footer carries the
+    attribution their terms require. Displayed, never ranked.
+
+    The checks are listed rather than summarised into the score alone. A number with
+    nothing behind it is the black box section 13 says nobody should have to trust,
+    and a maintainer reading this page needs the finding, not the grade.
+#}
+<section class="panel plumb" id="security">
+    <h2>Supply-chain security</h2>
+
+    {% if security.state == 'scanned' %}
+        <div class="plumb-head">
+            {% if security.score is not null %}
+                <span class="plumb-score num">{{ security.score|round }}<small>/100</small></span>
+            {% endif %}
+            <p class="small muted">
+                {% if security.actionable %}
+                    {{ security.actionable }} of {{ security.checks|length }} checks found something.
+                {% elseif security.unassessed %}
+                    Nothing to act on, but {{ security.unassessed }} of {{ security.checks|length }} checks could not be run against this repository.
+                {% else %}
+                    All {{ security.checks|length }} checks passed or did not apply.
+                {% endif %}
+                Scanned {{ security.scannedAt|date('j M Y') }}{% if security.version %} at {{ security.version }}{% endif %}.
+            </p>
+        </div>
+
+        <ul class="plumb-checks">
+            {% for check in security.checks %}
+                <li class="plumb-check">
+                    <span class="badge badge--{{ check.status.tone == 'risk' ? 'danger' : (check.status.tone == 'caution' ? 'warn' : (check.status.tone == 'ok' ? 'ok' : 'muted')) }}">{{ check.status.label }}</span>
+                    <span class="plumb-check-body">
+                        {% if check.guide %}
+                            <a href="{{ check.guide }}" rel="nofollow noopener external">{{ check.title }}</a>
+                        {% else %}
+                            {{ check.title }}
+                        {% endif %}
+                        {% if check.evidence %}<small class="muted">{{ check.evidence }}</small>{% endif %}
+                    </span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% elseif security.state == 'unscanned' %}
+        <p class="small muted">
+            Plumb has not scanned this package yet. That is not a finding about the
+            extension: they are still working through Packagist, and about half of
+            what this directory lists is still waiting.
+        </p>
+    {% else %}
+        <p class="small muted">
+            Plumb reads Packagist, and this extension is published only to its own
+            forge, so there is nothing for it to score. Roughly three in ten of this
+            catalogue is in the same position.
+        </p>
+    {% endif %}
+
+    <p class="board-rule">
+        <span class="board-rule-label">Source</span>
+        Powered by <a href="{{ security.url }}" rel="nofollow noopener external">Plumb</a>,
+        which runs these checks and publishes the rule behind every one of them. Shown
+        here as reported and never used to rank anything in this directory.
+    </p>
+</section>

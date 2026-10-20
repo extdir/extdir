@@ -247,4 +247,39 @@ final class RankingScoreTest extends TestCase
         self::assertArrayNotHasKey('forks', $components);
         self::assertArrayNotHasKey('popularity', $components);
     }
+
+    /**
+     * No score from anywhere else may enter this one.
+     *
+     * The extension pages show Plumb's supply-chain security findings, which are a
+     * third party's work, produced by an algorithm this project does not control and
+     * cannot publish as its own. The conflict-of-interest rule requires the ranking
+     * algorithm to be public, so an imported score may be displayed and may never be
+     * ranked on. Install counts have been held to the same line since the boards
+     * shipped, for the same reason.
+     *
+     * Asserted against the signature rather than against the output, because that is
+     * where the promise actually lives. Both docblocks say these values "cannot be
+     * given to RankingScore without changing its signature", and a test that only
+     * read the returned keys would let somebody add the parameter, wire it up, and
+     * leave the claim standing while it quietly stopped being true.
+     */
+    public function testNoThirdPartyScoreCanReachTheRanking(): void
+    {
+        $forbidden = ['plumb', 'security', 'downloads', 'installs', 'stars', 'forks', 'popularity'];
+
+        foreach (['score', 'components'] as $method) {
+            foreach ((new \ReflectionMethod(RankingScore::class, $method))->getParameters() as $parameter) {
+                $name = strtolower($parameter->getName());
+
+                foreach ($forbidden as $word) {
+                    self::assertStringNotContainsString(
+                        $word,
+                        $name,
+                        \sprintf('RankingScore::%s() must not accept %s.', $method, $parameter->getName()),
+                    );
+                }
+            }
+        }
+    }
 }

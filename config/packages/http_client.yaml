@@ -31,6 +31,22 @@ framework:
                     delay: 2000
                     multiplier: 3
 
+            # Plumb, which scores PHP packages on supply-chain security and
+            # publishes a guide for every check. Public, no key, 120 reads a minute.
+            #
+            # The User-Agent is not optional here: the service answers 403 to clients
+            # that do not identify themselves, which is how it should be, and is the
+            # same header every other client in this file already sends.
+            plumb.api:
+                base_uri: 'https://plumbphp.dev/api/v1/'
+                headers:
+                    User-Agent: '%env(EXTDIR_USER_AGENT)%'
+                    Accept: 'application/json'
+                retry_failed:
+                    max_retries: 2
+                    delay: 2000
+                    multiplier: 3
+
             # OAuth endpoints live on github.com, not api.github.com.
             github.oauth:
                 base_uri: 'https://github.com/'

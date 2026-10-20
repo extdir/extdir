@@ -15,6 +15,7 @@ use App\Compatibility\Enum\ConstraintSource;
 use App\Compatibility\Enum\ConstraintTier;
 use App\License\Enum\FindingSource;
 use App\License\Enum\LicenseStatus;
+use App\Signals\Entity\PlumbScan;
 use App\Signals\Enum\MaintenanceStatus;
 use App\Stats\EcosystemStats;
 use App\Ui\Cache\CatalogueCache;
@@ -257,6 +258,53 @@ final class StatsTest extends WebTestCase
     }
 
     /**
+     * A check nobody could fail is not a check nine in ten passed.
+     *
+     * Most of this catalogue runs no CI at all, so a check about pinning GitHub
+     * Actions comes back "not applicable" for two thirds of it. Counting those as
+     * passes would publish that the ecosystem pins its actions, when the truth is
+     * that almost none of it runs actions and almost none of those that do pin
+     * anything. The denominator is the extensions the check applies to.
+     */
+    public function testASecurityCheckIsCountedOnlyAgainstExtensionsItAppliesTo(): void
+    {
+        self::bootKernel();
+        $vendor = new Vendor('sec', 'sec');
+        $this->em()->persist($vendor);
+
+        // Three extensions: one fails the check, one passes it, and one the check
+        // cannot apply to. The honest answer is 50 percent, not 33.
+        foreach ([['a', 'fail'], ['b', 'pass'], ['c', 'not_applicable']] as [$name, $status]) {
+            $extension = new Extension($vendor, 'sec/'.$name, 'sec-'.$name, 'Sec '.$name);
+            $extension->setIndexStatus(IndexStatus::Listed);
+            $extension->forceLicense('MIT', LicenseStatus::Permissive, FindingSource::ComposerJson);
+            $this->em()->persist($extension);
+
+            $scan = new PlumbScan($extension);
+            $scan->setScannedAt(new \DateTimeImmutable('2026-10-01'));
+            $scan->setChecks([[
+                'id' => 'security.actions-sha-pinned',
+                'category' => 'security',
+                'title' => 'GitHub Actions pinned to SHA',
+                'status' => $status,
+                'weight' => 8,
+                'guide' => null,
+                'evidence' => null,
+            ]]);
+            $this->em()->persist($scan);
+        }
+
+        $this->em()->flush();
+        $this->settle();
+
+        $findings = static::getContainer()->get(EcosystemStats::class)->securityFindings();
+
+        self::assertCount(1, $findings);
+        self::assertSame(50, $findings[0]['value'], 'one of the two it applies to failed');
+        self::assertSame(2, $findings[0]['applicable'], 'the inapplicable one is not a pass');
+    }
+
+    /**
      * A percentage is measured against a hundred, never against the best row present.
      *
      * Scaled against its own tallest bar, a category at forty percent would paint a
@@ -294,6 +342,97 @@ final class StatsTest extends WebTestCase
 
         self::assertStringNotContainsString('Tiny', $chart->filter('.chart-bars')->text());
         self::assertStringContainsString('Tiny', $chart->filter('.chart-numbers')->text());
+    }
+
+    /**
+     * The chart credits Plumb, with a link, in the phrase their terms ask for.
+     *
+     * Same obligation as on the extension pages, and the same reason for pinning it:
+     * this is the condition attached to a free API, and a rewrite of the rule text
+     * that reads better and loses the credit would break it with nothing failing.
+     */
+    public function testTheSupplyChainChartCreditsWhoMeasuredIt(): void
+    {
+        $client = static::createClient();
+        $vendor = new Vendor('credit', 'credit');
+        $this->em()->persist($vendor);
+
+        $extension = new Extension($vendor, 'credit/thing', 'credit-thing', 'Thing');
+        $extension->setIndexStatus(IndexStatus::Listed);
+        $extension->forceLicense('MIT', LicenseStatus::Permissive, FindingSource::ComposerJson);
+        $this->em()->persist($extension);
+
+        $scan = new PlumbScan($extension);
+        $scan->setScannedAt(new \DateTimeImmutable('2026-10-01'));
+        $scan->setChecks([$this->securityCheck('Provides a security policy', 'fail')]);
+        $this->em()->persist($scan);
+        $this->em()->flush();
+        $this->settle();
+
+        $source = $client->request('GET', '/stats')->filter('#chart-supply-chain .chart-source');
+
+        self::assertSame('Powered by Plumb', $source->text());
+
+        $href = $source->filter('a')->attr('href');
+        self::assertIsString($href, 'the credit has to be a link, not just the words');
+        self::assertStringStartsWith('https://plumbphp.dev', $href);
+    }
+
+    /**
+     * A check that applies to three repositories gets a table row, not a bar.
+     *
+     * Several of Plumb's security checks only ask a question of a repository that
+     * already uses the tool, so "none of the three who run Renovate answer merge
+     * requests" would otherwise draw at the same width as a finding measured across
+     * seventy five. Same floor as the category chart, and for the same reason.
+     */
+    public function testACheckWithAlmostNoApplicableExtensionsIsTabulatedButNotDrawn(): void
+    {
+        $client = static::createClient();
+        $vendor = new Vendor('floor', 'floor');
+        $this->em()->persist($vendor);
+
+        // Six extensions. All six answer the broad check; two of them answer the
+        // narrow one, which is one short of the floor.
+        foreach (range(1, 6) as $i) {
+            $extension = new Extension($vendor, 'floor/e'.$i, 'floor-e'.$i, 'Floor '.$i);
+            $extension->setIndexStatus(IndexStatus::Listed);
+            $extension->forceLicense('MIT', LicenseStatus::Permissive, FindingSource::ComposerJson);
+            $this->em()->persist($extension);
+
+            $scan = new PlumbScan($extension);
+            $scan->setScannedAt(new \DateTimeImmutable('2026-10-01'));
+            $scan->setChecks([
+                $this->securityCheck('Asked of everyone', 'fail'),
+                $this->securityCheck('Asked of almost nobody', $i <= 2 ? 'fail' : 'not_applicable'),
+            ]);
+            $this->em()->persist($scan);
+        }
+
+        $this->em()->flush();
+        $this->settle();
+
+        $chart = $client->request('GET', '/stats')->filter('#chart-supply-chain');
+
+        self::assertStringContainsString('Asked of everyone', $chart->filter('.chart-bars')->text());
+        self::assertStringNotContainsString('Asked of almost nobody', $chart->filter('.chart-bars')->text());
+        self::assertStringContainsString('Asked of almost nobody', $chart->filter('.chart-numbers')->text());
+    }
+
+    /**
+     * @return array{id: string, category: string, title: string, status: string, weight: int, guide: ?string, evidence: ?string}
+     */
+    private function securityCheck(string $title, string $status): array
+    {
+        return [
+            'id' => 'security.'.strtolower(str_replace(' ', '-', $title)),
+            'category' => 'security',
+            'title' => $title,
+            'status' => $status,
+            'weight' => 8,
+            'guide' => null,
+            'evidence' => null,
+        ];
     }
 
     /**
@@ -380,6 +519,14 @@ final class StatsTest extends WebTestCase
      * its own kernel.terminate, which is a shape no real process is ever in: in
      * production the write and the page view are separate requests.
      */
+    private function em(): EntityManagerInterface
+    {
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        self::assertInstanceOf(EntityManagerInterface::class, $em);
+
+        return $em;
+    }
+
     private function settle(): void
     {
         $cache = static::getContainer()->get(CatalogueCache::class);

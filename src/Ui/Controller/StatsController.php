@@ -35,13 +35,15 @@ use Symfony\Contracts\Cache\CacheInterface;
 final class StatsController extends AbstractController
 {
     /**
-     * The smallest category worth drawing a percentage for.
+     * The smallest group worth drawing a percentage for.
      *
      * Five is where a share stops being an anecdote. Below it one extension moves the
-     * bar by twenty points or more, and on a chart sorted by share the noisiest
-     * categories would be the ones a reader looks at first.
+     * bar by twenty points or more, and on a chart sorted by share the noisiest rows
+     * would be the ones a reader looks at first. Two charts here are sorted that way,
+     * category maintenance and the security checks, and both pay the same price for
+     * it, so they apply the same floor and say so in the same words.
      */
-    private const int MIN_CATEGORY = 5;
+    private const int MIN_DENOMINATOR = 5;
 
     public function __construct(
         private readonly EcosystemStats $stats,
@@ -91,7 +93,12 @@ final class StatsController extends AbstractController
 
         return [
             'headline' => $this->stats->headline(),
-            'charts' => [
+            // The supply-chain chart is the only one that can legitimately have
+            // nothing to draw: it is built from a third party's sweep, and before
+            // that sweep has ever run there are no findings rather than findings of
+            // zero. An empty panel would read as a broken one, so it is left out
+            // until there is something in it.
+            'charts' => array_values(array_filter([
                 $this->newExtensions(),
                 $this->releaseVolume(),
                 $this->seasonality(),
@@ -101,7 +108,8 @@ final class StatsController extends AbstractController
                 $this->constraintQuality(),
                 $this->dormancy(),
                 $this->categoryHealth(),
-            ],
+                $this->securityFindings(),
+            ])),
             'heatmap' => $this->heatmap(),
         ];
     }
@@ -182,6 +190,78 @@ final class StatsController extends AbstractController
     }
 
     /**
+     * What the supply-chain security checks found.
+     *
+     * The only chart on this page built from somebody else's measurement. Plumb scans
+     * PHP packages for supply-chain weaknesses and publishes the rule behind every
+     * check, which is what makes it usable here at all: a finding a reader cannot go
+     * and check is an assertion, and this page does not carry assertions.
+     *
+     * It earns its place because extdir cannot produce it. Compatibility, licence and
+     * maintenance are measured here from primary sources. Whether a release pipeline
+     * can be hijacked is not, and nothing else on the site comes close to answering
+     * it.
+     *
+     * Two numbers have to travel with every bar or it misleads. The denominator is
+     * the extensions the check could apply to, not every extension scanned, because
+     * most of this catalogue runs no CI at all and counting those as passes would
+     * report the opposite of what is true. And the coverage line says how much of the
+     * catalogue has been looked at, because nine in ten failing means one thing
+     * across an ecosystem and another across a third of it.
+     *
+     * @return array<string, mixed>|null null until the first sweep has run
+     */
+    private function securityFindings(): ?array
+    {
+        $rows = $this->stats->securityFindings();
+
+        if ([] === $rows) {
+            return null;
+        }
+
+        $coverage = $this->stats->securityCoverage();
+
+        $withContext = array_map(
+            static fn (array $row): array => $row + [
+                'context' => \sprintf('%d of %d', $row['failed'], $row['applicable']),
+            ],
+            $rows,
+        );
+
+        // Several of these checks apply to a handful of extensions, because they only
+        // ask a question of a repository that already uses the tool: three of the
+        // whole catalogue run Renovate, so "none of them answer merge requests" is a
+        // bar sitting next to one drawn from seventy five. Same floor as the category
+        // chart, same reason, and the small checks stay in the table.
+        $charted = array_values(array_filter(
+            $withContext,
+            static fn (array $row): bool => $row['applicable'] >= self::MIN_DENOMINATOR,
+        ));
+
+        return $this->bars(
+            'supply-chain',
+            'What the security checks found',
+            'Can the pipeline that builds this be tampered with?',
+            \sprintf(
+                'The share of extensions failing or warning on each supply-chain check, counted only against the extensions the check applies to. Checks applying to fewer than %d extensions are listed in the table but not drawn, because a share of one or two says nothing. The checks are Plumb\'s and so is the rule behind each one, shown here as reported and never used to rank anything. They read Packagist, so an extension published only to its own forge is outside this entirely, and they have reached %d of the %d listed here so far.',
+                self::MIN_DENOMINATOR,
+                $coverage['scanned'],
+                $coverage['visible'],
+            ),
+            'failing',
+            $charted,
+            ceiling: 100,
+            suffix: '%',
+            contextLabel: 'Failing of applicable',
+            tableRows: $withContext,
+            // Their terms ask for this phrase, with Plumb linked, wherever their
+            // findings are shown. The homepage rather than a package page, because
+            // this chart is about the catalogue and not about one extension.
+            source: ['label' => 'Powered by Plumb', 'url' => 'https://plumbphp.dev'],
+        );
+    }
+
+    /**
      * How well maintained each category is.
      *
      * This replaced a chart of how many extensions each category holds, which was not
@@ -213,7 +293,7 @@ final class StatsController extends AbstractController
         // denominator sits in the next column and cannot be missed.
         $charted = array_values(array_filter(
             $withContext,
-            static fn (array $row): bool => $row['total'] >= self::MIN_CATEGORY,
+            static fn (array $row): bool => $row['total'] >= self::MIN_DENOMINATOR,
         ));
 
         return $this->bars(
@@ -222,7 +302,7 @@ final class StatsController extends AbstractController
             'If I need an extension that does this, are the odds anyone still looks after it?',
             \sprintf(
                 'The share of each category whose extensions are currently maintained, against every listed extension in that category. Sorted by share, then by size. Categories holding fewer than %d extensions are listed in the table but not drawn, because a share of one or two says nothing. An extension can hold several categories, so these do not partition the catalogue.',
-                self::MIN_CATEGORY,
+                self::MIN_DENOMINATOR,
             ),
             'maintained',
             $charted,
@@ -394,8 +474,9 @@ final class StatsController extends AbstractController
     }
 
     /**
-     * @param list<array<string, mixed>>      $rows
-     * @param list<array<string, mixed>>|null $tableRows rows for the table twin, when it carries more than the chart draws
+     * @param list<array<string, mixed>>             $rows
+     * @param list<array<string, mixed>>|null        $tableRows rows for the table twin, when it carries more than the chart draws
+     * @param array{label: string, url: string}|null $source    credit for a chart built from somebody else's measurements
      *
      * @return array<string, mixed>
      */
@@ -410,6 +491,7 @@ final class StatsController extends AbstractController
         string $suffix = '',
         ?string $contextLabel = null,
         ?array $tableRows = null,
+        ?array $source = null,
     ): array {
         // A percentage chart has to be scaled against a hundred and not against its
         // own tallest bar. Scaled against itself, the healthiest category would draw a
@@ -433,6 +515,7 @@ final class StatsController extends AbstractController
                 $rows,
             ),
             'tableRows' => $tableRows ?? $rows,
+            'source' => $source,
         ];
     }
 

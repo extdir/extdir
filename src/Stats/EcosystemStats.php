@@ -361,6 +361,90 @@ final readonly class EcosystemStats
     }
 
     /**
+     * What the supply-chain security checks found, across everything scanned.
+     *
+     * The one measurement on this page that extdir does not make itself. Plumb scans
+     * PHP packages for supply-chain weaknesses and publishes the rule behind every
+     * check; this counts how often each one fails across the part of the catalogue
+     * they have reached. Displayed, never ranked, for the reasons on PlumbScan.
+     *
+     * Counted against the extensions each check could apply to rather than against
+     * every extension scanned, and that distinction is the whole chart. Two thirds of
+     * the catalogue has no GitHub workflow at all, so a check about pinning actions
+     * returns "not applicable" for them. Counting those as passes would report that
+     * most of the ecosystem pins its actions, when what is true is that most of it
+     * runs no CI, and one of the few that do pins anything.
+     *
+     * @return list<array{label: string, value: int, failed: int, applicable: int, partial: bool}>
+     */
+    public function securityFindings(): array
+    {
+        $visible = $this->visibleCondition();
+
+        $rows = $this->connection->fetchAllAssociative(
+            "SELECT c.title AS title,
+                    SUM(c.status IN ('fail','warn')) AS failed,
+                    SUM(c.status IN ('fail','warn','pass')) AS applicable
+             FROM plumb_scan p
+             JOIN extension e ON e.id = p.extension_id
+             JOIN JSON_TABLE(
+                p.checks, '\$[*]' COLUMNS (
+                    title VARCHAR(255) PATH '\$.title',
+                    status VARCHAR(32) PATH '\$.status'
+                )
+             ) c ON TRUE
+             WHERE p.scanned_at IS NOT NULL AND {$visible}
+             GROUP BY c.title
+             -- Repeated rather than aliased: MariaDB refuses an aggregate alias in
+             -- HAVING and ORDER BY, and reports it as a missing column.
+             HAVING SUM(c.status IN ('fail','warn','pass')) > 0
+             ORDER BY SUM(c.status IN ('fail','warn')) / SUM(c.status IN ('fail','warn','pass')) DESC,
+                      SUM(c.status IN ('fail','warn','pass')) DESC",
+            ['visible' => self::VISIBLE],
+            ['visible' => ArrayParameterType::STRING],
+        );
+
+        $out = [];
+        foreach ($rows as $row) {
+            $applicable = (int) $row['applicable'];
+            $failed = (int) $row['failed'];
+
+            $out[] = [
+                'label' => (string) $row['title'],
+                'value' => $applicable > 0 ? (int) round($failed / $applicable * 100) : 0,
+                'failed' => $failed,
+                'applicable' => $applicable,
+                'partial' => false,
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * How much of the catalogue Plumb has actually looked at.
+     *
+     * Published next to the findings because without it they are unreadable. A chart
+     * saying nine in ten repositories fail a check means one thing across the whole
+     * ecosystem and another across a third of it that happens to be on Packagist and
+     * happens to have been reached already.
+     *
+     * @return array{scanned: int, visible: int}
+     */
+    public function securityCoverage(): array
+    {
+        $visible = $this->visibleCondition();
+
+        return [
+            'scanned' => $this->scalar(
+                "SELECT COUNT(*) FROM plumb_scan p JOIN extension e ON e.id = p.extension_id
+                 WHERE p.scanned_at IS NOT NULL AND {$visible}",
+            ),
+            'visible' => $this->scalar("SELECT COUNT(*) FROM extension e WHERE {$visible}"),
+        ];
+    }
+
+    /**
      * What share of each category is still being maintained.
      *
      * The catalogue can already say how many extensions do X, and the listing page

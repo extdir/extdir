@@ -33,4 +33,13 @@
     } only %}
 
     <p class="board-rule"><span class="board-rule-label">Rule</span> {{ chart.rule }}</p>
+
+    {#
+        Credit, when the measurements are not this site's own. Separate from the rule
+        and carrying a link, because a rule a reader cannot follow back to its author
+        is an assertion.
+    #}
+    {% if chart.source|default(null) %}
+        <p class="chart-source"><a href="{{ chart.source.url }}" rel="nofollow noopener external">{{ chart.source.label }}</a></p>
+    {% endif %}
 </section>

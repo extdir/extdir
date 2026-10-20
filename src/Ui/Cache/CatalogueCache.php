@@ -10,6 +10,7 @@ use App\Catalog\Entity\ExtensionRelease;
 use App\Catalog\Entity\Vendor;
 use App\Compatibility\Entity\CompatibilityClaim;
 use App\Compatibility\Entity\ShopwareVersion;
+use App\Signals\Entity\PlumbScan;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Events;
@@ -65,6 +66,9 @@ final class CatalogueCache
         Vendor::class,
         CompatibilityClaim::class,
         ShopwareVersion::class,
+        // The weekly Plumb sweep rewrites several hundred of these in one run, which
+        // marks the pages stale once and clears them once, at console.terminate.
+        PlumbScan::class,
     ];
 
     private bool $stale = false;
