@@ -135,7 +135,7 @@ final class PlainProseTest extends TestCase
      */
     public static function sourceFiles(): iterable
     {
-        foreach (self::walk(['templates', 'src', 'tests', 'config', 'migrations', 'deploy', 'assets']) as $path) {
+        foreach (self::walk(['templates', 'src', 'tests', 'config', 'migrations', 'deploy', 'assets', '.github']) as $path) {
             yield $path => [$path];
         }
     }
