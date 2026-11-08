@@ -1,0 +1,81 @@
+name: Audit
+
+# Known advisories against the dependencies this project has locked.
+#
+# Deliberately a separate workflow from CI rather than a fourth job inside it.
+# Whether this passes depends on the calendar, not on the diff: an advisory
+# published by somebody else this morning would turn an unrelated pull request
+# red and teach everyone to ignore a red tick. CI answers "did this change break
+# the site", this answers "is what we shipped still safe", and the two questions
+# want different reactions.
+#
+# It is here rather than in deploy/cron/crontab because the subject is
+# composer.lock, which lives in git, and because GitHub will mail about a failed
+# scheduled run while a line in a cron log mails nobody. For the same reason the
+# deploy script does not gate on this: blocking an unrelated hotfix on an
+# advisory published that morning would be the wrong trade.
+#
+# Two things worth knowing about scheduled workflows:
+#
+#   - GitHub mails the failure to whoever last edited the cron expression below
+#     on the default branch, not to the repository's watchers. If this ever needs
+#     to reach somebody else, the schedule has to be committed by them.
+#   - On a public repository a schedule is disabled automatically after 60 days
+#     with no commits. That is unlikely here, but it fails silently rather than
+#     loudly, so it is worth a look if the runs stop appearing.
+
+on:
+  schedule:
+    # Daily, not weekly. The job installs nothing and starts no services, it
+    # reads one file, so the run is seconds of free CI; and seven days of
+    # unnoticed exposure is the exact problem this exists to close. The sixteen
+    # Symfony advisories of 2026-11-04 were found four days later by running
+    # composer audit by hand.
+    #
+    # 06:37 rather than on the hour: GitHub's scheduler is busiest at :00 and
+    # queues those runs behind everybody else's.
+    - cron: '37 6 * * *'
+
+  # So the answer is one click away when there is a reason to ask early.
+  workflow_dispatch:
+
+  # A lock file that moved is the other moment this question matters, because
+  # that is when a vulnerable version can newly arrive. Unlike the schedule,
+  # this one does say something about the change in front of it.
+  push:
+    branches: [main]
+    paths:
+      - composer.lock
+      - .github/workflows/audit.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  advisories:
+    name: Known advisories
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer:v2
+
+      - name: Audit the locked dependencies
+        # --locked reads composer.lock and resolves nothing, so this needs no
+        # composer install, no vendor directory and no PHP extensions. It also
+        # audits the exact versions the server installs, which is the point:
+        # auditing a fresh resolve would answer a question about today's
+        # packagist rather than about what is deployed.
+        #
+        # Dev dependencies are included. They are not on the server, but they run
+        # on developer machines and in this CI, and the report names the package
+        # so the reader can judge where it matters.
+        run: composer audit --locked --no-interaction
