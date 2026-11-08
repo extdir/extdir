@@ -1,5 +1,28 @@
 name: CI
 
+# Action versions, because the jump from checkout v4 to v7 looks alarming and is
+# not. GitHub deprecated the Node 20 runtime, so every job here was logging a
+# warning that it had been force-migrated to Node 24. The fix is one major per
+# action that moved to Node 24:
+#
+#   actions/checkout        v4 to v7
+#   ramsey/composer-install v3 to v4, which pins actions/cache v5 internally
+#   shivammathur/setup-php  unchanged, v2 is already Node 24
+#
+# What changed in between, checked rather than assumed. checkout v5 is the Node 24
+# move, v6 writes credentials to a separate file, and v7 refuses to check out a
+# fork's pull request under pull_request_target or workflow_run. Nothing here uses
+# either trigger, so that last one costs us nothing and is a guard worth having.
+# composer-install v4 is only the cache bump; it reads as breaking because
+# actions/cache v5 requires Actions Runner 2.327.1, which matters to self-hosted
+# runners and not to the GitHub-hosted ones below.
+#
+# The other annotation on these runs is not a deprecation and is deliberately not
+# addressed: ubuntu-latest is migrating to Ubuntu 26. Nothing in this build reads
+# the image's own PHP or MariaDB, both come pinned from setup-php and a service
+# container, so there is nothing to protect by pinning the runner and nobody would
+# remember to unpin it.
+
 on:
   push:
     branches: [main]
@@ -20,7 +43,7 @@ jobs:
     name: Static analysis
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -29,7 +52,7 @@ jobs:
           coverage: none
           tools: composer:v2
 
-      - uses: ramsey/composer-install@v3
+      - uses: ramsey/composer-install@v4
 
       - name: Warm the container
         # PHPStan's Symfony extension reads the compiled container to resolve
@@ -72,7 +95,7 @@ jobs:
       DATABASE_URL: 'mysql://root:root@127.0.0.1:3306/extdir?serverVersion=10.6.19-MariaDB&charset=utf8mb4'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -81,7 +104,7 @@ jobs:
           coverage: none
           tools: composer:v2
 
-      - uses: ramsey/composer-install@v3
+      - uses: ramsey/composer-install@v4
 
       - name: Install frontend vendor assets
         # assets/vendor is gitignored, so a fresh checkout has none. Without this
@@ -120,7 +143,7 @@ jobs:
     # Neither is visible to a dev/test run with the full dependency set, which is
     # what the other two jobs are.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -129,7 +152,7 @@ jobs:
           coverage: none
           tools: composer:v2
 
-      - uses: ramsey/composer-install@v3
+      - uses: ramsey/composer-install@v4
         with:
           composer-options: "--no-dev --optimize-autoloader --classmap-authoritative"
         # APP_ENV must be set for the install itself, not just the warmup below.
